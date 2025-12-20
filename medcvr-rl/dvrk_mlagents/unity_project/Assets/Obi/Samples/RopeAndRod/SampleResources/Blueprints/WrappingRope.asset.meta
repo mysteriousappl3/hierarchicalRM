@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4d31372b30ca34527b534f09a803ab15
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/SampleResources/Blueprints/WrappingRope.asset
+  uploadId: 683139

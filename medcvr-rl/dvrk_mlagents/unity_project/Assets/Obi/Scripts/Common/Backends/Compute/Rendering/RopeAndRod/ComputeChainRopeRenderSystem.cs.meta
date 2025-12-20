@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: fe4c45599ea584be2a1b122fbe7d0ec6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Backends/Compute/Rendering/RopeAndRod/ComputeChainRopeRenderSystem.cs
+  uploadId: 683139

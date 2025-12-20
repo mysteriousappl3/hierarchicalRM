@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 4c46364da0f1641c7ab84e12348a6a4b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Editor/Common/Blueprints/Brushes/BrushModes/IObiBrushMode.cs
+  uploadId: 683135

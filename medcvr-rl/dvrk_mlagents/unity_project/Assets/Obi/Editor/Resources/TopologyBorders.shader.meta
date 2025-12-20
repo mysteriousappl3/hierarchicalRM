@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 973221b91492243759c6f0871607f830
+timeCreated: 1459228603
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Editor/Resources/TopologyBorders.shader
+  uploadId: 683135

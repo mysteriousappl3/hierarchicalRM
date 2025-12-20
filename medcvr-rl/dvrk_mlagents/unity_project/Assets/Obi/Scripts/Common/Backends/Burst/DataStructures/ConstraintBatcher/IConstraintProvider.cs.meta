@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 2f9cbc3295db8411ba4ac8c9a75291ec
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Backends/Burst/DataStructures/ConstraintBatcher/IConstraintProvider.cs
+  uploadId: 683135

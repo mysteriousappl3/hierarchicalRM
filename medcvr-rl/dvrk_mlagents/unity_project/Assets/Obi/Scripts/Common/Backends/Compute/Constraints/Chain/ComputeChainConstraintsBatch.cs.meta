@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 5d067c1d8b1e94c51bbb85f0f81754ad
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Backends/Compute/Constraints/Chain/ComputeChainConstraintsBatch.cs
+  uploadId: 683135

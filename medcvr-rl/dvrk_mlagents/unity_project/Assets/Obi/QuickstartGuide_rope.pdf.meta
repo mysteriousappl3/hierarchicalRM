@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: dd3977598aee74c5eaa2111f3d999165
+labels:
+- ObiRope
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/QuickstartGuide_rope.pdf
+  uploadId: 683139

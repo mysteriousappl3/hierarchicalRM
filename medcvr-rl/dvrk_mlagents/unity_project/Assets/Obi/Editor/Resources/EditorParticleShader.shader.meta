@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: f909e74f185674832ad45806b9c6e60f
+timeCreated: 1438934781
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Editor/Resources/EditorParticleShader.shader
+  uploadId: 683135

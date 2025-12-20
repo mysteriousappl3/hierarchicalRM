@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 2d21eb1b3353a439eb5f6f6df05dd6d0
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Resources/Compute/InertialFrame.cginc
+  uploadId: 683135

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: bc0e240276e8a42a2ac5a11368e4f7fa
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Resources/Compute/FluidChunkDefs.cginc
+  uploadId: 683135

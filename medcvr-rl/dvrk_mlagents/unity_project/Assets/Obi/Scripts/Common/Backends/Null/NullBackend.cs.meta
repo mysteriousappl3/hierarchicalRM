@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 821d5c08bf0f9459698d65c3aaabaf54
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Backends/Null/NullBackend.cs
+  uploadId: 683135

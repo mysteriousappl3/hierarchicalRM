@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: d48cf3556d5844543a51259340bc1344
+labels:
+- ObiRope
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/SampleResources/Animations/Rocker.controller
+  uploadId: 683139

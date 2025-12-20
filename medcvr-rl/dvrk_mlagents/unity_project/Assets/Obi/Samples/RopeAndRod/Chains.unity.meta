@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: de781a1f903154a98a617b786d36a330
+labels:
+- ObiRope
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/Chains.unity
+  uploadId: 683139

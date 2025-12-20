@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8f597cb6a5a9e45499d9fd0f6160e5b4
+ComputeShaderImporter:
+  externalObjects: {}
+  currentAPIMask: 65536
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Resources/Compute/Solver.compute
+  uploadId: 683135

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 8b39e10cedc94461083b3b19c3ddb343
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Editor/Common/Blueprints/Brushes/BrushModes/ObiFloatAddBrushMode.cs
+  uploadId: 683135

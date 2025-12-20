@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a1f41946c9f8c4f0f95fc0f65e238ba8
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 4890085278179872738
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Cloth/WindSettings.lighting
+  uploadId: 683135

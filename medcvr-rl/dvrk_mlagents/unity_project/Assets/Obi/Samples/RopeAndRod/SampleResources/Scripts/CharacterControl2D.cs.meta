@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 82b0f164ac14247fd8a566109fbbe771
+labels:
+- ObiRope
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/SampleResources/Scripts/CharacterControl2D.cs
+  uploadId: 683139

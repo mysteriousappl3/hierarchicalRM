@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: dfc616a96b17b43e3bc0eaadb1fd8130
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Cloth/SampleResources/Scripts/Rudder.cs
+  uploadId: 683135

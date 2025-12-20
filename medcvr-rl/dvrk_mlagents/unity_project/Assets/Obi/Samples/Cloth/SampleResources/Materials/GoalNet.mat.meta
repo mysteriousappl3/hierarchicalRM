@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: c9165d0cf9d734964aa57deb1f1f9081
+labels:
+- ObiCloth
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Cloth/SampleResources/Materials/GoalNet.mat
+  uploadId: 683135

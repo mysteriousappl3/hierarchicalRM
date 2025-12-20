@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: fe0d06ab59d084ca78e40c50472ccc36
+labels:
+- ObiRope
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/SampleResources/Animations/RockerAnimation.anim
+  uploadId: 683139

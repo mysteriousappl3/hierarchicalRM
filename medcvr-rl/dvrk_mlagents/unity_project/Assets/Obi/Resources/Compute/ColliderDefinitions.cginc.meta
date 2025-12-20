@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: fe486a46344cd4c299b4475a4e046796
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Resources/Compute/ColliderDefinitions.cginc
+  uploadId: 683135

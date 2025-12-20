@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6380c47a989d54146bef5f3bac933a56
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Resources/ObiMaterials/Common/Instanced/Burst/Instanced.mat
+  uploadId: 683135

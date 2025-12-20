@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 6c5e3cbf9187d4d39a1bc1a2e2386b00
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Backends/Burst/Constraints/Bend/BurstBendConstraints.cs
+  uploadId: 683135

@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: a66307956be6d45ce9fc4f5dbc254882
+labels:
+- ObiCloth
+timeCreated: 1435579779
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Common/SampleResources/Materials/ObiRed(Back).mat
+  uploadId: 683135

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 0f8a8fd8447dc458bab16dea3dfd5580
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/DataStructures/NativeList/ObiNativeIntList.cs
+  uploadId: 683135

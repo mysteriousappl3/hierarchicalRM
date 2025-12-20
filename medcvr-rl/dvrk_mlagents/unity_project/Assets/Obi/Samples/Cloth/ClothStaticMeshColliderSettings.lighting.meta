@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6286d87a1b89849ea8be5ed35543d841
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 4890085278179872738
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Cloth/ClothStaticMeshColliderSettings.lighting
+  uploadId: 683135

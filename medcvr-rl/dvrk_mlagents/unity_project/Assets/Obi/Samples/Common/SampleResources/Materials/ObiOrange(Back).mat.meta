@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 70fe8dde319ad42e1960dc6e337ead24
+labels:
+- ObiCloth
+timeCreated: 1435579779
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Common/SampleResources/Materials/ObiOrange(Back).mat
+  uploadId: 683135

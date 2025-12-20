@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 15e21bc6bea1c4320948413c8d7334bd
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Editor/Common/Blueprints/RenderModes/ObiBlueprintRenderModeBendConstraints.cs
+  uploadId: 683135

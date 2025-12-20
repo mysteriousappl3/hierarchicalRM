@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: ac9c52f073f794c47a6cbb7b41cf023c
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Backends/Compute/Constraints/Bend/ComputeBendConstraints.cs
+  uploadId: 683135

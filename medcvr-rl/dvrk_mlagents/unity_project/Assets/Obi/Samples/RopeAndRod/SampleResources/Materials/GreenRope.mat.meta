@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 03019be2b7a654429bf322c3ca0c7a0e
+labels:
+- ObiRope
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/SampleResources/Materials/GreenRope.mat
+  uploadId: 683139

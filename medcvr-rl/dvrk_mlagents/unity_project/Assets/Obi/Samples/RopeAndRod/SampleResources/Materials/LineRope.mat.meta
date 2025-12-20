@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 4cc7d840058664f0f9a679178b33b5e4
+labels:
+- ObiRope
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/SampleResources/Materials/LineRope.mat
+  uploadId: 683139

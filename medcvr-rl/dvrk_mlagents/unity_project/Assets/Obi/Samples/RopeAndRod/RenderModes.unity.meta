@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b5657544ccae14cb6bab0a77ecdf31f1
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/RenderModes.unity
+  uploadId: 683139

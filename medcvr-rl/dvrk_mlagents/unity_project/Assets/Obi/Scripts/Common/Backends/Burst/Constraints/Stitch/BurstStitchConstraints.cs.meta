@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: c0e33ed168e3c497b96274c765a12550
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Backends/Burst/Constraints/Stitch/BurstStitchConstraints.cs
+  uploadId: 683135

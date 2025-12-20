@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: f2c99bab98af74a5ebf6edfe56636bc8
+labels:
+- ObiRope
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/FreightLift.unity
+  uploadId: 683139

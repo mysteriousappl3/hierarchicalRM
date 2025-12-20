@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b414fbc6ce2db42299dc01619ed4fc97
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/RopeAndRod/DataStructures/Path/DataChannels/ObiThicknessDataChannel.cs
+  uploadId: 683139

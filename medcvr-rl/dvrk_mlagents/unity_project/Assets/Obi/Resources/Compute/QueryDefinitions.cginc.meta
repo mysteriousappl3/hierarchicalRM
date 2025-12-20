@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: aa793a9f45d044bb9af2361e9c92f11d
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Resources/Compute/QueryDefinitions.cginc
+  uploadId: 683135

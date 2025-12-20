@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 297abfc8979aa46329f3a7e914866adc
+labels:
+- ObiRope
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Editor/RopeAndRod/ObiRopeMeshRendererEditor.cs
+  uploadId: 683139

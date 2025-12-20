@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 60a83ba184caf4a1aba4da6754776a1d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Editor/Common/Blueprints/Properties/BaseTypes/ObiBlueprintProperty.cs
+  uploadId: 683135

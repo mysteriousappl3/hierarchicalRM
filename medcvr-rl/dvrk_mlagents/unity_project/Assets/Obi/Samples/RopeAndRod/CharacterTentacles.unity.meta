@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: ad63c807aee2f44b28fa2bcd46634d88
+labels:
+- ObiRope
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/CharacterTentacles.unity
+  uploadId: 683139

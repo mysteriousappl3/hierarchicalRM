@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 5b3152b7fb78f42f7a1e424cfb3c8a54
+labels:
+- ObiRope
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/SampleResources/Animations/RopeHangerAnimation.anim
+  uploadId: 683139

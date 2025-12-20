@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 68709b54f964a4ab8bc457f533eeeb91
+labels:
+- ObiRope
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/RopeNet.unity
+  uploadId: 683139

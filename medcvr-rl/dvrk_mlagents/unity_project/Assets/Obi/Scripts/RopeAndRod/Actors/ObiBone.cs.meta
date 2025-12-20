@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 7be315bc5964b4fbca6cf0a978ff76a1
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 0a18e0376cc184a9b96ebb3bf0175cc2, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/RopeAndRod/Actors/ObiBone.cs
+  uploadId: 683139

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6530f45834fcb41a0b4b10b622d95c4c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 4890085278179872738
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/RopeGrapplingHookSettings.lighting
+  uploadId: 683139

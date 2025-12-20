@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 4d03c9194b7ab4aaba4dfa5afec22c69
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 528d201bc10084452b24974deb16a423, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Utils/ObiParticleAttachment.cs
+  uploadId: 683135

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 4abe69b6abd2c4b0e8a621b8fba92dc9
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/RopeAndRod/Blueprints/ObiRopeBlueprintBase.cs
+  uploadId: 683139

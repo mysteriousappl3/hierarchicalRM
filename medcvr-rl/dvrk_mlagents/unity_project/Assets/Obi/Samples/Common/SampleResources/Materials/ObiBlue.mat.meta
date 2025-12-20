@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 3862df0f523254bcda0733ce0d63c68a
+labels:
+- ObiCloth
+- ObiSoftbody
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: -1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Common/SampleResources/Materials/ObiBlue.mat
+  uploadId: 683135

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b90d3c214c99743b0865fc0e0d1f1a15
+timeCreated: 1474532476
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Resources/GUI/ProfilerSkin.guiskin
+  uploadId: 683135

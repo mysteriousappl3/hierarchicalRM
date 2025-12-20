@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: c56c65d479be44432ba437d871d4892d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Backends/Compute/Constraints/Distance/ComputeDistanceConstraints.cs
+  uploadId: 683135

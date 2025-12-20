@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: bad55e75f72144e6b992f17ad436af57
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Backends/Interface/Constraints/IColliderCollisionConstraintsBatchImpl.cs
+  uploadId: 683135

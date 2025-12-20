@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 44ab0cc40b59345718856f6e1c1225f3
+labels:
+- ObiRope
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/SampleResources/Materials/RedRope.mat
+  uploadId: 683139

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: bb532ce1395da4d13b47a4da3e1b4033
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Resources/Compute/InterlockedUtils.cginc
+  uploadId: 683135

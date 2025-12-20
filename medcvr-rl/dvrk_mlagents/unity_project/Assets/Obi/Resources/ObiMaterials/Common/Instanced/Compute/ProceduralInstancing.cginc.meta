@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 9d77a2f1bd0624d4aa045916cb0955c9
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Resources/ObiMaterials/Common/Instanced/Compute/ProceduralInstancing.cginc
+  uploadId: 683135

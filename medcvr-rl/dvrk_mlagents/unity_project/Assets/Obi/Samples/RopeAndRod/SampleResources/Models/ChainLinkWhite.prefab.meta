@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 1a25eaebcccc14ffeabd9b15641f8b51
+labels:
+- ObiRope
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/SampleResources/Models/ChainLinkWhite.prefab
+  uploadId: 683139

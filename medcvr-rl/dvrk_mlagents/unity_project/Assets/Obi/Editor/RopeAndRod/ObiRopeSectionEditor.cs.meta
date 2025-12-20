@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 1539d8c58261942e28859228dfa310fb
+labels:
+- ObiRope
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Editor/RopeAndRod/ObiRopeSectionEditor.cs
+  uploadId: 683139

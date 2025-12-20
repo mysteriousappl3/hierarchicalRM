@@ -1,0 +1,36 @@
+behaviors:
+  PickBlock:
+    trainer_type: ppo
+    keep_checkpoints: 5
+    max_steps: 1200000 # The task is solved in about 1M steps
+    time_horizon: 128 # Increased time horizon as task is long
+    summary_freq: 60000
+
+    hyperparameters:
+      # Common Hyperparameters
+      batch_size: 512
+      buffer_size: 10240
+      learning_rate: 0.0003
+      learning_rate_schedule: linear
+      
+      # PPO-specific hyperparameters
+      beta: 0.005
+      beta_schedule: constant
+      epsilon: 0.2
+      epsilon_schedule: linear
+      lambd: 0.95
+      num_epoch: 3
+    
+    # Configuration of the neural network (common to PPO/SAC)
+    network_settings:
+      vis_encode_type: simple
+      normalize: false
+      hidden_units: 128
+      num_layers: 2
+
+    reward_signals:
+      extrinsic:
+        gamma: 0.99
+        strength: 1.0
+
+

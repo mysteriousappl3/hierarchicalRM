@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: b74081a5a5bbf418ea9f95bfec18f393
+labels:
+- ObiRope
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/SampleResources/Materials/ChainRed.mat
+  uploadId: 683139

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 339a70e0be9984072a153f58552747e7
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Backends/Interface/Constraints/IPinConstraintsBatchImpl.cs
+  uploadId: 683135

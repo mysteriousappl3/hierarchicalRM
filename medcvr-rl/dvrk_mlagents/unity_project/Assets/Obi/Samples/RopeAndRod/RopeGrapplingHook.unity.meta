@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: f403f5793cdb042dc8552ea3329b7bfa
+labels:
+- ObiRope
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/RopeGrapplingHook.unity
+  uploadId: 683139

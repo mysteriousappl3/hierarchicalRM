@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 28c38822e5a79441a8177689f83644e8
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/RopeAndRod/DataStructures/Path/DataChannels/ObiRotationalMassDataChannel.cs
+  uploadId: 683139

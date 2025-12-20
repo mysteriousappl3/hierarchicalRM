@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c73079cca10924a80871331c66b4ad4b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/SampleResources/Prefabs/SnakeFloor.asset
+  uploadId: 683139

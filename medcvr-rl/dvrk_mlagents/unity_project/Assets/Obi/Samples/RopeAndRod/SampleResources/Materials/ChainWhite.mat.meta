@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: edc856900ac3941a98996e21e91e215e
+labels:
+- ObiRope
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/SampleResources/Materials/ChainWhite.mat
+  uploadId: 683139

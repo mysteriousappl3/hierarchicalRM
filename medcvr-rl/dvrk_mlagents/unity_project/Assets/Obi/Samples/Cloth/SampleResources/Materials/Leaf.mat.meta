@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a7e609e60f9954722a3c790327cd2c44
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Cloth/SampleResources/Materials/Leaf.mat
+  uploadId: 683135

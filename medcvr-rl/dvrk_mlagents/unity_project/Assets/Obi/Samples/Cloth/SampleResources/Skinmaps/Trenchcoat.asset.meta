@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 46141bd58514e4a9fbd173994bd09ff3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Cloth/SampleResources/Skinmaps/Trenchcoat.asset
+  uploadId: 683135

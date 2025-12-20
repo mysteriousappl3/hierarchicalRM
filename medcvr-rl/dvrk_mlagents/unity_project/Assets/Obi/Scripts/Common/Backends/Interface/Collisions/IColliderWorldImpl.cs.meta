@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 89f411e99368641bda6ba6dd0864c8c6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Backends/Interface/Collisions/IColliderWorldImpl.cs
+  uploadId: 683135

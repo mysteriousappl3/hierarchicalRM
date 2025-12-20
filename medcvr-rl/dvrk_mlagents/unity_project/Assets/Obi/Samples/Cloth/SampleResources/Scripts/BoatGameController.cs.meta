@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 3605d0f6fcdc24ce6a9de0f9c9bdff76
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Cloth/SampleResources/Scripts/BoatGameController.cs
+  uploadId: 683135

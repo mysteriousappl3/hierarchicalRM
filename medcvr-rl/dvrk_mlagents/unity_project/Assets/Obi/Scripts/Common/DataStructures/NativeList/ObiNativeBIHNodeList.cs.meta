@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: c960e0992a4cf4d7195a513c5fd5f550
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/DataStructures/NativeList/ObiNativeBIHNodeList.cs
+  uploadId: 683135

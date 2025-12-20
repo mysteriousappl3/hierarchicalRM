@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5dde1f45f471c48a1a13fc4b8c0b5b43
+timeCreated: 1438180916
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Editor/Resources/DistanceFieldPreview.mat
+  uploadId: 683135

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 1e18334e185814395aac025a1d4afe70
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/DataStructures/NativeList/ObiNativeDistanceFieldHeaderList.cs
+  uploadId: 683135

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 359ef2e4b09204eeab112e419c308068
+timeCreated: 1435572264
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Common/SampleResources/Materials/Checker.mat
+  uploadId: 683135

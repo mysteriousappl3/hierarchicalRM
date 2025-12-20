@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 96d6b61b6caf54444b039bf6f29c9205
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Resources/Compute/Phases.cginc
+  uploadId: 683135

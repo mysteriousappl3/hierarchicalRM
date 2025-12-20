@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 62deeda7ebac34fb1aa15a197b4edb8e
+labels:
+- ObiRope
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/SpringRod.unity
+  uploadId: 683139

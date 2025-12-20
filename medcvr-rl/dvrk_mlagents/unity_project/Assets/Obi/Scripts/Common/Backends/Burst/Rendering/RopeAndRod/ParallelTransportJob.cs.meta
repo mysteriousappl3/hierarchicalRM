@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 7c4018fb5d53646be9ef6c91f07c7eb6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Backends/Burst/Rendering/RopeAndRod/ParallelTransportJob.cs
+  uploadId: 683139

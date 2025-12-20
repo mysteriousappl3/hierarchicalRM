@@ -1,0 +1,118 @@
+# Notes:
+# This variant uses rotated cubes, is the fully randomized robust model
+behaviors:
+  S2RPushBlock:
+    trainer_type: ppo
+    hyperparameters:
+      batch_size: 512
+      buffer_size: 10240
+      learning_rate: 0.0003
+      beta: 0.005
+      epsilon: 0.2
+      lambd: 0.95
+      num_epoch: 3
+      learning_rate_schedule: linear
+    network_settings:
+      vis_encode_type: resnet
+      normalize: false
+      hidden_units: 128
+      num_layers: 2
+    reward_signals:
+      extrinsic:
+        gamma: 0.99
+        strength: 1.0
+    max_steps: 8000000 # This should be split up between the initial learning using GAIL and then the randomization once you hit ~4.5 mean reward (out of 5)
+    time_horizon: 128 # 128 seems like the correct horizon to complete a task
+    summary_freq: 60000
+environment_parameters:
+  # Lighting Randomization
+  light_intensity:
+    sampler_type: uniform
+    sampler_parameters:
+        min_value: 5
+        max_value: 50
+  light_x:
+    sampler_type: uniform
+    sampler_parameters:
+        min_value: -4
+        max_value: 4
+  light_y:
+    sampler_type: uniform
+    sampler_parameters:
+        min_value: 4
+        max_value: 7
+  light_z:
+    sampler_type: uniform
+    sampler_parameters:
+        min_value: -2
+        max_value: 1.5
+  # Cube Randomization
+  # Using smaller mass here, to make the cube spin easier
+  # mass:
+  #   sampler_type: uniform
+  #   sampler_parameters:
+  #       min_value: 0.01
+  #       max_value: 0.3
+  # scale:
+  #   sampler_type: uniform
+  #   sampler_parameters:
+  #       min_value: 0.3
+  #       max_value: 0.5
+  # Floor Randomization
+  # dynamic_friction:
+  #   sampler_type: uniform
+  #   sampler_parameters:
+  #       min_value: 0.0
+  #       max_value: 0.3
+  # static_friction:
+  #   sampler_type: uniform
+  #   sampler_parameters:
+  #       min_value: 0.0
+  #       max_value: 0.3
+  # Camera Randomization
+  camera_x:
+    sampler_type: uniform
+    sampler_parameters:
+        min_value: -0.1
+        max_value: 0.1
+  camera_y:
+    sampler_type: uniform
+    sampler_parameters:
+        min_value: 4.9
+        max_value: 5.1
+  camera_z:
+    sampler_type: uniform
+    sampler_parameters:
+        min_value: 0.0
+        max_value: 0.4
+  camera_rx:
+    sampler_type: uniform
+    sampler_parameters:
+        min_value: 87.0
+        max_value: 93.0
+  camera_ry:
+    sampler_type: uniform
+    sampler_parameters:
+        min_value: -3.0
+        max_value: 3.0
+  # Color Randomization
+  ground_r:
+    sampler_type: uniform
+    sampler_parameters:
+        min_value: 0.0
+        max_value: 0.4
+  ground_g:
+    sampler_type: uniform
+    sampler_parameters:
+        min_value: 0.6
+        max_value: 0.8
+  block_r:
+    sampler_type: uniform
+    sampler_parameters:
+        min_value: 0.5
+        max_value: 1.0
+  target_rb:
+    sampler_type: uniform
+    sampler_parameters:
+        min_value: 0.25
+        max_value: 0.75

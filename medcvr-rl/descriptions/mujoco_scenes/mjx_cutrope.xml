@@ -1,0 +1,68 @@
+<mujoco model="cutrope scene">
+  <compiler meshdir="../assets/obj/"/>
+
+  <include file="../mjcf/mjx_psm_lnd.xml"/>
+
+  <option iterations="6" ls_iterations="6">
+    <flag eulerdamp="disable"/>
+  </option>
+
+  <statistic center="0 -0.0885 0" extent="1"/>
+
+  <visual>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="-90" elevation="-20"/>
+    <quality shadowsize="8192"/>
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
+    <mesh file="rope_mount_v10.obj" scale="0.001 0.001 0.001"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 0.25" directional="false" exponent="10" cutoff="75"/>
+    <geom name="floor" size="0.5 0.5 0.05" type="plane" rgba="0.35 0.8 1 1"/>
+
+    <!-- Rope Mount -->
+    <body name="rope_mount" pos="0 -0.0885 0">
+      <geom type="mesh" mesh="rope_mount_v10" pos="0 0 0.006" quat="0 0 0 1" rgba="0.8 0.7 0 1" group="2" contype="0" conaffinity="0"/>
+      <body name="left_rope" pos="0.016 0.002 0.05">
+        <composite prefix="L" type="grid" count="9 1 1" spacing="0.0028">
+          <joint kind="main" damping="0.001" stiffness="0.02"/>
+          <tendon kind="main" rgba="0.92 0.92 0.95 1" width="0.0012"/>
+          <geom size=".0012" rgba="0.92 0.92 0.95 1" contype="0" conaffinity="0"/>
+          <pin coord="8"/>
+        </composite>
+      </body>
+      <body name="right_rope" pos="-0.012 0.002 0.05">
+        <composite prefix="R" type="grid" count="9 1 1" spacing="0.0028">
+          <joint kind="main" damping="0.001" stiffness="0.02"/>
+          <tendon kind="main" rgba="0.92 0.92 0.95 1" width="0.0012"/>
+          <geom size=".0012" rgba="0.92 0.92 0.95 1" contype="0" conaffinity="0"/>
+          <pin coord="0"/>
+        </composite>
+      </body>
+    </body>
+    
+    <body name="left_marker" pos="0.0017 -0.088 0.0502">
+      <freejoint/>
+      <geom type="cylinder" size="0.0012 0.00137" quat="1 0 1 0" rgba="0.8 0.2 0.1 1" contype="0" conaffinity="0" mass="0.0000001"/>
+    </body>
+    <body name="right_marker" pos="-0.0005 -0.088 0.0502">
+      <freejoint/>
+      <geom type="cylinder" size="0.0012 0.00137" quat="1 0 1 0" rgba="0.8 0.2 0.1 1" contype="0" conaffinity="0" mass="0.0000001"/>
+    </body>
+  </worldbody>
+
+  <equality>
+    <connect name="left_con" body1="left_marker" body2="LB0_0" anchor="0 0 0"/>
+    <connect name="right_con" body1="right_marker" body2="RB8_0" anchor="0 0 0"/>
+    <weld name="rope_con" body1="left_marker" body2="right_marker" anchor="0 0 0" torquescale="0"/>
+  </equality>
+
+  <!-- <keyframe>
+    <key name="home" qpos="0 0 0 0 0 0 0 0 0.115 0 0 0 0 0 0.014 0 0 0 0"
+       ctrl="0 0 0.115 0 0 0 0"/>
+  </keyframe> -->
+</mujoco>

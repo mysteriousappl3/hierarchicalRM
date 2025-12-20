@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 0cb694bcadb6a4909b593111507e1eb3
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Editor/RopeAndRod/ObiPathEditor.cs
+  uploadId: 683139

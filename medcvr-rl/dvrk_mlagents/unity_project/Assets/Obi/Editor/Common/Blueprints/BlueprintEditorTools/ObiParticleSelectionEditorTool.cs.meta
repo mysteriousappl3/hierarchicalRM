@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b3940c62f9ffe4808afc4d2d70ae5e28
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Editor/Common/Blueprints/BlueprintEditorTools/ObiParticleSelectionEditorTool.cs
+  uploadId: 683135

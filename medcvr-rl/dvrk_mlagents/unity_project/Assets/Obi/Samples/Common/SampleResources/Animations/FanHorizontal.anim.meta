@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8e33f749f1d024f159aa5cae7a502d72
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Common/SampleResources/Animations/FanHorizontal.anim
+  uploadId: 683135

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0d389c799c83d43f38f2486ab16fe902
+ComputeShaderImporter:
+  externalObjects: {}
+  currentAPIMask: 65536
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Resources/Compute/RopeExtrudedRendering.compute
+  uploadId: 683135

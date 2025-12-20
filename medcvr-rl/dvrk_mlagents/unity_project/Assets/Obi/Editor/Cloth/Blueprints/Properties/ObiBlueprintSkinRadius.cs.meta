@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: ccd6d1ffa8cfb4a32896b31cba5be373
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Editor/Cloth/Blueprints/Properties/ObiBlueprintSkinRadius.cs
+  uploadId: 683135

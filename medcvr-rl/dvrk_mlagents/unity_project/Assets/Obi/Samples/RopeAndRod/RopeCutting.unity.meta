@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 14b5ad4d00c9f4b118c479057ad1a580
+labels:
+- ObiRope
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/RopeCutting.unity
+  uploadId: 683139

@@ -1,0 +1,1492 @@
+behaviors:
+  CutRope:
+    trainer_type: ppo
+    keep_checkpoints: 5
+    max_steps: 50000000
+    time_horizon: 128
+    summary_freq: 60000
+
+    hyperparameters:
+      # Common Hyperparameters
+      batch_size: 256 
+      buffer_size: 10240
+      learning_rate: 0.0001
+      learning_rate_schedule: linear
+      
+      # PPO-specific hyperparameters
+      beta: 0.01
+      beta_schedule: linear
+      epsilon: 0.2
+      epsilon_schedule: constant
+      lambd: 0.95
+      num_epoch: 3
+    
+    # Configuration of the neural network (common to PPO/SAC)
+    network_settings:
+      vis_encode_type: resnet
+      normalize: true
+      hidden_units: 256
+      num_layers: 3
+
+    reward_signals:
+      extrinsic:
+        gamma: 0.99
+        strength: 1.0
+
+environment_parameters:
+  light_intensity:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 18
+            max_value: 22
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 18
+            max_value: 25
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 18
+            max_value: 30
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 15
+            max_value: 35
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 10
+            max_value: 40
+  light_px:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.2
+            max_value: 0.2
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.5
+            max_value: 0.5
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -1
+            max_value: 1
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -1.5
+            max_value: 1.5
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -2
+            max_value: 2
+  light_py:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 4.9
+            max_value: 5.1
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 4.7
+            max_value: 5.3
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 4.5
+            max_value: 5.5
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 4.5
+            max_value: 6
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 4
+            max_value: 7
+  light_pz:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.2
+            max_value: 0.2
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.5
+            max_value: 0.3
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -1
+            max_value: 0.4
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -1.5
+            max_value: 0.5
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -2
+            max_value: 0.6
+  shadow_probability:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.0
+            max_value: 0.3
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.0
+            max_value: 0.5
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.0
+            max_value: 0.6
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.0
+            max_value: 0.7
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.0
+            max_value: 0.75
+  ground_g:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.79
+            max_value: 0.81
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.78
+            max_value: 0.82
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.76
+            max_value: 0.83
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.75
+            max_value: 0.84
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.7
+            max_value: 0.85
+  mount_g:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.79
+            max_value: 0.81
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.78
+            max_value: 0.82
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.77
+            max_value: 0.83
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.76
+            max_value: 0.84
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.75
+            max_value: 0.85
+  rope_r:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.97
+            max_value: 1.0
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.95
+            max_value: 1.0
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.9
+            max_value: 1.0
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.85
+            max_value: 1.0
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.8
+            max_value: 1.0
+  marker_r:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.78
+            max_value: 0.82
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.76
+            max_value: 0.85
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.74
+            max_value: 0.9
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.72
+            max_value: 0.95
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.7
+            max_value: 1.0
+  tool_gripper_r:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.48
+            max_value: 0.52
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.45
+            max_value: 0.55
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.4
+            max_value: 0.58
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.35
+            max_value: 0.6
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.3
+            max_value: 0.6
+  tool_roll_r:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.06
+            max_value: 0.08
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.05
+            max_value: 0.09
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.04
+            max_value: 0.1
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.02
+            max_value: 0.12
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.0
+            max_value: 0.15
+  tool_shaft_r:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.13
+            max_value: 0.17
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.1
+            max_value: 0.2
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.07
+            max_value: 0.22
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.05
+            max_value: 0.25
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.05
+            max_value: 0.25
+  camera_px:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.01
+            max_value: 0.01
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.02
+            max_value: 0.02
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.03
+            max_value: 0.03
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.04
+            max_value: 0.04
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.05
+            max_value: 0.05
+  camera_py:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 2.49
+            max_value: 2.51
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 2.48
+            max_value: 2.52
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 2.47
+            max_value: 2.53
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 2.46
+            max_value: 2.54
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 2.45
+            max_value: 2.55
+  camera_pz:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.31
+            max_value: -0.29
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.32
+            max_value: -0.28
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.33
+            max_value: -0.27
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.34
+            max_value: -0.26
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.35
+            max_value: -0.25
+  camera_rx:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 44.5
+            max_value: 45.5
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 44.5
+            max_value: 45.5
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 44.0
+            max_value: 46.0
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 43.5
+            max_value: 46.5
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 43.0
+            max_value: 47.0
+  camera_ry:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.2
+            max_value: 0.2
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.4
+            max_value: 0.4
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.6
+            max_value: 0.6
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -1
+            max_value: 1
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -1.5
+            max_value: 1.5
+  camera_rz:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.2
+            max_value: 0.2
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.4
+            max_value: 0.4
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.6
+            max_value: 0.6
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -1
+            max_value: 1
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -1.5
+            max_value: 1.5
+  camera_fov:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 46.7
+            max_value: 46.8
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 46.5
+            max_value: 47.0
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 46.0
+            max_value: 47.5
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 45.5
+            max_value: 48.0
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 45.0
+            max_value: 49.0
+  rope_thickness:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.019
+            max_value: 0.021
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.018
+            max_value: 0.022
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.017
+            max_value: 0.023
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.016
+            max_value: 0.024
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.015
+            max_value: 0.025
+  rope_sag:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.99
+            max_value: 1.01
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.98
+            max_value: 1.02
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.97
+            max_value: 1.03
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.96
+            max_value: 1.04
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.95
+            max_value: 1.05
+  x_tiling:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.95
+            max_value: 1.1
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.95
+            max_value: 1.2
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.9
+            max_value: 1.3
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.9
+            max_value: 1.4
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 0.85
+            max_value: 1.4
+  y_tiling:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 1.0
+            max_value: 1.5
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 1.0
+            max_value: 1.5
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 1.0
+            max_value: 2.0
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 1.0
+            max_value: 2.5
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: 1.0
+            max_value: 3.0
+  tool_position_noise_x:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.02
+            max_value: 0.02
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.05
+            max_value: 0.05
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.1
+            max_value: 0.1
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.15
+            max_value: 0.15
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.2
+            max_value: 0.2
+  tool_position_noise_z:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.02
+            max_value: 0.02
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.05
+            max_value: 0.05
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.1
+            max_value: 0.1
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.15
+            max_value: 0.15
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.2
+            max_value: 0.2
+  tool_position_noise_y:
+    curriculum:
+      - name: Lesson0
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.01
+            max_value: 0.01
+      - name: Lesson1
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.02
+            max_value: 0.02
+      - name: Lesson2
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.03
+            max_value: 0.03
+      - name: Lesson3
+        completion_criteria:
+          measure: reward
+          behavior: CutRope
+          signal_smoothing: true
+          min_lesson_length: 300
+          threshold: 4.5
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.04
+            max_value: 0.04
+      - name: Lesson4
+        value:
+          sampler_type: uniform
+          sampler_parameters:
+            min_value: -0.05
+            max_value: 0.05

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2a5f3e8f1330846819f1abe7a6181c51
+ComputeShaderImporter:
+  externalObjects: {}
+  currentAPIMask: 65536
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Resources/Compute/ChainConstraints.compute
+  uploadId: 683135

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e78e1b735e05b4dee88b279cb6997001
+timeCreated: 1435572264
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Common/SampleResources/Materials/CoarseChecker.mat
+  uploadId: 683135

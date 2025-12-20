@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: c8ae023fbaf544325a012148c10981a4
+labels:
+- ObiCloth
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Cloth/Intercollisions.unity
+  uploadId: 683135

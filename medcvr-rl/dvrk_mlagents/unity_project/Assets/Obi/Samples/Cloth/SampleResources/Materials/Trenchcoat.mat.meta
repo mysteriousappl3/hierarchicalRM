@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: fbcff34e8d6c34d50a560a02a1345288
+labels:
+- ObiCloth
+- ObiSoftbody
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: -1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Cloth/SampleResources/Materials/Trenchcoat.mat
+  uploadId: 683135

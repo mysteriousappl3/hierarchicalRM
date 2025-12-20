@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 76ee869b5f2e5440ea0a1c8a1e161cde
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/RopeAndRod/DataStructures/Path/ObiWingedPoint.cs
+  uploadId: 683139

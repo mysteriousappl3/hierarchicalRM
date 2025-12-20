@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 7074d2203034e432a8b88a3b3018283a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Backends/Burst/Constraints/Volume/BurstVolumeConstraintsBatch.cs
+  uploadId: 683135

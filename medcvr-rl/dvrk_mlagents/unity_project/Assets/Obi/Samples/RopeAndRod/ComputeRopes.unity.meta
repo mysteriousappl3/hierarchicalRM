@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 8fafd98b75e9b44ee8b37edf6f1adcd5
+labels:
+- ObiRope
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/ComputeRopes.unity
+  uploadId: 683139

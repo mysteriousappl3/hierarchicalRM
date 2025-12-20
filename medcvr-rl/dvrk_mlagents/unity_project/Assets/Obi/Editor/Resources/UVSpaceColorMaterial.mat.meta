@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8d64d32033a9145218d8c42c02e53b63
+timeCreated: 1445287098
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Editor/Resources/UVSpaceColorMaterial.mat
+  uploadId: 683135

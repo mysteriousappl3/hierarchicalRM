@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: bf26bec1336ef46c6a92b8d8b0e0cc5e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Backends/Compute/Constraints/Volume/ComputeVolumeConstraintsBatch.cs
+  uploadId: 683135

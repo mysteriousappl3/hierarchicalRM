@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 62dabb1d348144b52a6e8a13015c3fb9
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Editor/Cloth/Blueprints/ObiSkinnedClothBlueprintEditor.cs
+  uploadId: 683135

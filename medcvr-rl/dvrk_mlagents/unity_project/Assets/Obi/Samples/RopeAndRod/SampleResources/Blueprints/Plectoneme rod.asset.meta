@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 74806658f50d141e88786022b12fc58b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/SampleResources/Blueprints/Plectoneme
+    rod.asset
+  uploadId: 683139

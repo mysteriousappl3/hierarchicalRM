@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 83efefad6f0844671bef34958537796b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Cloth/SampleResources/Blueprints/Cloth sheet.asset
+  uploadId: 683135

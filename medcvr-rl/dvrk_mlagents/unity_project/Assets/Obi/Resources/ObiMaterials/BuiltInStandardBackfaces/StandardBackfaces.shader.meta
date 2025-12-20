@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 665fe2659105e4033a204b0179332dd6
+labels:
+- ObiCloth
+timeCreated: 1435579675
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Resources/ObiMaterials/BuiltInStandardBackfaces/StandardBackfaces.shader
+  uploadId: 683135

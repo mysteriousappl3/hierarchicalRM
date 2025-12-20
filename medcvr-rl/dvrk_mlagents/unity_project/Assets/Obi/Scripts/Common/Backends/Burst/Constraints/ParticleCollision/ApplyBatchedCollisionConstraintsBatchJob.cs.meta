@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 96623cff9b30e4504a4a6dbfe3d19ace
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Scripts/Common/Backends/Burst/Constraints/ParticleCollision/ApplyBatchedCollisionConstraintsBatchJob.cs
+  uploadId: 683135

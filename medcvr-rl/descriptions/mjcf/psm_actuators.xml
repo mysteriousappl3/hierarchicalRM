@@ -1,0 +1,70 @@
+
+<mujoco>
+  <default>
+    <default class="psm_act">
+      <position kp="100" kv="10"/>
+      <default class="outer_yaw">
+        <joint range="-1.605 1.5994"/>
+        <position ctrlrange="-1.605 1.5994"/>
+      </default>
+      <default class="outer_pitch">
+        <joint range="-0.93556 0.94249"/>
+        <position ctrlrange="-0.935560 0.94249"/>
+      </default>
+      <default class="main_insertion">
+        <joint range="0 0.24" type="slide"/>
+        <position ctrlrange="0 0.24"/>
+      </default>
+      <default class="tool_roll">
+        <joint range="-3.14159 3.14159"/>
+        <position ctrlrange="-3.14158 3.14158" kp="10" kv="1"/>
+      </default>
+      <default class="tool_pitch">
+        <joint range="-1.5708 1.5708"/>
+        <position ctrlrange="-1.5708 1.5708" kp="10" kv="1"/>
+      </default>
+      <default class="tool_yaw">
+        <joint range="-1.5708 1.5708"/>
+        <position ctrlrange="-1.5708 1.5708" kp="10" kv="1"/>
+      </default>
+      <default class="jaw">
+        <joint range="0 1"/>
+        <position ctrlrange="0 1" kp="10" kv="1"/>
+      </default>
+      <!-- Mimics -->
+      <default class="pitch_bottom_joint">
+        <joint range="-0.94249 0.93556"/>
+      </default>
+      <default class="pitch_end_joint">
+        <joint range="-0.93556 0.94249"/>
+      </default>
+      <default class="pitch_top_joint">
+        <joint range="-0.94249 0.93556"/>
+      </default>
+      <default class="pitch_front_joint">
+        <joint range="-0.93556 0.94249"/>
+      </default>
+      <default class="tool_gripper1_joint">
+        <joint range="-1 0"/>
+      </default>
+    </default>
+  </default>
+
+  <actuator>
+    <position class="outer_yaw" name="outer_yaw" joint="outer_yaw"/>
+    <position class="outer_pitch" name="outer_pitch" joint="outer_pitch"/>
+    <position class="main_insertion" name="main_insertion" joint="main_insertion"/>
+    <position class="tool_roll" name="tool_roll" joint="tool_roll"/>
+    <position class="tool_pitch" name="tool_pitch" joint="tool_pitch"/>
+    <position class="tool_yaw" name="tool_yaw" joint="tool_yaw"/>
+    <!-- <position class="jaw" name="jaw" joint="jaw"/> -->
+  </actuator>
+
+  <equality>
+    <joint joint1="jaw" joint2="tool_gripper1_joint" polycoef="0 -1 0 0 0"/>
+    <joint joint1="outer_pitch" joint2="pitch_bottom_joint" polycoef="0 -1 0 0 0"/>
+    <joint joint1="outer_pitch" joint2="pitch_end_joint" polycoef="0 1 0 0 0"/>
+    <joint joint1="outer_pitch" joint2="pitch_top_joint" polycoef="0 -1 0 0 0"/>
+    <joint joint1="outer_pitch" joint2="pitch_front_joint" polycoef="0 1 0 0 0"/>
+  </equality>
+</mujoco>

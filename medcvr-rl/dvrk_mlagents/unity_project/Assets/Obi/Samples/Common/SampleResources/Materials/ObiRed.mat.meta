@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 81b11c6ca8f1b48d2a7c73e2b783ada6
+labels:
+- ObiCloth
+- ObiSoftbody
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: -1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Common/SampleResources/Materials/ObiRed.mat
+  uploadId: 683135

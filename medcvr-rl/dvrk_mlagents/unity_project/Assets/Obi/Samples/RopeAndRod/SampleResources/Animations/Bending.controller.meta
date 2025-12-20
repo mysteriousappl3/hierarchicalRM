@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 3944bed00b7b34420a9a4cfad30c9ce0
+labels:
+- ObiRope
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 55579
+  packageName: Obi Rope
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/RopeAndRod/SampleResources/Animations/Bending.controller
+  uploadId: 683139

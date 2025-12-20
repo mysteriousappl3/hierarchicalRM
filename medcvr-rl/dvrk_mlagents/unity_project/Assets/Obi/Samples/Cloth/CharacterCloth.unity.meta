@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: e0edba220a96b4080af3a6b50627f4f5
+labels:
+- ObiCloth
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 81333
+  packageName: Obi Cloth
+  packageVersion: 7.0.1
+  assetPath: Assets/Obi/Samples/Cloth/CharacterCloth.unity
+  uploadId: 683135
