@@ -3,6 +3,7 @@ using UnityEngine.Networking;
 using System.Collections;
 using System;
 using System.IO;
+using System.Text;
 
 public class StateDescriptor : MonoBehaviour
 {
@@ -61,7 +62,12 @@ public class StateDescriptor : MonoBehaviour
             Previous state description JSON: {state_description}
             Previous feedback: {previous_feedback}
 
-            Make sure to wrap the entire JSON definition for both dictionary within a ```start_flag and ```end_flag for parsing purposes.
+            STRICT OUTPUT RULE (MUST FOLLOW EXACTLY):
+            It is very important to return ONLY the following format:
+
+            ```start_flag
+            <your response>
+            ```end_flag
             ";
 
         // promptTemplate = @"
@@ -163,9 +169,11 @@ public class StateDescriptor : MonoBehaviour
                     .Replace("{previous_feedback}", previous_feedback);
 
         //StartCoroutine(CallDeepSeekAPI(prompt));
-        yield return StartCoroutine(CallOpenAIAPI(prompt));
+        // yield return StartCoroutine(CallOpenAIAPI(prompt));
         // string imagePath = Path.Combine(Application.dataPath, $"Tasks/PegTransferTask/Task_Images/SceneImage_{main.imageCounter}.png");
         // yield return StartCoroutine(GenerateCombinedDescription(imagePath, prompt));
+
+        yield return StartCoroutine(CallGeminiAPI(prompt));
     }
 
     IEnumerator CallOpenAIAPI(string prompt)
@@ -261,6 +269,119 @@ public class StateDescriptor : MonoBehaviour
         // output = main.stateDescription;
         // yield break;
     }
+
+  IEnumerator CallGeminiAPI(string prompt)
+{
+    string APIKey = main.getGeminiAPIKey();
+    string APIurl = main.getGeminiAPIUrl();
+
+    // Escape prompt string for JSON
+    string escapedPrompt = prompt.Replace("\\", "\\\\")
+                                 .Replace("\"", "\\\"")
+                                 .Replace("\n", "\\n")
+                                 .Replace("\r", "\\r");
+
+    // Build JSON request body (Gemini)
+    string jsonRequest = $@"{{
+        ""contents"": [
+            {{
+                ""role"": ""user"",
+                ""parts"": [
+                    {{ ""text"": ""As a state representation VLM, you will be given user instructions on a task."" }}
+                ]
+            }},
+            {{
+                ""role"": ""user"",
+                ""parts"": [
+                    {{ ""text"": ""{escapedPrompt}"" }}
+                ]
+            }}
+        ],
+        ""generationConfig"": {{
+            ""temperature"": 0.0
+        }}
+    }}";
+
+    UnityWebRequest request = new UnityWebRequest(APIurl, "POST");
+    byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonRequest);
+    request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+    request.downloadHandler = new DownloadHandlerBuffer();
+
+    request.SetRequestHeader("Content-Type", "application/json");
+    request.SetRequestHeader("x-goog-api-key", APIKey);
+
+    Debug.Log("[StateDescriptor] Sending Gemini API Request...");
+    yield return request.SendWebRequest();
+    Debug.Log("[StateDescriptor] Received API Response.");
+
+    if (request.result != UnityWebRequest.Result.Success)
+    {
+        Debug.LogError($"[StateDescriptor] API Request Failed: {request.error}\n{request.downloadHandler.text}");
+    }
+    else
+    {
+        string jsonResponse = request.downloadHandler.text;
+
+        Debug.Log("[StateDescriptor] Raw API response:\n" + jsonResponse);
+
+        // Extract between flags directly from raw response JSON
+        const string startFlag = "```start_flag";
+        const string endFlag = "```end_flag";
+
+        int s = jsonResponse.IndexOf(startFlag, StringComparison.OrdinalIgnoreCase);
+        if (s < 0)
+        {
+            Debug.LogError("[StateDescriptor] start_flag not found in Gemini response.");
+            yield break;
+        }
+
+        int contentStart = s + startFlag.Length;
+
+        int e = jsonResponse.IndexOf(endFlag, contentStart, StringComparison.OrdinalIgnoreCase);
+        if (e < 0)
+        {
+            Debug.LogError("[StateDescriptor] end_flag not found in Gemini response.");
+            yield break;
+        }
+
+        string between = jsonResponse.Substring(contentStart, e - contentStart);
+
+        // Unescape common JSON escapes (because we sliced from inside JSON string)
+        output = between
+            .Replace("\\n", "\n")
+            .Replace("\\r", "\r")
+            .Replace("\\t", "\t")
+            .Replace("\\\"", "\"")
+            .Replace("\\\\", "\\")
+            .Trim();
+
+        if (output.StartsWith("\n")) output = output.Substring(1).Trim();
+
+        if (string.IsNullOrEmpty(output))
+        {
+            Debug.LogError("[StateDescriptor] Extracted output between flags is empty.");
+            yield break;
+        }
+
+        Debug.Log("[StateDescriptor] Gemini Output:\n" + output);
+
+        // Mimic original behavior: extract between flags (OpenAI version did this)
+        // Here output is already extracted, so we keep the same downstream flow.
+        Debug.Log("EXTRACTED DATA ");
+        Debug.Log(output);
+
+        // Store the reference to initial state descriptor to extract env_constraints from for InnerBot usage.
+        main.initialStateDesc = output;
+
+        // Extract env_constraints
+        string extracted_env_constraint = main.ExtractConstraintSpatialRelations(output);
+        Debug.Log("Extracted constraint_spatial_relations JSON:\n" + extracted_env_constraint);
+        main.envConstraint = extracted_env_constraint;
+        main.stateDescription = output;
+    }
+}
+
+
 
     [Serializable]
     public class ResponsesAPIResponse

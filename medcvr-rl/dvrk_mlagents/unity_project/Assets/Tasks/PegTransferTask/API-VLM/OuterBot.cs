@@ -185,7 +185,9 @@ public class OuterBot : MonoBehaviour
             If you observe similar looking colours between current state and previous state when compared to the goal state, 
             assume they refer to the same object and state this assumption in your reason.
 
-            Wrap your answer exactly as below including the quotation mark:
+            
+            STRICT OUTPUT RULE (MUST FOLLOW EXACTLY):
+            It is very important to wrap your answer exactly as below including the quotation mark:
 
             ```start_error_type
             Error : <TASK SUCCESS | SUBTASK SUCCESS | EXECUTE REMAINING ACTIONS | RECOVERABLE | NON-RECOVERABLE>
@@ -367,7 +369,9 @@ public class OuterBot : MonoBehaviour
 
         Debug.Log("PROMPT = " + prompt);
 
-        yield return StartCoroutine(CallOpenAIAPI(prompt));
+        // yield return StartCoroutine(CallOpenAIAPI(prompt));
+
+        yield return StartCoroutine(CallGeminiAPI(prompt));
     }
 
     public IEnumerator verifyTaskCompletionReplanVlm(string decisionBotOutput)
@@ -516,6 +520,162 @@ public class OuterBot : MonoBehaviour
             Debug.LogWarning("[OuterBot] Error type string not found in output block.");
         }
     }
+
+    IEnumerator CallGeminiAPI(string prompt)
+{
+    string APIKey = main.getGeminiAPIKey();
+    string APIurl = main.getGeminiAPIUrl();
+
+    // 1) Prepare & escape your system and user text
+    string escapedSystem = systemPrompt
+        .Replace("\\", "\\\\")
+        .Replace("\"", "\\\"")
+        .Replace("\n", "\\n")
+        .Replace("\r", "\\r");
+
+    string escapedUser = prompt
+        .Replace("\\", "\\\\")
+        .Replace("\"", "\\\"")
+        .Replace("\n", "\\n")
+        .Replace("\r", "\\r");
+
+    // 2) Conditionally include previous_response_id (Gemini doesn't support this; kept as-is but unused)
+    string prevIdPart = string.IsNullOrEmpty(lastResponseId)
+        ? ""
+        : $",\n    \"previous_response_id\": \"{lastResponseId}\"";
+
+    // 3) Build the JSON request body (Gemini)
+    string jsonRequest;
+
+    jsonRequest = $@"{{
+        ""contents"": [
+            {{
+                ""role"": ""user"",
+                ""parts"": [
+                    {{ ""text"": ""You are a execution error detection VLM who is responsible for comparing the JSON state representation and determine whether the task has been completed or there are other errors as described in the user prompt. You must first from the given previous state determine what the top most object is. The determined object is what the current action will be interacted on for previous state."" }}
+                ]
+            }},
+            {{
+                ""role"": ""user"",
+                ""parts"": [
+                    {{ ""text"": ""{escapedUser}"" }}
+                ]
+            }}
+        ],
+        ""generationConfig"": {{
+            ""temperature"": 0.0
+        }}
+    }}";
+
+    // 4) Send HTTP POST
+    UnityWebRequest request = new UnityWebRequest(APIurl, "POST");
+    byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonRequest);
+    request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+    request.downloadHandler = new DownloadHandlerBuffer();
+    request.SetRequestHeader("Content-Type", "application/json");
+    request.SetRequestHeader("x-goog-api-key", APIKey);
+
+    Debug.Log("[OuterBot] Sending Gemini Request...");
+    yield return request.SendWebRequest();
+    Debug.Log("[OuterBot] Received API Response.");
+
+    if (request.result != UnityWebRequest.Result.Success)
+    {
+        Debug.LogError($"[OuterBot] API Request Failed: {request.error}\n{request.downloadHandler.text}");
+        yield break;
+    }
+
+    // 5) Read raw response
+    string jsonResponse = request.downloadHandler.text;
+    Debug.Log("[OuterBot] Raw API response:\n" + jsonResponse);
+
+    // 6) Save response ID (Gemini responseId exists in JSON but we are not parsing classes; keep old behavior minimal)
+    // lastResponseId is not updated here.
+
+    // 7) Extract assistant’s message text using flags from raw response JSON
+    const string startFlag = "```start_flag";
+    const string endFlag = "```end_flag";
+
+    int s = jsonResponse.IndexOf(startFlag, StringComparison.OrdinalIgnoreCase);
+    if (s < 0)
+    {
+        Debug.LogError("[OuterBot] start_flag not found in Gemini response.");
+        yield break;
+    }
+
+    int contentStart = s + startFlag.Length;
+
+    int e = jsonResponse.IndexOf(endFlag, contentStart, StringComparison.OrdinalIgnoreCase);
+    if (e < 0)
+    {
+        Debug.LogError("[OuterBot] end_flag not found in Gemini response.");
+        yield break;
+    }
+
+    string between = jsonResponse.Substring(contentStart, e - contentStart);
+
+    // Unescape common JSON escapes (because we sliced from inside JSON string)
+    string content = between
+        .Replace("\\n", "\n")
+        .Replace("\\r", "\r")
+        .Replace("\\t", "\t")
+        .Replace("\\\"", "\"")
+        .Replace("\\\\", "\\")
+        .Trim();
+
+    if (content.StartsWith("\n")) content = content.Substring(1).Trim();
+
+    output = content;
+    Debug.Log("[OuterBot] Gemini Output:\n" + content);
+
+    // 8) Parse your error block
+    // Extract error block between flags directly from raw response JSON
+    const string startErr = "```start_error_type";
+    const string endErr = "```end_error_type";
+
+    int es = jsonResponse.IndexOf(startErr, StringComparison.OrdinalIgnoreCase);
+    if (es < 0)
+    {
+        Debug.LogError("[OuterBot] start_error_type not found in Gemini response.");
+        yield break;
+    }
+
+    int errStart = es + startErr.Length;
+
+    int ee = jsonResponse.IndexOf(endErr, errStart, StringComparison.OrdinalIgnoreCase);
+    if (ee < 0)
+    {
+        Debug.LogError("[OuterBot] end_error_type not found in Gemini response.");
+        yield break;
+    }
+
+    string errBetween = jsonResponse.Substring(errStart, ee - errStart);
+
+    string errorBlock = errBetween
+        .Replace("\\n", "\n")
+        .Replace("\\r", "\r")
+        .Replace("\\t", "\t")
+        .Replace("\\\"", "\"")
+        .Replace("\\\\", "\\")
+        .Trim();
+
+    if (errorBlock.StartsWith("\n")) errorBlock = errorBlock.Substring(1).Trim();
+
+    Debug.Log("EXTRACTED Outer Bot Error Block:\n" + errorBlock);
+
+    // 9) Extract the Error type
+    int index = errorBlock.IndexOf("Error :");
+    if (index != -1)
+    {
+        feedback = errorBlock.Substring(index + "Error :".Length).Trim();
+        Debug.Log("OUTERBOT VERDICT = " + feedback);
+    }
+    else
+    {
+        Debug.LogWarning("[OuterBot] Error type string not found in output block.");
+    }
+}
+
 
     public IEnumerator CallReplanVlmApi(string imagePath1, string imagePath2, string decisionBotOutput)
     {

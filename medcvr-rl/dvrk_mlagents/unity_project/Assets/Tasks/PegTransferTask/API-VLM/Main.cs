@@ -18,6 +18,9 @@ public class Main : MonoBehaviour
     private const string APIUrl = "https://api.deepseek.com/chat/completions";
     private const string APIKey = "sk-f2310180df084d68b182950773268e77";
 
+    private const string geminiAPIKey = "AIzaSyDtCpXpcltSuZQVa8lmkRGCa4NhJq8njFA";
+    private const string geminiAPIUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent";
+
     public string userInstruction;
     public string h1Actions;
     public string initialSceneDesc;
@@ -106,6 +109,16 @@ public class Main : MonoBehaviour
     public string getAPIURL()
     {
         return APIUrl;
+    }
+
+    public string getGeminiAPIKey()
+    {
+        return geminiAPIKey;
+    }
+
+    public string getGeminiAPIUrl()
+    {
+        return geminiAPIUrl;
     }
 
     public string getOpenAIAPIKey()
@@ -219,11 +232,20 @@ public class Main : MonoBehaviour
         var paramMap = new Dictionary<string, string>();
         for (int i = 0; i < paramNames.Count && i < args.Count; i++)
             paramMap[paramNames[i]] = args[i];
+        
+        Debug.Log($"[Exec] funcName={funcName} args=[{string.Join(", ", args)}]");
+        Debug.Log($"[Exec] paramNames=[{string.Join(", ", paramNames)}]");
+        Debug.Log($"[Exec] paramMap={string.Join(", ", paramMap.Select(kv => kv.Key + "->" + kv.Value))}");
 
         foreach (string callExpr in functionToCallsWithArgs[funcName])
         {
+            Debug.Log($"[Exec] template callExpr={callExpr}");
             ParseFunctionCall(callExpr, out string subFunc, out List<string> subArgs);
-            List<string> resolvedArgs = subArgs.Select(arg => paramMap.ContainsKey(arg) ? paramMap[arg] : arg).ToList();
+
+            Debug.Log($"[Exec] subFunc={subFunc} subArgs=[{string.Join(", ", subArgs)}]");
+
+            var resolvedArgs = subArgs.Select(arg => paramMap.ContainsKey(arg) ? paramMap[arg] : arg).ToList();
+            Debug.Log($"[Exec] resolvedArgs=[{string.Join(", ", resolvedArgs)}]");
             yield return StartCoroutine(ExecuteRecursiveCoroutine(subFunc, resolvedArgs));
         }
     }

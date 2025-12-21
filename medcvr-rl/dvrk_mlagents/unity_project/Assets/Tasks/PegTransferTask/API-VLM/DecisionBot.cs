@@ -35,11 +35,11 @@ public class DecisionBot : MonoBehaviour
             This is the task that we want to perform: (Look carefully at the user instruction and constraints)
             {user_instruction}
 
-            Divide the task into subtasks and generate a goal state dictionary for each subtask, then use the H2 and H1 level action function(s) 
+            Divide the task into subtasks and generate a goal state dictionary for each subtask, then use the H2 and H1 level action function(s)
             to plan this task. Give the result as a sequence of function calls.
             It is important that in your subtasks, you mention all objects explicity and not in any vague terminology.
             Also, try your best to include more than one function call in each subtask, if possible, to make the plan more efficient, unless the entire plan has only one call.
-            However, try to come up with a plan that uses fewest number of function calls to achieve the goal state. 
+            However, try to come up with a plan that uses fewest number of function calls to achieve the goal state.
             If after two to three rounds of planning, you are not able to generate a plan that satisfies goal state and contraints, you MUST generate a plan regardless of that.
             Hint: If you don't know how to solve the task, you can reduce it to a problem you know and try to solve that problem but remember your ultimate goal is to solve the given task.
 
@@ -62,7 +62,7 @@ public class DecisionBot : MonoBehaviour
 
             You MUST follow the above output format and do not put any additional text or explanation in the output.
 
-            In the state description, the state objects are ordered bottom-up, left-to-right order.  
+            In the state description, the state objects are ordered bottom-up, left-to-right order.
 
             Please remember when generating goal state JSON for each subtask, you match the structure with all objects in scene as down in scene JSON representation shown.
 
@@ -92,13 +92,24 @@ public class DecisionBot : MonoBehaviour
 
             {outer_bot_feedback}
 
-            Wrap the sequence of all function calls in ```start_all_functions and ```end_all_functions flags.
+            STRICT OUTPUT RULES (MUST FOLLOW EXACTLY):
 
-            Wrap each of the subtasks in ```start_subtask_{num} and ```end_subtask_{num} flags.
+            1) Every start/end flag must be on its own line and MUST include triple backticks.
 
-            Wrap each of the subtasks goal states in ```start_subtask_goalstate_{num} and ```end_subtask_goalstate_{num} flags.
+            - Start of subtask i: ```start_subtask_i
+            - End of subtask i:   ```end_subtask_i
+            - Start goalstate i:  ```start_subtask_goalstate_i
+            - End goalstate i:    ```end_subtask_goalstate_i
+            - Start funcs i:      ```start_subtask_funcs_i
+            - End funcs i:        ```end_subtask_funcs_i
+            - Start all funcs:    ```start_all_functions
+            - End all funcs:      ```end_all_functions
 
-            Wrap each of the subtasks function calls in ```start_subtask_funcs_{num} and ```end_subtask_funcs_{num} flags.
+            2) NEVER output `end_subtask_i` without backticks. It must be exactly: ```end_subtask_i
+
+            3) Function calls MUST NOT contain quotes in arguments.
+            Correct: MoveHoopBetweenPillars(green_pillar, red_pillar)
+            Wrong:   MoveHoopBetweenPillars(""green_pillar"", ""red_pillar"")
             ";
 
         replanVlmPrompt = @"
@@ -293,7 +304,9 @@ public class DecisionBot : MonoBehaviour
         // replanVLM: Use the same image path logic as StateDescriptor
         string imagePath = Path.Combine(Application.dataPath, $"Tasks/PegTransferTask/Task_Images/SceneImage_{main.imageCounter}.png");
         // yield return StartCoroutine(CallReplanVlmApi(imagePath));
-        yield return StartCoroutine(CallOpenAIAPI(prompt));
+        // yield return StartCoroutine(CallOpenAIAPI(prompt));
+
+        yield return StartCoroutine(CallGeminiAPI(prompt));
     }
 
     IEnumerator CallOpenAIAPI(string prompt)
@@ -399,6 +412,139 @@ public class DecisionBot : MonoBehaviour
         Debug.Log(string.Join("\n", main.subtaskGoalstates));
         Debug.Log($"All function calls: {string.Join(", ", main.allFunctions)}");
     }
+
+public IEnumerator CallGeminiAPI(string prompt)
+{
+    string APIKey = main.getGeminiAPIKey();
+    string APIurl = main.getGeminiAPIUrl();
+
+    // 1) Prepare & escape like OpenAI
+    string systemText = "You are planner VLM responsible for planning for the given user instruction into several subtasks.";
+
+    // IMPORTANT: combine system + user into ONE message for Gemini (closest to OpenAI system+user)
+    string combined = systemText + "\n\n" + prompt;
+
+    string escapedCombined = combined
+        .Replace("\\", "\\\\")
+        .Replace("\"", "\\\"")
+        .Replace("\n", "\\n")
+        .Replace("\r", "\\r");
+
+    // 2) Build JSON request
+    string jsonRequest = $@"{{
+        ""contents"": [
+            {{
+                ""role"": ""user"",
+                ""parts"": [
+                    {{ ""text"": ""{escapedCombined}"" }}
+                ]
+            }}
+        ],
+        ""generationConfig"": {{
+            ""temperature"": 0.0
+        }}
+    }}";
+
+    // 3) Send HTTP POST
+    UnityWebRequest request = new UnityWebRequest(APIurl, "POST");
+    byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonRequest);
+    request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+    request.downloadHandler = new DownloadHandlerBuffer();
+    request.SetRequestHeader("Content-Type", "application/json");
+    request.SetRequestHeader("x-goog-api-key", APIKey);
+
+    Debug.Log("[DecisionBot] Sending Gemini Request...");
+    yield return request.SendWebRequest();
+    Debug.Log("[DecisionBot] Received API Response.");
+
+    if (request.result != UnityWebRequest.Result.Success)
+    {
+        Debug.LogError($"[DecisionBot] API Request Failed: {request.error}\n{request.downloadHandler.text}");
+        yield break;
+    }
+
+    // 4) Read raw response
+    string jsonResponse = request.downloadHandler.text;
+    Debug.Log("[DecisionBot] Raw API response:\n" + jsonResponse);
+
+    // 5) Extract Gemini assistant text (structured)
+    GeminiResponse resp = JsonUtility.FromJson<GeminiResponse>(jsonResponse);
+    if (resp.candidates == null || resp.candidates.Length == 0)
+    {
+        Debug.LogError("[DecisionBot] No candidates found in Gemini response.");
+        yield break;
+    }
+
+    if (resp.candidates[0].content == null || resp.candidates[0].content.parts == null || resp.candidates[0].content.parts.Length == 0)
+    {
+        Debug.LogError("[DecisionBot] No content.parts found in Gemini candidate.");
+        yield break;
+    }
+
+    var sb = new StringBuilder();
+    foreach (var p in resp.candidates[0].content.parts)
+    {
+        if (!string.IsNullOrEmpty(p.text))
+            sb.Append(p.text);
+    }
+
+    string content = sb.ToString().Trim();
+    if (string.IsNullOrEmpty(content))
+    {
+        Debug.LogError("[DecisionBot] Gemini returned empty content.");
+        yield break;
+    }
+
+    output = content;
+    Debug.Log("[DecisionBot] Gemini Output:\n" + content);
+
+    // 6) Run EXACT same parsing pipeline as OpenAI
+    main.ParseDecisionBotOutput(
+        content,
+        out main.subtaskDescriptions,
+        out main.subtaskFunctions,
+        out main.subtaskGoalstates,
+        out main.allFunctions
+    );
+
+    main.subtaskFunctions = main.ExpandToH1Only(main.subtaskFunctions);
+    main.index = 0;
+
+    Debug.Log("EXTRACTED Decision Bot DATA ");
+    Debug.Log(string.Join("\n", main.subtaskDescriptions));
+    for (int i = 0; i < main.subtaskFunctions.Count; i++)
+        Debug.Log($"Functions for Subtask {i + 1}: {string.Join(", ", main.subtaskFunctions[i])}");
+    Debug.Log(string.Join("\n", main.subtaskGoalstates));
+    Debug.Log($"All function calls: {string.Join(", ", main.allFunctions)}");
+}
+
+
+[System.Serializable]
+public class GeminiResponse
+{
+    public Candidate[] candidates;
+
+    [System.Serializable]
+    public class Candidate
+    {
+        public Content content;
+    }
+
+    [System.Serializable]
+    public class Content
+    {
+        public Part[] parts;
+    }
+
+    [System.Serializable]
+    public class Part
+    {
+        public string text;
+    }
+}
+
+
+
 
      public IEnumerator CallReplanVlmApi(string imagePath) {
             // 1. Load the image from file

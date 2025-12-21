@@ -4,6 +4,7 @@ using UnityEngine.Networking;
 using System.Collections;
 using System.IO;
 using System;
+using System.Text;
 
 public class InnerBot : MonoBehaviour
 {
@@ -130,6 +131,7 @@ public class InnerBot : MonoBehaviour
             Add a field in your response called RESULT: and if the job are correct, reply with YES. If the job is incorrect, reply
             with NO and have a field called REASON: and give your reason which should be 3 to 4 sentences. If the job is correct, have the reason as N/A.
 
+            STRICT OUTPUT RULE (MUST FOLLOW EXACTLY):
             It is very important to wrap the RESULT within a ```start_result and ```end_result flag for parsing purposes.
             For example,
             ```start_result
@@ -500,7 +502,9 @@ public class InnerBot : MonoBehaviour
 
         // replanVLM: Use the same image path logic as StateDescriptor
         string imagePath = Path.Combine(Application.dataPath, $"Tasks/PegTransferTask/Task_Images/SceneImage_{main.imageCounter}.png");
-        yield return StartCoroutine(CallOpenAIAPI(prompt));
+        // yield return StartCoroutine(CallOpenAIAPI(prompt));
+
+        yield return StartCoroutine(CallGeminiAPI(prompt));
 
     }
 
@@ -592,6 +596,121 @@ public class InnerBot : MonoBehaviour
             }
         }
     }
+
+    IEnumerator CallGeminiAPI(string prompt)
+{
+    string APIKey = main.getGeminiAPIKey();
+    string APIurl = main.getGeminiAPIUrl();
+
+    // Escape prompt string for JSON
+    string escapedPrompt = prompt.Replace("\\", "\\\\")
+                                 .Replace("\"", "\\\"")
+                                 .Replace("\n", "\\n")
+                                 .Replace("\r", "\\r");
+
+    // Build JSON request body (Gemini)
+    string jsonRequest = $@"{{
+        ""contents"": [
+            {{
+                ""role"": ""user"",
+                ""parts"": [
+                    {{ ""text"": ""You are verifier VLM responsible for verifying for the given user subtask information and determining whether the subtask goal has been completed or not."" }}
+                ]
+            }},
+            {{
+                ""role"": ""user"",
+                ""parts"": [
+                    {{ ""text"": ""{escapedPrompt}"" }}
+                ]
+            }}
+        ],
+        ""generationConfig"": {{
+            ""temperature"": 0.0
+        }}
+    }}";
+
+    UnityWebRequest request = new UnityWebRequest(APIurl, "POST");
+    byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonRequest);
+    request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+    request.downloadHandler = new DownloadHandlerBuffer();
+
+    request.SetRequestHeader("Content-Type", "application/json");
+    request.SetRequestHeader("x-goog-api-key", APIKey);
+
+    Debug.Log("[InnerBot] Sending Gemini API Request...");
+    yield return request.SendWebRequest();
+    Debug.Log("[InnerBot] Received API Response.");
+
+    if (request.result != UnityWebRequest.Result.Success)
+    {
+        Debug.LogError($"[InnerBot] API Request Failed: {request.error}\n{request.downloadHandler.text}");
+    }
+    else
+    {
+        string jsonResponse = request.downloadHandler.text;
+
+        Debug.Log("[InnerBot] Raw API response:\n" + jsonResponse);
+
+        // Extract result between flags directly from raw response JSON
+        const string startResult = "```start_result";
+        const string endResult = "```end_result";
+
+        int s = jsonResponse.IndexOf(startResult, StringComparison.OrdinalIgnoreCase);
+        if (s < 0)
+        {
+            Debug.LogError("[InnerBot] start_result not found in Gemini response.");
+            yield break;
+        }
+
+        int contentStart = s + startResult.Length;
+
+        int e = jsonResponse.IndexOf(endResult, contentStart, StringComparison.OrdinalIgnoreCase);
+        if (e < 0)
+        {
+            Debug.LogError("[InnerBot] end_result not found in Gemini response.");
+            yield break;
+        }
+
+        string between = jsonResponse.Substring(contentStart, e - contentStart);
+
+        // Unescape common JSON escapes (because we sliced from inside JSON string)
+        output = between
+            .Replace("\\n", "\n")
+            .Replace("\\r", "\r")
+            .Replace("\\t", "\t")
+            .Replace("\\\"", "\"")
+            .Replace("\\\\", "\\")
+            .Trim();
+
+        if (output.StartsWith("\n")) output = output.Substring(1).Trim();
+
+        if (string.IsNullOrEmpty(output))
+        {
+            Debug.LogError("[InnerBot] Extracted output between result flags is empty.");
+            yield break;
+        }
+
+        main.innerbot_feedback = output;
+
+        Debug.Log("[InnerBot] Gemini Output:\n" + output);
+        Debug.Log("EXTRACTED Inner Bot result: ");
+
+        // Extract substring after "RESULT:" string
+        int index = output.IndexOf("RESULT:");
+        if (index != -1)
+        {
+            string resultLine = output.Substring(index + "RESULT:".Length).Trim();
+            string[] lines = resultLine.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            verdict = lines[0].Trim();
+            Debug.Log("RESULT = " + verdict);
+        }
+        else
+        {
+            Debug.LogWarning("RESULT string not found in output.");
+        }
+    }
+}
+
 
     // Response wrapper for JsonUtility
     [System.Serializable]

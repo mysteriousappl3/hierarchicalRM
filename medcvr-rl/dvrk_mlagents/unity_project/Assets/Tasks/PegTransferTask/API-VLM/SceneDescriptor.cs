@@ -22,6 +22,10 @@ public class SceneDescriptor : MonoBehaviour
 
     public string lastResponseId = "";
 
+    // Gemini flag to track previousResponseID equivalent in OpenAI
+    private bool hasSentSystem = false;
+
+
     void Start()
     {
         systemPrompt = @"
@@ -56,7 +60,14 @@ public class SceneDescriptor : MonoBehaviour
 
             If the scene is valid, only return the JSON.
 
-            Make sure to wrap the response definition within a ```start_flag and ```end_flag for parsing purposes.
+            STRICT OUTPUT RULE (MUST FOLLOW EXACTLY):
+
+            It is VERY VERY VERY important to return ONLY the following format with both ```start_output and ```start_output exactly with those names. DO NOT call it ```json or anything else!
+
+            Example:
+            ```start_output
+            <one valid JSON object>
+            ```end_output
         ";
 
         valid_scene_definition = "A valid scene is one where all the hoops are inside a peg (pillar), not necessarily all inside the same peg (pillar). An example of invalid state might be any hoop outside a peg";
@@ -129,7 +140,9 @@ public class SceneDescriptor : MonoBehaviour
 
 
         string prompt = "For the given input image, please follow the system prompt to generate the scene description JSON.";
-        yield return StartCoroutine(CallOpenAIAPI(prompt, sceneImage));
+        //yield return StartCoroutine(CallOpenAIAPI(prompt, sceneImage));
+        
+        yield return StartCoroutine(CallGeminiAPI(prompt, sceneImage));
 
     }
 
@@ -330,6 +343,156 @@ public class SceneDescriptor : MonoBehaviour
         public string type;  // "output_text"
         public string text;  // the assistant’s actual response
     }
+
+    IEnumerator CallGeminiAPI(string promptContent, Texture2D image)
+{
+    string apiKey = main.getGeminiAPIKey();
+    string apiUrl = main.getGeminiAPIUrl();
+
+    // Encode image
+    byte[] imageBytes = image.EncodeToPNG();
+    string base64Image = Convert.ToBase64String(imageBytes);
+
+    // Escape user prompt for JSON
+    string escapedPrompt = promptContent
+        .Replace("\\", "\\\\")
+        .Replace("\"", "\\\"")
+        .Replace("\n", "\\n")
+        .Replace("\r", "\\r");
+
+    List<string> contents = new List<string>();
+
+    // -------- SYSTEM PROMPT (ONCE) --------
+    if (!hasSentSystem)
+    {
+        string finalSystem = systemPrompt
+            .Replace("{predicates_description}", predicates_description)
+            .Replace("{valid_scene_definition}", valid_scene_definition);
+
+        string escapedSystem = finalSystem
+            .Replace("\\", "\\\\")
+            .Replace("\"", "\\\"")
+            .Replace("\n", "\\n")
+            .Replace("\r", "\\r");
+
+        // NOTE: Gemini "system_instruction" exists, but keeping your style:
+        // send system as first "user" message once.
+        contents.Add($@"
+        {{
+            ""role"": ""user"",
+            ""parts"": [
+                {{ ""text"": ""{escapedSystem}"" }}
+            ]
+        }}");
+
+        hasSentSystem = true;
+    }
+
+    // -------- USER + IMAGE --------
+    contents.Add($@"
+    {{
+        ""role"": ""user"",
+        ""parts"": [
+            {{ ""text"": ""{escapedPrompt}"" }},
+            {{
+                ""inline_data"": {{
+                    ""mime_type"": ""image/png"",
+                    ""data"": ""{base64Image}""
+                }}
+            }}
+        ]
+    }}");
+
+    string jsonRequest = $@"
+    {{
+        ""contents"": [
+            {string.Join(",", contents)}
+        ],
+        ""generationConfig"": {{
+            ""temperature"": 0.0
+        }}
+    }}";
+
+    UnityWebRequest request = new UnityWebRequest(apiUrl, "POST");
+    request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(jsonRequest));
+    request.downloadHandler = new DownloadHandlerBuffer();
+    request.SetRequestHeader("Content-Type", "application/json");
+    request.SetRequestHeader("x-goog-api-key", apiKey);
+
+    Debug.Log("[SceneAnalyzerVLM] Sending Gemini request...");
+    yield return request.SendWebRequest();
+
+    if (request.result != UnityWebRequest.Result.Success)
+    {
+        Debug.LogError($"[SceneAnalyzerVLM] Gemini error: {request.error}\n{request.downloadHandler.text}");
+        yield break;
+    }
+
+    string jsonResponse = request.downloadHandler.text;
+    Debug.Log("[SceneAnalyzerVLM] Raw Gemini response:\n" + jsonResponse);
+
+    // =========================================================
+    // IMPORTANT CHANGE:
+    // Do NOT try to extract candidates[0].content.parts[0].text
+    // by searching for "\"text\": \"" and the next quote.
+    // The response contains escaped quotes (\"), so that truncates.
+    //
+    // Instead: extract the block between your literal markers
+    // directly from the raw JSON response string.
+    // =========================================================
+
+    const string startFlag = "```start_output";
+    const string endFlag   = "```end_output";
+
+    int s = jsonResponse.IndexOf(startFlag, StringComparison.OrdinalIgnoreCase);
+    if (s < 0)
+    {
+        Debug.LogError("[SceneAnalyzerVLM] start_flag not found in Gemini response.");
+        yield break;
+    }
+
+    int contentStart = s + startFlag.Length;
+
+    int e = jsonResponse.IndexOf(endFlag, contentStart, StringComparison.OrdinalIgnoreCase);
+    if (e < 0)
+    {
+        Debug.LogError("[SceneAnalyzerVLM] end_flag not found in Gemini response.");
+        yield break;
+    }
+
+    // Slice between flags (still JSON-escaped because we're inside a JSON string)
+    string between = jsonResponse.Substring(contentStart, e - contentStart);
+
+    // Unescape common JSON escapes
+    output = between
+        .Replace("\\n", "\n")
+        .Replace("\\r", "\r")
+        .Replace("\\t", "\t")
+        .Replace("\\\"", "\"")
+        .Replace("\\\\", "\\")
+        .Trim();
+
+    // Some models put an immediate newline after the start flag
+    if (output.StartsWith("\n")) output = output.Substring(1).Trim();
+
+    if (string.IsNullOrEmpty(output))
+    {
+        Debug.LogError("[SceneAnalyzerVLM] Extracted output between flags is empty.");
+        yield break;
+    }
+
+    // Your existing behavior
+    if (output.Contains("NO"))
+        yield break;
+
+    // output is already the JSON between flags now
+    Debug.Log("[SceneAnalyzerVLM] Extracted JSON:\n" + output);
+
+    if (string.IsNullOrEmpty(main.initialSceneDesc))
+        main.initialSceneDesc = output;
+}
+
+
 
     //// Response wrappers for JsonUtility
     //[System.Serializable]
