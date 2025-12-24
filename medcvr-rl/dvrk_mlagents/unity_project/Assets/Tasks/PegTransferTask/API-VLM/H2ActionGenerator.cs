@@ -54,7 +54,6 @@ public class H2ActionGenerator : MonoBehaviour
             It is important to remember that in the function call signature, any parameters that are not used in the function should be removed.
             Also, ensure the H1 functions called have the correct parameters as specified in the H1 function signatures.
 
-            STRICT OUTPUT RULE (MUST FOLLOW EXACTLY):
             Wrap all the mapping comma separated in tag ```start_mapping and ```end_mapping flags for parsing purposes.
             ";
 

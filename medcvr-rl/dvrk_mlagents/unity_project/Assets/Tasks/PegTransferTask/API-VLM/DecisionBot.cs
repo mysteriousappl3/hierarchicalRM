@@ -35,11 +35,11 @@ public class DecisionBot : MonoBehaviour
             This is the task that we want to perform: (Look carefully at the user instruction and constraints)
             {user_instruction}
 
-            Divide the task into subtasks and generate a goal state dictionary for each subtask, then use the H2 and H1 level action function(s)
+            Divide the task into subtasks and generate a goal state dictionary for each subtask, then use the H2 and H1 level action function(s) 
             to plan this task. Give the result as a sequence of function calls.
             It is important that in your subtasks, you mention all objects explicity and not in any vague terminology.
             Also, try your best to include more than one function call in each subtask, if possible, to make the plan more efficient, unless the entire plan has only one call.
-            However, try to come up with a plan that uses fewest number of function calls to achieve the goal state.
+            However, try to come up with a plan that uses fewest number of function calls to achieve the goal state. 
             If after two to three rounds of planning, you are not able to generate a plan that satisfies goal state and contraints, you MUST generate a plan regardless of that.
             Hint: If you don't know how to solve the task, you can reduce it to a problem you know and try to solve that problem but remember your ultimate goal is to solve the given task.
 
@@ -62,7 +62,7 @@ public class DecisionBot : MonoBehaviour
 
             You MUST follow the above output format and do not put any additional text or explanation in the output.
 
-            In the state description, the state objects are ordered bottom-up, left-to-right order.
+            In the state description, the state objects are ordered bottom-up, left-to-right order.  
 
             Please remember when generating goal state JSON for each subtask, you match the structure with all objects in scene as down in scene JSON representation shown.
 
@@ -92,24 +92,21 @@ public class DecisionBot : MonoBehaviour
 
             {outer_bot_feedback}
 
+
             STRICT OUTPUT RULES (MUST FOLLOW EXACTLY):
 
-            1) Every start/end flag must be on its own line and MUST include triple backticks.
+            1. The subtask function calls must use explicit object identifiers (color + object type), for example ""green_peg"".
+            Never output placeholders or parameter names (e.g., ""source_peg"", ""destination_peg"", ""fromPeg"").
+            Every argument in every function call must match the same concrete object name consistently throughout the entire plan.
 
-            - Start of subtask i: ```start_subtask_i
-            - End of subtask i:   ```end_subtask_i
-            - Start goalstate i:  ```start_subtask_goalstate_i
-            - End goalstate i:    ```end_subtask_goalstate_i
-            - Start funcs i:      ```start_subtask_funcs_i
-            - End funcs i:        ```end_subtask_funcs_i
-            - Start all funcs:    ```start_all_functions
-            - End all funcs:      ```end_all_functions
+            2. Wrap the sequence of all function calls in ```start_all_functions and ```end_all_functions flags.
 
-            2) NEVER output `end_subtask_i` without backticks. It must be exactly: ```end_subtask_i
+            3. Wrap each of the subtasks in ```start_subtask_{num} and ```end_subtask_{num} flags.
 
-            3) Function calls MUST NOT contain quotes in arguments.
-            Correct: MoveHoopBetweenPillars(green_pillar, red_pillar)
-            Wrong:   MoveHoopBetweenPillars(""green_pillar"", ""red_pillar"")
+            4. Wrap each of the subtasks goal states in ```start_subtask_goalstate_{num} and ```end_subtask_goalstate_{num} flags.
+
+            5. Wrap each of the subtasks function calls in ```start_subtask_funcs_{num} and ```end_subtask_funcs_{num} flags.
+
             ";
 
         replanVlmPrompt = @"
@@ -413,47 +410,59 @@ public class DecisionBot : MonoBehaviour
         Debug.Log($"All function calls: {string.Join(", ", main.allFunctions)}");
     }
 
-public IEnumerator CallGeminiAPI(string prompt)
+IEnumerator CallGeminiAPI(string prompt)
 {
     string APIKey = main.getGeminiAPIKey();
     string APIurl = main.getGeminiAPIUrl();
 
-    // 1) Prepare & escape like OpenAI
+    // 1) Prepare and escape your system & user texts
     string systemText = "You are planner VLM responsible for planning for the given user instruction into several subtasks.";
-
-    // IMPORTANT: combine system + user into ONE message for Gemini (closest to OpenAI system+user)
-    string combined = systemText + "\n\n" + prompt;
-
-    string escapedCombined = combined
+    string escapedSystem = systemText
+        .Replace("\\", "\\\\")
+        .Replace("\"", "\\\"");
+    string escapedUser = prompt
         .Replace("\\", "\\\\")
         .Replace("\"", "\\\"")
         .Replace("\n", "\\n")
         .Replace("\r", "\\r");
 
-    // 2) Build JSON request
+    // 2) Conditionally include previous_response_id only when non-null (Gemini does not support this field natively)
+    string prevIdPart = string.IsNullOrEmpty(lastResponseId)
+        ? ""
+        : $",\n    \"previous_response_id\": \"{lastResponseId}\"";
+
+    // 3) Build the full JSON body manually (Gemini generateContent schema)
+    // NOTE: prevIdPart is intentionally not injected into the Gemini JSON because it would cause a schema error.
     string jsonRequest = $@"{{
+        ""systemInstruction"": {{
+            ""parts"": [
+                {{ ""text"": ""{escapedSystem}"" }}
+            ]
+        }},
         ""contents"": [
             {{
                 ""role"": ""user"",
                 ""parts"": [
-                    {{ ""text"": ""{escapedCombined}"" }}
+                    {{ ""text"": ""{escapedUser}"" }}
                 ]
             }}
         ],
         ""generationConfig"": {{
-            ""temperature"": 0.0
+            ""temperature"": 0.2
         }}
     }}";
 
-    // 3) Send HTTP POST
+    // 4) Send the HTTP POST
     UnityWebRequest request = new UnityWebRequest(APIurl, "POST");
     byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonRequest);
     request.uploadHandler = new UploadHandlerRaw(bodyRaw);
     request.downloadHandler = new DownloadHandlerBuffer();
     request.SetRequestHeader("Content-Type", "application/json");
+
+    // Gemini API key header (works for Generative Language API style endpoints)
     request.SetRequestHeader("x-goog-api-key", APIKey);
 
-    Debug.Log("[DecisionBot] Sending Gemini Request...");
+    Debug.Log("[DecisionBot] Sending Gemini API Request...");
     yield return request.SendWebRequest();
     Debug.Log("[DecisionBot] Received API Response.");
 
@@ -463,42 +472,39 @@ public IEnumerator CallGeminiAPI(string prompt)
         yield break;
     }
 
-    // 4) Read raw response
+    // 5) Deserialize into the Gemini schema
     string jsonResponse = request.downloadHandler.text;
     Debug.Log("[DecisionBot] Raw API response:\n" + jsonResponse);
+    var response = JsonUtility.FromJson<GeminiAPIResponse>(jsonResponse);
 
-    // 5) Extract Gemini assistant text (structured)
-    GeminiResponse resp = JsonUtility.FromJson<GeminiResponse>(jsonResponse);
-    if (resp.candidates == null || resp.candidates.Length == 0)
+    // 6) Save the response ID for next call (Gemini responses typically don't return a stable response id)
+    // Keep the existing variable updated without changing downstream logic.
+    lastResponseId = response != null ? response.GetPseudoId() : "";
+
+    // 7) Extract the assistant’s content from candidates[0].content.parts[0].text
+    if (response == null || response.candidates == null || response.candidates.Length == 0)
     {
-        Debug.LogError("[DecisionBot] No candidates found in Gemini response.");
+        Debug.LogError("[DecisionBot] No candidates found in Gemini response!");
+        yield break;
+    }
+    var cand = response.candidates[0];
+    if (cand.content == null || cand.content.parts == null || cand.content.parts.Length == 0)
+    {
+        Debug.LogError("[DecisionBot] No content parts found in Gemini candidate!");
+        yield break;
+    }
+    string outputText = cand.content.parts[0].text;
+    if (string.IsNullOrEmpty(outputText))
+    {
+        Debug.LogError("[DecisionBot] Empty text in Gemini response!");
         yield break;
     }
 
-    if (resp.candidates[0].content == null || resp.candidates[0].content.parts == null || resp.candidates[0].content.parts.Length == 0)
-    {
-        Debug.LogError("[DecisionBot] No content.parts found in Gemini candidate.");
-        yield break;
-    }
-
-    var sb = new StringBuilder();
-    foreach (var p in resp.candidates[0].content.parts)
-    {
-        if (!string.IsNullOrEmpty(p.text))
-            sb.Append(p.text);
-    }
-
-    string content = sb.ToString().Trim();
-    if (string.IsNullOrEmpty(content))
-    {
-        Debug.LogError("[DecisionBot] Gemini returned empty content.");
-        yield break;
-    }
-
+    string content = outputText.Trim();
     output = content;
     Debug.Log("[DecisionBot] Gemini Output:\n" + content);
 
-    // 6) Run EXACT same parsing pipeline as OpenAI
+    // 8) Run your existing parsing logic on that content
     main.ParseDecisionBotOutput(
         content,
         out main.subtaskDescriptions,
@@ -507,9 +513,11 @@ public IEnumerator CallGeminiAPI(string prompt)
         out main.allFunctions
     );
 
+    // 9) Expand to H1-only and reset the index as before
     main.subtaskFunctions = main.ExpandToH1Only(main.subtaskFunctions);
     main.index = 0;
 
+    // 10) Your debug logs remain unchanged
     Debug.Log("EXTRACTED Decision Bot DATA ");
     Debug.Log(string.Join("\n", main.subtaskDescriptions));
     for (int i = 0; i < main.subtaskFunctions.Count; i++)
@@ -518,30 +526,44 @@ public IEnumerator CallGeminiAPI(string prompt)
     Debug.Log($"All function calls: {string.Join(", ", main.allFunctions)}");
 }
 
-
-[System.Serializable]
-public class GeminiResponse
+[Serializable]
+public class GeminiAPIResponse
 {
-    public Candidate[] candidates;
+    public GeminiCandidate[] candidates;
 
-    [System.Serializable]
-    public class Candidate
+    // No official stable "response id" in many Gemini responses; keep this lightweight.
+    public string GetPseudoId()
     {
-        public Content content;
-    }
-
-    [System.Serializable]
-    public class Content
-    {
-        public Part[] parts;
-    }
-
-    [System.Serializable]
-    public class Part
-    {
-        public string text;
+        // Anything deterministic-ish is fine; downstream logic only expects a string.
+        if (candidates != null && candidates.Length > 0 && candidates[0] != null && candidates[0].content != null
+            && candidates[0].content.parts != null && candidates[0].content.parts.Length > 0)
+        {
+            string t = candidates[0].content.parts[0].text;
+            if (!string.IsNullOrEmpty(t))
+                return t.Length.ToString();
+        }
+        return "";
     }
 }
+
+[Serializable]
+public class GeminiCandidate
+{
+    public GeminiContent content;
+}
+
+[Serializable]
+public class GeminiContent
+{
+    public GeminiPart[] parts;
+}
+
+[Serializable]
+public class GeminiPart
+{
+    public string text;
+}
+
 
 
 

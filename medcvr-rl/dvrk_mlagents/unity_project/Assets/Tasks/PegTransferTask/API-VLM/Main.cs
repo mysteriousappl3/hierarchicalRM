@@ -216,6 +216,8 @@ public class Main : MonoBehaviour
     // === Recursive executor that breaks down H2 → H1 → H0 ===
     private IEnumerator ExecuteRecursiveCoroutine(string funcName, List<string> args)
     {
+        Debug.Log($"[Exec] ARGS BEING SENT=[{string.Join(", ", args)}]");
+
         if (IsPrimitive(funcName))
         {
             yield return CallPrimitiveAndWait(funcName, args);
@@ -231,7 +233,11 @@ public class Main : MonoBehaviour
         var paramNames = functionParamSignature[funcName];
         var paramMap = new Dictionary<string, string>();
         for (int i = 0; i < paramNames.Count && i < args.Count; i++)
+        {
+            Debug.Log("for loop args = " + args[i]);
             paramMap[paramNames[i]] = args[i];
+        }
+            
         
         Debug.Log($"[Exec] funcName={funcName} args=[{string.Join(", ", args)}]");
         Debug.Log($"[Exec] paramNames=[{string.Join(", ", paramNames)}]");
@@ -438,50 +444,111 @@ public class Main : MonoBehaviour
     }
 
     // Break down any potential H2 actions into seq of H1 actions.
-    public List<List<string>> ExpandToH1Only(List<List<string>> subtaskFunctions)
+public List<List<string>> ExpandToH1Only(List<List<string>> subtaskFunctions)
+{
+    // --- Helpers ---
+    static string StripQuotes(string s)
     {
-        List<List<string>> expandedSubtaskFunctions = new();
+        if (string.IsNullOrEmpty(s)) return s;
+        s = s.Trim();
+        if (s.Length >= 2 && ((s[0] == '"' && s[^1] == '"') || (s[0] == '\'' && s[^1] == '\'')))
+            s = s.Substring(1, s.Length - 2);
+        return s.Trim();
+    }
 
-        foreach (var functionList in subtaskFunctions)
+    // Converts "string source_peg" -> "source_peg"
+    // Converts "int count" -> "count"
+    static string ParamNameOnly(string s)
+    {
+        if (string.IsNullOrEmpty(s)) return s;
+        s = s.Trim();
+
+        int lastSpace = s.LastIndexOf(' ');
+        if (lastSpace >= 0)
+            s = s.Substring(lastSpace + 1);
+
+        return s.Trim();
+    }
+
+    // Cleans template args like "source_peg;" -> "source_peg"
+    static string CleanPlaceholder(string s)
+    {
+        if (string.IsNullOrEmpty(s)) return s;
+        s = s.Trim();
+        s = s.TrimEnd(')', ']', '}', ';', ',');
+        return s.Trim();
+    }
+
+    // ----------------
+    List<List<string>> expandedSubtaskFunctions = new();
+
+    foreach (var functionList in subtaskFunctions)
+    {
+        List<string> expandedFunctions = new();
+
+        foreach (string func in functionList)
         {
-            List<string> expandedFunctions = new();
+            Debug.Log("Func call = " + func);
 
-            foreach (string func in functionList)
+            ParseFunctionCall(func, out string funcName, out List<string> args);
+            args = args.Select(StripQuotes).ToList();
+
+            Debug.Log("ARGS = [" + string.Join(", ", args) + "]");
+
+            if (h2Toh1Mapping.ContainsKey(funcName))
             {
-                ParseFunctionCall(func, out string funcName, out List<string> args);
-
-                if (h2Toh1Mapping.ContainsKey(funcName))
+                if (!functionToCallsWithArgs.ContainsKey(funcName) || !functionParamSignature.ContainsKey(funcName))
                 {
-                    if (!functionToCallsWithArgs.ContainsKey(funcName) || !functionParamSignature.ContainsKey(funcName))
-                    {
-                        Debug.LogError($"Missing function mapping or signature for H2: {funcName}");
-                        continue;
-                    }
-
-                    var paramNames = functionParamSignature[funcName];
-                    var paramMap = new Dictionary<string, string>();
-                    for (int i = 0; i < paramNames.Count && i < args.Count; i++)
-                        paramMap[paramNames[i]] = args[i];
-
-                    foreach (var h1Call in functionToCallsWithArgs[funcName])
-                    {
-                        ParseFunctionCall(h1Call, out string h1Func, out List<string> h1Args);
-                        var resolvedArgs = h1Args.Select(arg => paramMap.ContainsKey(arg) ? paramMap[arg] : arg).ToList();
-                        expandedFunctions.Add($"{h1Func}({string.Join(", ", resolvedArgs)})");
-                    }
+                    Debug.LogError($"Missing function mapping or signature for H2: {funcName}");
+                    continue;
                 }
-                else
+
+                // Build paramMap: placeholderName -> actualArgValue
+                var paramNames = functionParamSignature[funcName];
+                var paramMap = new Dictionary<string, string>();
+
+                for (int i = 0; i < paramNames.Count && i < args.Count; i++)
                 {
-                    // Already an H1 function
-                    expandedFunctions.Add(func);
+                    string key = ParamNameOnly(paramNames[i]);   // FIX: removes "string "
+                    string val = StripQuotes(args[i]);           // ensures green_peg not "green_peg"
+                    Debug.Log($"BIND {key} -> {val}");
+                    paramMap[key] = val;
+                }
+
+                foreach (var h1Call in functionToCallsWithArgs[funcName])
+                {
+                    ParseFunctionCall(h1Call, out string h1Func, out List<string> h1Args);
+
+                    // Resolve placeholders inside H1 templates
+                    var resolvedArgs = h1Args.Select(a =>
+                    {
+                        string key = CleanPlaceholder(a);
+                        return paramMap.TryGetValue(key, out var v) ? v : key;
+                    }).ToList();
+
+                    Debug.Log($"H1 TEMPLATE: {h1Func}({string.Join(", ", h1Args)})");
+                    Debug.Log($"H1 RESOLVED: {h1Func}({string.Join(", ", resolvedArgs)})");
+
+                    expandedFunctions.Add($"{h1Func}({string.Join(", ", resolvedArgs)})");
                 }
             }
-
-            expandedSubtaskFunctions.Add(expandedFunctions);
+            else
+            {
+                Debug.Log("FUNC thats already H1 = " + func);
+                expandedFunctions.Add(func);
+            }
         }
 
-        return expandedSubtaskFunctions;
+        expandedSubtaskFunctions.Add(expandedFunctions);
     }
+
+    for (int i = 0; i < expandedSubtaskFunctions.Count; i++)
+        Debug.Log($"[H1EXP] Subtask {i + 1}: {string.Join(" | ", expandedSubtaskFunctions[i])}");
+
+    return expandedSubtaskFunctions;
+}
+
+
 
 
 

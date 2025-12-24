@@ -593,8 +593,8 @@ public class OuterBot : MonoBehaviour
     // lastResponseId is not updated here.
 
     // 7) Extract assistant’s message text using flags from raw response JSON
-    const string startFlag = "```start_flag";
-    const string endFlag = "```end_flag";
+    const string startFlag = "```start_error_type";
+    const string endFlag = "```end_error_type";
 
     int s = jsonResponse.IndexOf(startFlag, StringComparison.OrdinalIgnoreCase);
     if (s < 0)
@@ -652,7 +652,7 @@ public class OuterBot : MonoBehaviour
     string errBetween = jsonResponse.Substring(errStart, ee - errStart);
 
     string errorBlock = errBetween
-        .Replace("\\n", "\n")
+        .Replace("\\n", "\n") 
         .Replace("\\r", "\r")
         .Replace("\\t", "\t")
         .Replace("\\\"", "\"")

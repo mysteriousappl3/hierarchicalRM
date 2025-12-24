@@ -61,8 +61,8 @@ public class SceneDescriptor : MonoBehaviour
             If the scene is valid, only return the JSON.
 
             STRICT OUTPUT RULE (MUST FOLLOW EXACTLY):
-
-            It is VERY VERY VERY important to return ONLY the following format with both ```start_output and ```start_output exactly with those names. DO NOT call it ```json or anything else!
+            1. IT IS VERY IMPORANT TO HAVE THE EXACT SAME KEY NAMES AS SHOWN IN THE VALID SCENE DEFINITION ABOVE. DO NOT ALTER THE JSON FORMAT OR ADD EXTRA DETAILS OF YOUR OWN!!
+            2. It is VERY VERY VERY important to return ONLY the following format with both ```start_output and ```start_output exactly with those names. DO NOT call it ```json or anything else!
 
             Example:
             ```start_output
@@ -75,7 +75,7 @@ public class SceneDescriptor : MonoBehaviour
         predicates_description = "Here are the predicates to be used: [in(), above()].\nFor example, ‘in(<obj_1>)’ indicates that an object is in obj_1 and ‘above(<obj_2>)’ means an object is DIRECTLY above obj_2 and there are no objects between them.";
     }
 
-    public IEnumerator generateSceneDescription()
+     public IEnumerator generateSceneDescription()
     {
         // TODO: Use variable to dynamically take image instead of hardcoding path.
         Debug.Log("main img cnt = " + main.imageCounter);
@@ -346,151 +346,187 @@ public class SceneDescriptor : MonoBehaviour
 
     IEnumerator CallGeminiAPI(string promptContent, Texture2D image)
 {
-    string apiKey = main.getGeminiAPIKey();
-    string apiUrl = main.getGeminiAPIUrl();
+    const int MAX_RETRIES = 3;
+    int attempt = 0;
 
-    // Encode image
-    byte[] imageBytes = image.EncodeToPNG();
-    string base64Image = Convert.ToBase64String(imageBytes);
-
-    // Escape user prompt for JSON
-    string escapedPrompt = promptContent
-        .Replace("\\", "\\\\")
-        .Replace("\"", "\\\"")
-        .Replace("\n", "\\n")
-        .Replace("\r", "\\r");
-
-    List<string> contents = new List<string>();
-
-    // -------- SYSTEM PROMPT (ONCE) --------
-    if (!hasSentSystem)
+    while (attempt < MAX_RETRIES)
     {
-        string finalSystem = systemPrompt
-            .Replace("{predicates_description}", predicates_description)
-            .Replace("{valid_scene_definition}", valid_scene_definition);
+        attempt++;
 
-        string escapedSystem = finalSystem
+        string apiKey = main.getGeminiAPIKey();
+        string apiUrl = main.getGeminiAPIUrl();
+
+        // Encode image
+        byte[] imageBytes = image.EncodeToPNG();
+        string base64Image = Convert.ToBase64String(imageBytes);
+
+        // Escape user prompt for JSON
+        string escapedPrompt = promptContent
             .Replace("\\", "\\\\")
             .Replace("\"", "\\\"")
             .Replace("\n", "\\n")
             .Replace("\r", "\\r");
 
-        // NOTE: Gemini "system_instruction" exists, but keeping your style:
-        // send system as first "user" message once.
+        List<string> contents = new List<string>();
+
+        // -------- SYSTEM PROMPT (ONCE) --------
+        if (!hasSentSystem)
+        {
+            string finalSystem = systemPrompt
+                .Replace("{predicates_description}", predicates_description)
+                .Replace("{valid_scene_definition}", valid_scene_definition);
+
+            string escapedSystem = finalSystem
+                .Replace("\\", "\\\\")
+                .Replace("\"", "\\\"")
+                .Replace("\n", "\\n")
+                .Replace("\r", "\\r");
+
+            contents.Add($@"
+            {{
+                ""role"": ""user"",
+                ""parts"": [
+                    {{ ""text"": ""{escapedSystem}"" }}
+                ]
+            }}");
+
+            hasSentSystem = true;
+        }
+
+        // -------- USER + IMAGE --------
         contents.Add($@"
         {{
             ""role"": ""user"",
             ""parts"": [
-                {{ ""text"": ""{escapedSystem}"" }}
+                {{ ""text"": ""{escapedPrompt}"" }},
+                {{
+                    ""inline_data"": {{
+                        ""mime_type"": ""image/png"",
+                        ""data"": ""{base64Image}""
+                    }}
+                }}
             ]
         }}");
 
-        hasSentSystem = true;
-    }
-
-    // -------- USER + IMAGE --------
-    contents.Add($@"
-    {{
-        ""role"": ""user"",
-        ""parts"": [
-            {{ ""text"": ""{escapedPrompt}"" }},
-            {{
-                ""inline_data"": {{
-                    ""mime_type"": ""image/png"",
-                    ""data"": ""{base64Image}""
-                }}
+        string jsonRequest = $@"
+        {{
+            ""contents"": [
+                {string.Join(",", contents)}
+            ],
+            ""generationConfig"": {{
+                ""temperature"": 0.0
             }}
-        ]
-    }}");
+        }}";
 
-    string jsonRequest = $@"
-    {{
-        ""contents"": [
-            {string.Join(",", contents)}
-        ],
-        ""generationConfig"": {{
-            ""temperature"": 0.0
-        }}
-    }}";
+        UnityWebRequest request = new UnityWebRequest(apiUrl, "POST");
+        request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(jsonRequest));
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("x-goog-api-key", apiKey);
 
-    UnityWebRequest request = new UnityWebRequest(apiUrl, "POST");
-    request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(jsonRequest));
-    request.downloadHandler = new DownloadHandlerBuffer();
-    request.SetRequestHeader("Content-Type", "application/json");
-    request.SetRequestHeader("x-goog-api-key", apiKey);
+        Debug.Log($"[SceneAnalyzerVLM] Sending Gemini request... (attempt {attempt}/{MAX_RETRIES})");
+        yield return request.SendWebRequest();
 
-    Debug.Log("[SceneAnalyzerVLM] Sending Gemini request...");
-    yield return request.SendWebRequest();
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"[SceneAnalyzerVLM] Gemini error: {request.error}\n{request.downloadHandler.text}");
+            yield break; // API error -> stop immediately
+        }
 
-    if (request.result != UnityWebRequest.Result.Success)
-    {
-        Debug.LogError($"[SceneAnalyzerVLM] Gemini error: {request.error}\n{request.downloadHandler.text}");
-        yield break;
+        string jsonResponse = request.downloadHandler.text;
+        Debug.Log("[SceneAnalyzerVLM] Raw Gemini response:\n" + jsonResponse);
+
+        // If model returned markdown code fence ```json, treat as invalid and retry
+        if (jsonResponse.IndexOf("```json", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            Debug.LogWarning($"[SceneAnalyzerVLM] Gemini returned ```json fenced output (invalid for pipeline). Retrying... ({attempt}/{MAX_RETRIES})");
+
+            if (attempt >= MAX_RETRIES)
+            {
+                Debug.LogError("[SceneAnalyzerVLM] API ERROR: Model did not return required start/end flags after max retries.");
+                yield break;
+            }
+
+            yield return new WaitForSeconds(3f);
+            continue;
+        }
+
+        const string startFlag = "```start_output";
+        const string endFlag = "```end_output";
+
+        int s = jsonResponse.IndexOf(startFlag, StringComparison.OrdinalIgnoreCase);
+        if (s < 0)
+        {
+            Debug.LogWarning($"[SceneAnalyzerVLM] start_flag not found. Retrying... ({attempt}/{MAX_RETRIES})");
+
+            if (attempt >= MAX_RETRIES)
+            {
+                Debug.LogError("[SceneAnalyzerVLM] API ERROR: start_flag not found after max retries.");
+                yield break;
+            }
+
+            continue;
+        }
+
+        int contentStart = s + startFlag.Length;
+
+        int e = jsonResponse.IndexOf(endFlag, contentStart, StringComparison.OrdinalIgnoreCase);
+        if (e < 0)
+        {
+            Debug.LogWarning($"[SceneAnalyzerVLM] end_flag not found. Retrying... ({attempt}/{MAX_RETRIES})");
+
+            if (attempt >= MAX_RETRIES)
+            {
+                Debug.LogError("[SceneAnalyzerVLM] API ERROR: end_flag not found after max retries.");
+                yield break;
+            }
+
+            continue;
+        }
+
+        string between = jsonResponse.Substring(contentStart, e - contentStart);
+
+        string extracted = between
+            .Replace("\\n", "\n")
+            .Replace("\\r", "\r")
+            .Replace("\\t", "\t")
+            .Replace("\\\"", "\"")
+            .Replace("\\\\", "\\")
+            .Trim();
+
+        if (extracted.StartsWith("\n")) extracted = extracted.Substring(1).Trim();
+
+        if (string.IsNullOrEmpty(extracted))
+        {
+            Debug.LogWarning($"[SceneAnalyzerVLM] Extracted output empty. Retrying... ({attempt}/{MAX_RETRIES})");
+
+            if (attempt >= MAX_RETRIES)
+            {
+                Debug.LogError("[SceneAnalyzerVLM] API ERROR: Extracted output empty after max retries.");
+                yield break;
+            }
+
+            continue;
+        }
+
+        if (extracted.Contains("NO"))
+            yield break;
+
+        // ✅ Valid case: only here do we set output
+        output = extracted;
+
+        Debug.Log("[SceneAnalyzerVLM] Extracted JSON:\n" + output);
+
+        if (string.IsNullOrEmpty(main.initialSceneDesc))
+            main.initialSceneDesc = output;
+
+        yield break; // success
     }
 
-    string jsonResponse = request.downloadHandler.text;
-    Debug.Log("[SceneAnalyzerVLM] Raw Gemini response:\n" + jsonResponse);
-
-    // =========================================================
-    // IMPORTANT CHANGE:
-    // Do NOT try to extract candidates[0].content.parts[0].text
-    // by searching for "\"text\": \"" and the next quote.
-    // The response contains escaped quotes (\"), so that truncates.
-    //
-    // Instead: extract the block between your literal markers
-    // directly from the raw JSON response string.
-    // =========================================================
-
-    const string startFlag = "```start_output";
-    const string endFlag   = "```end_output";
-
-    int s = jsonResponse.IndexOf(startFlag, StringComparison.OrdinalIgnoreCase);
-    if (s < 0)
-    {
-        Debug.LogError("[SceneAnalyzerVLM] start_flag not found in Gemini response.");
-        yield break;
-    }
-
-    int contentStart = s + startFlag.Length;
-
-    int e = jsonResponse.IndexOf(endFlag, contentStart, StringComparison.OrdinalIgnoreCase);
-    if (e < 0)
-    {
-        Debug.LogError("[SceneAnalyzerVLM] end_flag not found in Gemini response.");
-        yield break;
-    }
-
-    // Slice between flags (still JSON-escaped because we're inside a JSON string)
-    string between = jsonResponse.Substring(contentStart, e - contentStart);
-
-    // Unescape common JSON escapes
-    output = between
-        .Replace("\\n", "\n")
-        .Replace("\\r", "\r")
-        .Replace("\\t", "\t")
-        .Replace("\\\"", "\"")
-        .Replace("\\\\", "\\")
-        .Trim();
-
-    // Some models put an immediate newline after the start flag
-    if (output.StartsWith("\n")) output = output.Substring(1).Trim();
-
-    if (string.IsNullOrEmpty(output))
-    {
-        Debug.LogError("[SceneAnalyzerVLM] Extracted output between flags is empty.");
-        yield break;
-    }
-
-    // Your existing behavior
-    if (output.Contains("NO"))
-        yield break;
-
-    // output is already the JSON between flags now
-    Debug.Log("[SceneAnalyzerVLM] Extracted JSON:\n" + output);
-
-    if (string.IsNullOrEmpty(main.initialSceneDesc))
-        main.initialSceneDesc = output;
+    // Safety net (should never hit because we yield break inside)
+    Debug.LogError("[SceneAnalyzerVLM] API ERROR: Exceeded retry loop unexpectedly.");
 }
+
 
 
 
