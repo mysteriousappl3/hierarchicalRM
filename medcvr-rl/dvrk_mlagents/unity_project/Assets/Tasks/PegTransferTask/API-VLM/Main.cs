@@ -18,7 +18,7 @@ public class Main : MonoBehaviour
     private const string APIUrl = "https://api.deepseek.com/chat/completions";
     private const string APIKey = "sk-f2310180df084d68b182950773268e77";
 
-    private const string geminiAPIKey = "AIzaSyDtCpXpcltSuZQVa8lmkRGCa4NhJq8njFA";
+    private const string geminiAPIKey = "";
     private const string geminiAPIUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent";
 
     public string userInstruction;
