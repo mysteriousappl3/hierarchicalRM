@@ -369,14 +369,12 @@ public class SceneDescriptor : MonoBehaviour
 
         List<string> contents = new List<string>();
 
-        // -------- SYSTEM PROMPT (ONCE) --------
-        if (!hasSentSystem)
-        {
-            string finalSystem = systemPrompt
+       // --------- SYSTEM PROMPT -------
+       string finalSystem = systemPrompt
                 .Replace("{predicates_description}", predicates_description)
                 .Replace("{valid_scene_definition}", valid_scene_definition);
 
-            string escapedSystem = finalSystem
+            string escapedSystem = finalSystem 
                 .Replace("\\", "\\\\")
                 .Replace("\"", "\\\"")
                 .Replace("\n", "\\n")
@@ -384,14 +382,11 @@ public class SceneDescriptor : MonoBehaviour
 
             contents.Add($@"
             {{
-                ""role"": ""user"",
+                ""role"": ""model"",
                 ""parts"": [
                     {{ ""text"": ""{escapedSystem}"" }}
                 ]
             }}");
-
-            hasSentSystem = true;
-        }
 
         // -------- USER + IMAGE --------
         contents.Add($@"
@@ -447,6 +442,7 @@ public class SceneDescriptor : MonoBehaviour
                 yield break;
             }
 
+            Debug.Log("Sleeping for 3 seconds before call");
             yield return new WaitForSeconds(3f);
             continue;
         }

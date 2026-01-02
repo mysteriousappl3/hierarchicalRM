@@ -8,7 +8,7 @@ using System.Collections;
 public class Main : MonoBehaviour
 {
 
-    public LowLevelMotor motor;
+    public LowLevelMotor motor; 
 
     // private const string openAIKey = "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";
     private const string openAIKey = "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";
@@ -216,7 +216,7 @@ public class Main : MonoBehaviour
     // === Recursive executor that breaks down H2 → H1 → H0 ===
     private IEnumerator ExecuteRecursiveCoroutine(string funcName, List<string> args)
     {
-        Debug.Log($"[Exec] ARGS BEING SENT=[{string.Join(", ", args)}]");
+        // Debug.Log($"[Exec] ARGS BEING SENT=[{string.Join(", ", args)}]");
 
         if (IsPrimitive(funcName))
         {
@@ -239,19 +239,19 @@ public class Main : MonoBehaviour
         }
             
         
-        Debug.Log($"[Exec] funcName={funcName} args=[{string.Join(", ", args)}]");
-        Debug.Log($"[Exec] paramNames=[{string.Join(", ", paramNames)}]");
-        Debug.Log($"[Exec] paramMap={string.Join(", ", paramMap.Select(kv => kv.Key + "->" + kv.Value))}");
+        // Debug.Log($"[Exec] funcName={funcName} args=[{string.Join(", ", args)}]");
+        // Debug.Log($"[Exec] paramNames=[{string.Join(", ", paramNames)}]");
+        // Debug.Log($"[Exec] paramMap={string.Join(", ", paramMap.Select(kv => kv.Key + "->" + kv.Value))}");
 
         foreach (string callExpr in functionToCallsWithArgs[funcName])
         {
-            Debug.Log($"[Exec] template callExpr={callExpr}");
+            // Debug.Log($"[Exec] template callExpr={callExpr}");
             ParseFunctionCall(callExpr, out string subFunc, out List<string> subArgs);
 
-            Debug.Log($"[Exec] subFunc={subFunc} subArgs=[{string.Join(", ", subArgs)}]");
+            // Debug.Log($"[Exec] subFunc={subFunc} subArgs=[{string.Join(", ", subArgs)}]");
 
             var resolvedArgs = subArgs.Select(arg => paramMap.ContainsKey(arg) ? paramMap[arg] : arg).ToList();
-            Debug.Log($"[Exec] resolvedArgs=[{string.Join(", ", resolvedArgs)}]");
+            // Debug.Log($"[Exec] resolvedArgs=[{string.Join(", ", resolvedArgs)}]");
             yield return StartCoroutine(ExecuteRecursiveCoroutine(subFunc, resolvedArgs));
         }
     }
