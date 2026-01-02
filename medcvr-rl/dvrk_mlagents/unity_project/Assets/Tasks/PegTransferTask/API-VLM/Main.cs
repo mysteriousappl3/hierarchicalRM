@@ -21,6 +21,9 @@ public class Main : MonoBehaviour
     private const string geminiAPIKey = "";
     private const string geminiAPIUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent";
 
+    private const string claudeAPIKey = "";
+    private const string claudeAPIURL = "https://api.anthropic.com/v1/messages";
+
     public string userInstruction;
     public string h1Actions;
     public string initialSceneDesc;
@@ -119,6 +122,16 @@ public class Main : MonoBehaviour
     public string getGeminiAPIUrl()
     {
         return geminiAPIUrl;
+    }
+
+    public string getClaudeAPIKey()
+    {
+        return claudeAPIKey;
+    }
+
+    public string getClaudeAPIURL()
+    {
+        return claudeAPIURL;
     }
 
     public string getOpenAIAPIKey()
@@ -259,6 +272,35 @@ public class Main : MonoBehaviour
     ////////
 
 
+    string ExtractBetweenFlagsGemini(string text, string startFlag, string endFlag)
+{
+    if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(startFlag) || string.IsNullOrEmpty(endFlag))
+        return null;
+
+    int startIdx = text.IndexOf(startFlag, StringComparison.Ordinal);
+    if (startIdx < 0)
+    {
+        Debug.LogError($"Start flag not found: {startFlag}");
+        return null;
+    }
+
+    int contentStart = startIdx + startFlag.Length;
+
+    int endIdx = text.IndexOf(endFlag, contentStart, StringComparison.Ordinal);
+    if (endIdx < 0)
+    {
+        Debug.LogError($"End flag not found: {endFlag} (after {startFlag})");
+        return null;
+    }
+
+    if (endIdx < contentStart)
+    {
+        Debug.LogError($"Flags in wrong order. start={startFlag} end={endFlag}");
+        return null;
+    }
+
+    return text.Substring(contentStart, endIdx - contentStart).Trim();
+}
 
     //// Helper Function Definitions/////
     public string ExtractBetweenFlags(string input, string startFlag = "```start_flag", string endFlag = "```end_flag")
