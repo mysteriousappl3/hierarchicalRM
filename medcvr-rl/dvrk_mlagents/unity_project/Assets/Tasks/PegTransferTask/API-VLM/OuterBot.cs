@@ -563,8 +563,11 @@ public class OuterBot : MonoBehaviour
             }}
         ],
         ""generationConfig"": {{
-            ""temperature"": 0.0
-        }}
+                ""temperature"": 0.0,
+                ""thinkingConfig"": {{
+                    ""thinkingLevel"": ""low""
+                }}
+            }}
     }}";
 
     // 4) Send HTTP POST

@@ -107,6 +107,28 @@ public class DecisionBot : MonoBehaviour
 
             5. Wrap each of the subtasks function calls in ```start_subtask_funcs_{num} and ```end_subtask_funcs_{num} flags.
 
+            OUTPUT TEMPLATE (FOLLOW EXACTLY, NO EXTRA TEXT):
+
+            <<START_SUBTASK_1>>
+            Subtask's description: ...
+            <<START_SUBTASK_GOALSTATE_1>>
+            { ...valid JSON... }
+            <<END_SUBTASK_GOALSTATE_1>>
+            <<START_SUBTASK_FUNCS_1>>
+            FuncA(arg1, arg2)
+            FuncB(arg1, arg2)
+            <<END_SUBTASK_FUNCS_1>>
+            <<END_SUBTASK_1>>
+
+            <<START_SUBTASK_2>>
+            ...
+            <<END_SUBTASK_2>>
+
+            <<START_ALL_FUNCTIONS>>
+            FuncA(...)
+            FuncB(...)
+            ...
+            <<END_ALL_FUNCTIONS>>
             ";
 
         replanVlmPrompt = @"
@@ -448,8 +470,11 @@ IEnumerator CallGeminiAPI(string prompt)
             }}
         ],
         ""generationConfig"": {{
-            ""temperature"": 0.2
-        }}
+                ""temperature"": 0.0,
+                ""thinkingConfig"": {{
+                    ""thinkingLevel"": ""low""
+                }}
+            }}
     }}";
 
     // 4) Send the HTTP POST
@@ -505,7 +530,7 @@ IEnumerator CallGeminiAPI(string prompt)
     Debug.Log("[DecisionBot] Gemini Output:\n" + content);
 
     // 8) Run your existing parsing logic on that content
-    main.ParseDecisionBotOutput(
+    main.ParseDecisionBotOutputGemini(
         content,
         out main.subtaskDescriptions,
         out main.subtaskFunctions,

@@ -259,8 +259,11 @@ public class H2ActionGenerator : MonoBehaviour
             }}
         ],
         ""generationConfig"": {{
-            ""temperature"": 0.0
-        }}
+                ""temperature"": 0.0,
+                ""thinkingConfig"": {{
+                    ""thinkingLevel"": ""low""
+                }}
+            }}
     }}";
 
     UnityWebRequest request = new UnityWebRequest(APIurl, "POST");

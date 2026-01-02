@@ -19,7 +19,7 @@ public class Main : MonoBehaviour
     private const string APIKey = "sk-f2310180df084d68b182950773268e77";
 
     private const string geminiAPIKey = "";
-    private const string geminiAPIUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent";
+    private const string geminiAPIUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent";
 
     public string userInstruction;
     public string h1Actions;
@@ -551,7 +551,90 @@ public List<List<string>> ExpandToH1Only(List<List<string>> subtaskFunctions)
 
 
 
+    public void ParseDecisionBotOutputGemini(
+    string input,
+    out List<string> subtaskDescriptions,
+    out List<List<string>> subtaskFunctions,
+    out List<string> subtaskGoalstates,
+    out List<string> allFunctions)
+{
+    subtaskDescriptions = new List<string>();
+    subtaskFunctions = new List<List<string>>();
+    subtaskGoalstates = new List<string>();
+    allFunctions = new List<string>(); 
 
+    // Count subtasks using ONLY <<START_SUBTASK_{n}>> format
+    int numSubtasks = 0;
+    while (input.Contains($"<<START_SUBTASK_{numSubtasks + 1}>>"))
+        numSubtasks++;
+
+    Debug.Log($"Detected {numSubtasks} subtasks.");
+
+    for (int i = 1; i <= numSubtasks; i++)
+    {
+        // -- extract description (inside the subtask block, before goalstate start)
+        string subtaskBlock = ExtractBetweenFlagsGemini(
+            input,
+            $"<<START_SUBTASK_{i}>>",
+            $"<<END_SUBTASK_{i}>>"
+        );
+
+        if (subtaskBlock != null)
+        {
+            int descEndIdx = subtaskBlock.IndexOf($"<<START_SUBTASK_GOALSTATE_{i}>>", StringComparison.Ordinal);
+            string desc = (descEndIdx >= 0) ? subtaskBlock.Substring(0, descEndIdx).Trim() : subtaskBlock.Trim();
+            subtaskDescriptions.Add(desc);
+        }
+        else
+        {
+            subtaskDescriptions.Add("");
+        }
+
+        // -- extract goalstate JSON
+        string goalstate = ExtractBetweenFlagsGemini(
+            input,
+            $"<<START_SUBTASK_GOALSTATE_{i}>>",
+            $"<<END_SUBTASK_GOALSTATE_{i}>>"
+        );
+        subtaskGoalstates.Add(goalstate ?? "");
+
+        // -- extract function calls
+        string funcBlock = ExtractBetweenFlagsGemini(
+            input,
+            $"<<START_SUBTASK_FUNCS_{i}>>",
+            $"<<END_SUBTASK_FUNCS_{i}>>"
+        );
+
+        if (funcBlock != null)
+        {
+            var funcs = funcBlock.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                                 .Select(s => s.Trim())
+                                 .Where(s => !string.IsNullOrEmpty(s))
+                                 .ToList();
+            subtaskFunctions.Add(funcs);
+        }
+        else
+        {
+            subtaskFunctions.Add(new List<string>());
+        }
+    }
+
+    // Extract all functions block
+    string allFuncBlock = ExtractBetweenFlagsGemini(
+        input,
+        "<<START_ALL_FUNCTIONS>>",
+        "<<END_ALL_FUNCTIONS>>"
+    );
+
+    if (allFuncBlock != null)
+    {
+        var funcs = allFuncBlock.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                                .Select(s => s.Trim())
+                                .Where(s => !string.IsNullOrEmpty(s))
+                                .ToList();
+        allFunctions = funcs;
+    }
+}
 
     public void ParseDecisionBotOutput(string input, out List<string> subtaskDescriptions, out List<List<string>> subtaskFunctions, out List<string> subtaskGoalstates, out List<string> allFunctions)
     {

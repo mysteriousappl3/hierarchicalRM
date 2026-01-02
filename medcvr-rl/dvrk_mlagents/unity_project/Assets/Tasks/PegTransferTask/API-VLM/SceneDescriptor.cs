@@ -409,7 +409,10 @@ public class SceneDescriptor : MonoBehaviour
                 {string.Join(",", contents)}
             ],
             ""generationConfig"": {{
-                ""temperature"": 0.0
+                ""temperature"": 0.0,
+                ""thinkingConfig"": {{
+                    ""thinkingLevel"": ""low""
+                }}
             }}
         }}";
 
