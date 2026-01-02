@@ -625,10 +625,7 @@ public class InnerBot : MonoBehaviour
             }}
         ],
         ""generationConfig"": {{
-                ""temperature"": 0.0,
-                ""thinkingConfig"": {{
-                    ""thinkingLevel"": ""low""
-                }}
+                ""temperature"": 0.0
             }}
     }}";
 
