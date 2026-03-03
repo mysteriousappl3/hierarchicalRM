@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 public class DropDownAPI : MonoBehaviour
 {
     public LowLevelMotor motor;
-    public ExecutePlan planner;
     public SnipCameraScript cam;
     
     /////////// API Calls Stuff
@@ -26,25 +25,12 @@ public class DropDownAPI : MonoBehaviour
     public List<string> actionsExecutedSoFar = new();
 
     /////////////////////
-
-
-    public Dropdown apiDropdown;
-    public Dropdown pegNumberDropdown;
     public Dropdown plannerDropDown;
-    public Button actionExecutor;
 
     void Start()
     {
-        apiDropdown.value = 0;
-        apiDropdown.RefreshShownValue();
-
-        pegNumberDropdown.value = 0;
-        pegNumberDropdown.RefreshShownValue();
-
         plannerDropDown.value = 0;
         plannerDropDown.RefreshShownValue();
-
-        actionExecutor.interactable = false;
 
         // Render the camera view into an image
         // yield return StartCoroutine(cam.SaveImage());
@@ -284,32 +270,6 @@ public class DropDownAPI : MonoBehaviour
 
         yield break;
     }
-    public void CallAPIFunction()
-    {
-        int pegNumber = pegNumberDropdown.value;
-
-        if (pegNumber == 0)
-        {
-            return;
-        }
-
-        switch (apiDropdown.value)
-        {
-            case 1:
-                motor.MoveCoroutine(pegNumber);
-                break;
-            case 2:
-                motor.GrabCoroutine();
-                break;
-            case 3:
-                motor.DropCoroutine();
-                break;
-            case 4:
-                motor.Reset();
-                break;
-        }
-
-    }
 
     // Performs decision making for the planning dropdown option:
     // Actions can be: Take ScreenShot
@@ -331,33 +291,8 @@ public class DropDownAPI : MonoBehaviour
                 break;
 
             case 2:
-                string filePath = Path.Combine(Application.dataPath, "Tasks/PegTransferTask/plan.txt");
-                planner.LoadSolutionFromFile(filePath);
-                Debug.Log("Waiting for python to generate plan");
-                break;
-
-            case 3:
-                // planner.Execute();
-                StartCoroutine(testMotorFunctions());
-                break;
-
-            case 4:
-                // h1ActionGenerator.generateH1Actions();
-                // h2ActionGenerator.generateH2Actions();
-                //sceneDescriptor.generateSceneDescription();
-                //stateDescriptor.generateStateDescription();
-                // actionStateTransition.generateTransitionFunctions();
-                // decisionBot.generateDecisionBotPlan();
-                //Debug.Log("VERIFYING THE ABOVE PLAN");
-                // innerBot.verifyPlan();
-                // outerBot.verifyTaskCompletion();
-
                 StartCoroutine(APIRunner());
-                // StartCoroutine(replanVlmRunner());
                 break;
-
-
-
         }
     }
 
@@ -753,11 +688,5 @@ public class DropDownAPI : MonoBehaviour
         //     continue;
         // }
 
-    }
-
-    public void ExecuteActionFromPlan()
-    {
-        // Execute the next action from the planner
-        StartCoroutine(planner.ExecuteNextAction());
     }
 }

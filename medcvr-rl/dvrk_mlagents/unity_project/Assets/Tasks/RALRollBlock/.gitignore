@@ -1,9 +1,0 @@
-TrainedModels/*
-TrainedModels.meta
-
-!TrainedModels/RollBlockDec3HitPen.onnx*
-!TrainedModels/RollBlockDec3HitPenTable.onnx*
-!TrainedModels/RollBlockNov25Multi64.onnx*
-
-Demonstrations/
-Demonstrations.meta
