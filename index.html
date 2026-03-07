@@ -3,178 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HierarchicalRM: Solving Long-Horizon Surgical Training Tasks with
-Reasoning Models</title>
+    <title>HierarchicalRM: Solving Long-Horizon Surgical Training Tasks with Reasoning Models</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="content">
-        <!-- Header -->
-        <header>
-            <h1>HierarchicalRM: Solving Long-Horizon Surgical Training Tasks with
-Reasoning Models</h1>
-            
-            <div class="links">
-                <a href="#" class="btn btn-paper"><span class="icon">📄</span> Paper PDF</a>
-                <a href="https://anonymous.4open.science/r/hierarchicalRM-F180/README.md" class="btn btn-code"><span class="icon">💻</span> Code</a>
-                <a href="#" class="btn btn-supplementary"><span class="icon">📋</span> Supplementary</a>
-            </div>
-        </header>
 
+<!-- Hero / Title Section -->
+<section class="hero">
+    <div class="hero-body">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered">
+                <div class="column has-text-centered">
+                    <h1 class="title is-1 publication-title">
+                        HierarchicalRM: Solving Long-Horizon Surgical Training Tasks with Reasoning Models
+                    </h1>
 
-        <!-- Abstract -->
-        <section id="abstract">
-            <h2>Abstract</h2>
-            <p>Peg-transfer is a well known surgical training task in the fundamentals of laparoscopic surgery. While clinicians can accurately perform complex multi-step maneuvers using the da Vinci Research Kit (dVRK) robot, prior studies in automating this task have largely focused on simple maneuvers. Vision-Language Models (VLMs) have been used for tackling such problems by combining visual understanding and language instructions. However, existing VLMs struggle with accurate perception and long horizon reasoning required for multi-step manipulation tasks such as peg-transfer. Recent developments in Reasoning Models (RM) demonstrate improved performance on mathematical reasoning benchmarks, however their planning capabilities remain unexplored in robotics.
-In this study, we propose HierarchicalRM to tackle long-horizon task planning and execution, which creates higher-level reusable routines to reduce planning depth. To systematically evaluate reasoning capabilities, we introduce a surgical reasoning benchmark, called ring-transfer, which systematically varies planning complexity. The results show that HierarchicalRM significantly increases the planning horizon and successfully completes tasks that are 3X more complex compared to standard VLMs, while reducing replanning by 50%. We investigate the reasoning behaviour using thinking tokens, noting a correlation between task success and thinking tokens. This study provides initial insights how RM can be integrated in surgical planning as we progress towards higher levels of surgical autonomy.</p>
-        </section>
+                    <div class="is-size-5 publication-authors">
+                        <span class="author-block">Anonymous Authors</span>
+                    </div>
 
-        <!-- Approach -->
-        <section id="approach">
-            <h2>Approach</h2>
-            <h3>Architecture Overview</h3>
-            <div class="image-container">
-                <div class="image-col">
-                    <img src="images/main_arch.png" alt="Main architecture">
+                    <div class="is-size-5 publication-venue">
+                        <span>Anonymous double-blind review version. Will be de-anonymized upon acceptance.</span>
+                    </div>
+
+                    <div class="publication-links">
+                        <a href="#" class="external-link button is-normal is-rounded is-dark">
+                            <span class="icon">
+                                <svg class="svg-inline--fa fa-file-pdf fa-w-12" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="file-pdf" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" data-fa-i2svg=""><path fill="currentColor" d="M181.9 256.1c-5-16-4.9-46.9-2-46.9 8.4 0 7.6 36.9 2 46.9zm-1.7 47.2c-7.7 20.2-17.3 43.3-28.4 62.7 18.3-7 39-17.2 62.9-21.9-12.7-9.6-24.9-23.4-34.5-40.8zM86.1 428.1c0 .8 13.2-5.4 34.9-40.2-6.7 6.3-29.1 24.5-34.9 40.2zM248 160h136v328c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V24C0 10.7 10.7 0 24 0h200v136c0 13.2 10.8 24 24 24zm-8 171.8c-20-12.2-33.3-29-42.7-53.8 4.5-18.5 11.6-46.6 6.2-64.2-4.7-29.4-42.4-26.5-47.8-6.8-5 18.3-.4 44.1 8.1 77-11.6 27.6-28.7 64.6-40.8 85.8-.1 0-.1.1-.2.1-27.1 13.9-73.6 44.5-54.5 68 5.6 6.9 16 10 21.5 10 17.9 0 35.7-18 61.1-61.8 25.8-8.5 54.1-19.1 79-23.2 21.7 11.8 47.1 19.5 64 19.5 29.2 0 31.2-32 19.7-43.4-13.9-13.6-54.3-9.7-73.6-7.2zM377 105L279 7c-4.5-4.5-10.6-7-17-7h-6v128h128v-6.1c0-6.3-2.5-12.4-7-16.9zm-74.1 255.3c4.1-2.7-2.5-11.9-42.8-9 37.1 15.8 42.8 9 42.8 9z"></path></svg>
+                            </span>
+                            <span>Paper</span>
+                        </a>
+
+                        <a href="https://anonymous.4open.science/r/hierarchicalRM-F180/README.md" class="external-link button is-normal is-rounded is-dark">
+                            <span class="icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                            </span>
+                            <span>Code</span>
+                        </a>
+
+                        <a href="#" class="external-link button is-normal is-rounded is-dark">
+                            <span class="icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            </span>
+                            <span>Supplementary</span>
+                        </a>
+                    </div>
                 </div>
             </div>
-            
-            <p>The system runs in three stages. In Pre-Planning, a Scene Descriptor parses the scene and the H1/H2 Action Generators build a library of hierarchical actions. In Planning & Correction, a Decision Bot composes an H1/H2 plan from the state and instruction; an Inner Bot validates it and returns targeted fixes. In Execution & Verification, an Action Resolver dispatches actions via the Low-Level Motor Module, the Scene Descriptor updates state, and an Outer Bot verifies progress. Failures trigger replanning until completion or failure .</p>
-            
-            <h3>Planning Flow & Correction</h3>
-            <div class="image-container image-container-large">
-                <div class="image-col">
+        </div>
+    </div>
+</section>
+
+<!-- Abstract -->
+<section class="section">
+    <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-centered">
+            <div class="column is-four-fifths">
+                <h2 class="title is-3">Abstract</h2>
+                <div class="content has-text-justified">
+                    <p>
+                        Peg-transfer is a well known surgical training task in the fundamentals of laparoscopic surgery. While clinicians can accurately perform complex multi-step maneuvers using the da Vinci Research Kit (dVRK) robot, prior studies in automating this task have largely focused on simple maneuvers. Vision-Language Models (VLMs) have been used for tackling such problems by combining visual understanding and language instructions. However, existing VLMs struggle with accurate perception and long horizon reasoning required for multi-step manipulation tasks such as peg-transfer. Recent developments in Reasoning Models (RM) demonstrate improved performance on mathematical reasoning benchmarks, however their planning capabilities remain unexplored in robotics.
+                    </p>
+                    <p>
+                        In this study, we propose HierarchicalRM to tackle long-horizon task planning and execution, which creates higher-level reusable routines to reduce planning depth. To systematically evaluate reasoning capabilities, we introduce a surgical reasoning benchmark, called ring-transfer, which systematically varies planning complexity. The results show that HierarchicalRM significantly increases the planning horizon and successfully completes tasks that are 3X more complex compared to standard VLMs, while reducing replanning by 50%. We investigate the reasoning behaviour using thinking tokens, noting a correlation between task success and thinking tokens. This study provides initial insights how RM can be integrated in surgical planning as we progress towards higher levels of surgical autonomy.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Approach -->
+<section class="section">
+    <div class="container is-max-desktop">
+        <div class="columns is-centered">
+            <div class="column is-full-width">
+                <h2 class="title is-3">Approach</h2>
+
+                <h3 class="title is-4">Architecture Overview</h3>
+
+                <div class="publication-image">
+                    <img src="images/main_arch.png" alt="Main architecture overview">
+                </div>
+
+                <div class="content has-text-justified">
+                    <p>
+                        The system runs in three stages. In <strong>Pre-Planning</strong>, a Scene Descriptor parses the scene and the H1/H2 Action Generators build a library of hierarchical actions. In <strong>Planning & Correction</strong>, a Decision Bot composes an H1/H2 plan from the state and instruction; an Inner Bot validates it and returns targeted fixes. In <strong>Execution & Verification</strong>, an Action Resolver dispatches actions via the Low-Level Motor Module, the Scene Descriptor updates state, and an Outer Bot verifies progress. Failures trigger replanning until completion or failure.
+                    </p>
+                </div>
+
+                <h3 class="title is-4">Planning Flow &amp; Correction</h3>
+
+                <div class="publication-image publication-image-large">
                     <img src="images/planning_flow.png" alt="Planning flow visualization">
                 </div>
-            </div>
-            <p><b>Planning and correction</b> : Example outputs from the Scene/State Descriptors, H1/H2 action schemas, and Decision/Inner Bot planning.</p>
+                <p><strong>Planning and correction:</strong> Example outputs from the Scene/State Descriptors, H1/H2 action schemas, and Decision/Inner Bot planning.</p>
 
-            <div class="image-container image-container-large">
-                <div class="image-col">
+                <div class="publication-image publication-image-large">
                     <img src="images/outerbot_flow.png" alt="Outer Bot flow visualization">
                 </div>
-            </div>
-            <p><b>Overview of the outer-bot validation loop</b>: The Outer Bot compares the actual post-execution state with the expected goal state from the Scene Descriptor. If the current state matches the subtask goal and satisfies all constraints, the subtask is marked successful; otherwise, errors are detected and flagged for replanning. The highlighted text shows the change in state caused by executing actions for subtask 2.</p>
+                <p><strong>Overview of the outer-bot validation loop:</strong> The Outer Bot compares the actual post-execution state with the expected goal state from the Scene Descriptor. If the current state matches the subtask goal and satisfies all constraints, the subtask is marked successful; otherwise, errors are detected and flagged for replanning. The highlighted text shows the change in state caused by executing actions for subtask 2.</p>
 
-            <h3>Real Robot and Simulation Setup</h3>
+                <h3 class="title is-4">Real Robot and Simulation Setup</h3>
 
-            <div class="image-container image-container-60">
-                <div class="image-col">
+                <div class="publication-image publication-image-medium">
                     <img src="images/scene_setup.png" alt="Scene setup">
                 </div>
+                <p>Robot setup for the ring transfer tasks: The dVRK robot with a single PSM is used. We use a yellow 3D printed peg board and different colored 3D printed rings. The robot takes action based on the DepthAI Oak-1 camera.</p>
             </div>
-            <p>Robot setup for the ring transfer tasks: The dVRK robot with a single PSM is used. We use a yellow 3D printed peg board and different colored 3D printed rings. The robot takes action based on the DepthAI Oak-1 camera.</p>
-        </section>
-
-        <!-- Experiments -->
-        <section id="experiments">
-            <h2>Experiments</h2>
-
-            <h3>Real Robot Experiments</h3>
-            
-            <h4>Experiment 1</h4>
-            <div class="video-container-60">
-                <video controls>
-                    <source src="videos/real_exp_1.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-
-            <h4>Experiment 2</h4>
-            <div class="video-container-60">
-                <video controls>
-                    <source src="videos/real_exp_2.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-
-            <h4>Experiment 3</h4>
-            <div class="video-container-60">
-                <video controls>
-                    <source src="videos/real_exp_3.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-
-            <h3>Simulation Environment Experiments</h3>
-            
-            <h4>Experiment 1</h4>
-            <div class="video-container-60">
-                <video controls>
-                    <source src="videos/sim_exp_1.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-
-            <h4>Experiment 2</h4>
-            <div class="video-container-60">
-                <video controls>
-                    <source src="videos/sim_exp_2.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-        </section>
-
-        <!-- Results -->
-        <section id="results">
-            <h2>Results</h2>
-            <p>To be filled - Summary of key quantitative and qualitative results demonstrating the effectiveness of the proposed approach.</p>
-            
-            <h3>Quantitative Results</h3>
-            
-            <div class="image-container image-container-small">
-                <div class="image-col">
-                    <img src="images/table4.png" alt="Results table 1">
-                    <p class="image-caption">Simulation results grouped by metric. Abbreviations: HRM = HierarchicalRM, RVLM = ReplanVLM, RP = REPLAN, SR = Success Rate, RC = Replan Count, SC = Step Count.</p>
-                </div>
-            </div>
-            <p>To be filled</p>
-            
-            <div class="image-container image-container-small">
-                <div class="image-col">
-                    <img src="images/table5.png" alt="Results table 2">
-                    <p class="image-caption">Real-robot results: success rate (SR), Outer Bot verification frequency (Outer Bot), and total Step Count (SC) including retries after verification triggers.</p>
-                </div>
-            </div>
-            <p>To be filled</p>
-            
-            <div class="image-container image-container-small">
-                <div class="image-col">
-                    <img src="images/table6.png" alt="Results table 3">
-                    <p class="image-caption">Ablation study reporting success rate (SR) and mean Replan Count (RC). Abbreviations: F = Full model, -D = w/o scene-state descriptors, -H = w/o hierarchical actions (H1/H2), RVLM = ReplanVLM.</p>
-                </div>
-            </div>
-            <p>To be filled</p>
-            
-            <h3>Qualitative Analysis</h3>
-            
-            <div class="image-container image-container-small">
-                <div class="image-col">
-                    <img src="images/success_rate_plot.png" alt="Success rate plot">
-                    <p class="image-caption">Success-rate trends across task complexity for Low Reasoning, Medium Reasoning, and High Reasoning configs of ChatGPT (a) and Claude models (b).</p>
-                </div>
-            </div>
-            <p>To be filled</p>
-            
-            <div class="image-container image-container-small">
-                <div class="image-col">
-                    <img src="images/reasoning_tokens_and_ablations_plot.png" alt="Reasoning tokens and ablations">
-                    <p class="image-caption">Reasoning token usage trends by reasoning level across configs (a) and between primitive and hierarchical actions (b). Abbreviations: F = Full model, -D = w/o scene-state descriptors, -H = w/o hierarchical actions (H1/H2).</p>
-                </div>
-            </div>
-            <p>To be filled</p>
-        </section>
-
-        <!-- Code -->
-        <section id="code">
-            <h2>Code</h2>
-            <p>Please navigate to the codebase referenced at the top to access the project. You will need to install the latest version of Unity 6 for this project.</p>
-        </section>
-
-        <!-- Footer -->
-        <footer>
-            <p>Anonymous double-blind review version. Will be de-anonymized upon acceptance.</p>
-        </footer>
+        </div>
     </div>
+</section>
+
+<!-- Experiments -->
+<section class="section">
+    <div class="container is-max-desktop">
+        <div class="columns is-centered">
+            <div class="column is-full-width">
+                <h2 class="title is-3">Experiments</h2>
+
+                <h3 class="title is-4">Real Robot Experiments</h3>
+
+                <div class="video-label">Experiment 1</div>
+                <div class="publication-video">
+                    <video controls>
+                        <source src="videos/real_exp_1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+
+                <div class="video-label">Experiment 2</div>
+                <div class="publication-video">
+                    <video controls>
+                        <source src="videos/real_exp_2.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+
+                <div class="video-label">Experiment 3</div>
+                <div class="publication-video">
+                    <video controls>
+                        <source src="videos/real_exp_3.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+
+                <h3 class="title is-4">Simulation Environment Experiments</h3>
+
+                <div class="video-label">Experiment 1</div>
+                <div class="publication-video">
+                    <video controls>
+                        <source src="videos/sim_exp_1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+
+                <div class="video-label">Experiment 2</div>
+                <div class="publication-video">
+                    <video controls>
+                        <source src="videos/sim_exp_2.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Results -->
+<section class="section">
+    <div class="container is-max-desktop">
+        <div class="columns is-centered">
+            <div class="column is-full-width">
+                <h2 class="title is-3">Results</h2>
+
+                <h3 class="title is-4">Quantitative Results</h3>
+
+                <div class="publication-image publication-image-medium">
+                    <img src="images/table4.png" alt="Results table 1">
+                </div>
+                <p>Simulation results grouped by metric. Abbreviations: HRM = HierarchicalRM, RVLM = ReplanVLM, RP = REPLAN, SR = Success Rate, RC = Replan Count, SC = Step Count.</p>
+
+                <div class="publication-image publication-image-medium">
+                    <img src="images/table5.png" alt="Results table 2">
+                </div>
+                <p>Real-robot results: success rate (SR), Outer Bot verification frequency (Outer Bot), and total Step Count (SC) including retries after verification triggers.</p>
+
+                <div class="publication-image publication-image-medium">
+                    <img src="images/table6.png" alt="Results table 3">
+                </div>
+                <p>Ablation study reporting success rate (SR) and mean Replan Count (RC). Abbreviations: F = Full model, -D = w/o scene-state descriptors, -H = w/o hierarchical actions (H1/H2), RVLM = ReplanVLM.</p>
+
+                <h3 class="title is-4">Qualitative Analysis</h3>
+
+                <div class="publication-image publication-image-medium">
+                    <img src="images/success_rate_plot.png" alt="Success rate plot">
+                </div>
+                <p >Success-rate trends across task complexity for Low Reasoning, Medium Reasoning, and High Reasoning configs of ChatGPT (a) and Claude models (b).</p>
+
+                <div class="publication-image publication-image-medium">
+                    <img src="images/reasoning_tokens_and_ablations_plot.png" alt="Reasoning tokens and ablations">
+                </div>
+                <p>Reasoning token usage trends by reasoning level across configs (a) and between primitive and hierarchical actions (b). Abbreviations: F = Full model, -D = w/o scene-state descriptors, -H = w/o hierarchical actions (H1/H2).</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Code -->
+<section class="section">
+    <div class="container is-max-desktop">
+        <div class="columns is-centered">
+            <div class="column is-full-width">
+                <h2 class="title is-3">Code</h2>
+                <div class="content">
+                    <p>
+                        Please navigate to the <a href="https://anonymous.4open.science/r/hierarchicalRM-F180/README.md" target="_blank">codebase</a> referenced at the top to access the project. You will need to install the latest version of Unity 6 for this project.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-8">
+                <div class="content has-text-centered">
+                    <p>
+                        Anonymous double-blind review version. Will be de-anonymized upon acceptance.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
 </body>
 </html>
