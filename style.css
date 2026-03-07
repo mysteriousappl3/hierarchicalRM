@@ -122,6 +122,25 @@ section p {
     margin-bottom: 20px;
 }
 
+#abstract {
+    padding: 15px 35px;
+    margin-bottom: 40px;
+}
+
+#abstract h2 {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+#abstract p {
+    font-size: 0.95em;
+    line-height: 1.8;
+    color: #444;
+    text-align: justify;
+    margin-bottom: 20px;
+    letter-spacing: 0.3px;
+}
+
 /* Images */
 .image-container {
     margin: 30px 0 40px 0;
