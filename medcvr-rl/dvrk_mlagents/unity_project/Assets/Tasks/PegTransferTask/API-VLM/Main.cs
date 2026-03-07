@@ -9,14 +9,12 @@ public class Main : MonoBehaviour
 {
 
     public LowLevelMotor motor;
-
-    // private const string openAIKey = "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";
-    private const string openAIKey = "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";
+    private const string openAIKey = "";
     private const string openAIUrl = "https://api.openai.com/v1/chat/completions";
     private const string openAIReasoningURL = "https://api.openai.com/v1/responses";
 
     private const string APIUrl = "https://api.deepseek.com/chat/completions";
-    private const string APIKey = "sk-f2310180df084d68b182950773268e77";
+    private const string APIKey = "";
 
     public string userInstruction;
     public string h1Actions;
