@@ -26,8 +26,8 @@ body {
 /* Header */
 header {
     text-align: center;
-    margin-bottom: 60px;
-    padding-bottom: 40px;
+    margin-bottom: 30px;
+    padding-bottom: 0px;
 }
 
 header h1 {
@@ -53,7 +53,7 @@ header .subtitle {
     justify-content: center;
     gap: 15px;
     flex-wrap: wrap;
-    margin-top: 30px;
+    margin-top: 35px;
 }
 
 .btn {
