@@ -4,47 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HierarchicalRM: Solving Long-Horizon Surgical Training Tasks with Reasoning Models</title>
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; font-size: 16px; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background-color: #ffffff; color: #4a4a4a; line-height: 1.6; }
-        .page-wrapper { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
-        .hero { background-color: #ffffff; padding: 3.5rem 1.5rem 2.5rem; text-align: center; border-bottom: 1px solid #f0f0f0; }
-        .publication-title { font-size: 2.1rem; font-weight: 700; color: #1a1a1a; line-height: 1.25; margin-bottom: 1.25rem; letter-spacing: -0.01em; max-width: 860px; margin-left: auto; margin-right: auto; }
-        .publication-authors { font-size: 1.05rem; font-weight: 500; color: #363636; margin-bottom: 0.4rem; }
-        .publication-venue { font-size: 0.9rem; color: #888; font-style: italic; margin-bottom: 1.75rem; }
-        .publication-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-top: 0.5rem; }
-        .btn-link { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45em 1.2em; font-size: 0.9rem; font-weight: 500; font-family: inherit; border-radius: 9999px; text-decoration: none; background-color: #363636; color: #ffffff; border: none; cursor: pointer; transition: background-color 0.15s ease, box-shadow 0.15s ease; line-height: 1.5; }
-        .btn-link:hover { background-color: #111111; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
-        .section { padding: 2.75rem 1.5rem; }
-        .section-inner { max-width: 900px; margin: 0 auto; }
-        .section-inner.narrow { max-width: 720px; }
-        .section h2 { font-size: 1.75rem; font-weight: 700; color: #1a1a1a; margin-bottom: 1.4rem; line-height: 1.25; }
-        .section h3 { font-size: 1.15rem; font-weight: 600; color: #2a2a2a; margin-top: 2rem; margin-bottom: 0.85rem; line-height: 1.3; }
-        .section h3:first-child { margin-top: 0; }
-        p { font-size: 1rem; line-height: 1.8; color: #4a4a4a; margin-bottom: 1rem; }
-        p:last-child { margin-bottom: 0; }
-        .caption { font-size: 0.875rem; color: #7a7a7a; text-align: center; margin-top: 0.5rem; margin-bottom: 1.75rem; line-height: 1.55; }
-        a { color: #3273dc; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .fig { display: block; margin: 1.5rem auto 0; border-radius: 4px; height: auto; }
-        .fig-wide { max-width: 100%; }
-        .fig-large { max-width: 85%; }
-        .fig-medium { max-width: 78%; }
-        .video-label { font-size: 1rem; font-weight: 600; color: #2a2a2a; margin: 1.75rem 0 0.5rem; }
-        .video-wrap { max-width: 80%; margin: 0 auto 1.5rem; }
-        .video-wrap video { width: 100%; height: auto; display: block; border-radius: 4px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
-        .divider { border: none; border-top: 1px solid #e8e8e8; margin: 0; }
-        .footer { background-color: #fafafa; border-top: 1px solid #ededed; padding: 2.5rem 1.5rem; text-align: center; }
-        .footer p { font-size: 0.85rem; color: #999; line-height: 1.6; }
-        @media (max-width: 680px) {
-            .publication-title { font-size: 1.55rem; }
-            .section { padding: 2rem 1rem; }
-            .hero { padding: 2.25rem 1rem 2rem; }
-            .fig-large, .fig-medium { max-width: 100%; }
-            .video-wrap { max-width: 100%; }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -56,29 +16,23 @@
         <div class="publication-authors">Anonymous Authors</div>
         <div class="publication-venue">Anonymous double-blind review version. Will be de-anonymized upon acceptance.</div>
         <div class="publication-links">
-            <a href="#" class="btn-link">
-                <svg width="13" height="15" viewBox="0 0 384 512" fill="currentColor"><path d="M181.9 256.1c-5-16-4.9-46.9-2-46.9 8.4 0 7.6 36.9 2 46.9zm-1.7 47.2c-7.7 20.2-17.3 43.3-28.4 62.7 18.3-7 39-17.2 62.9-21.9-12.7-9.6-24.9-23.4-34.5-40.8zM86.1 428.1c0 .8 13.2-5.4 34.9-40.2-6.7 6.3-29.1 24.5-34.9 40.2zM248 160h136v328c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V24C0 10.7 10.7 0 24 0h200v136c0 13.2 10.8 24 24 24zm-8 171.8c-20-12.2-33.3-29-42.7-53.8 4.5-18.5 11.6-46.6 6.2-64.2-4.7-29.4-42.4-26.5-47.8-6.8-5 18.3-.4 44.1 8.1 77-11.6 27.6-28.7 64.6-40.8 85.8-.1 0-.1.1-.2.1-27.1 13.9-73.6 44.5-54.5 68 5.6 6.9 16 10 21.5 10 17.9 0 35.7-18 61.1-61.8 25.8-8.5 54.1-19.1 79-23.2 21.7 11.8 47.1 19.5 64 19.5 29.2 0 31.2-32 19.7-43.4-13.9-13.6-54.3-9.7-73.6-7.2zM377 105L279 7c-4.5-4.5-10.6-7-17-7h-6v128h128v-6.1c0-6.3-2.5-12.4-7-16.9z"/></svg>
-                Paper
-            </a>
             <a href="https://anonymous.4open.science/r/hierarchicalRM-F180/README.md" class="btn-link">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
                 Code
-            </a>
-            <a href="#" class="btn-link">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                Supplementary
             </a>
         </div>
     </div>
 </header>
 
+<hr class="divider"></hr>
+
 <section class="section">
-    <div class="section-inner narrow" style="text-align:center;">
+    <div class="section-inner narrow">
         <h2>Abstract</h2>
-        <p style="text-align:justify;">
+        <p>
             Peg-transfer is a well known surgical training task in the fundamentals of laparoscopic surgery. While clinicians can accurately perform complex multi-step maneuvers using the da Vinci Research Kit (dVRK) robot, prior studies in automating this task have largely focused on simple maneuvers. Vision-Language Models (VLMs) have been used for tackling such problems by combining visual understanding and language instructions. However, existing VLMs struggle with accurate perception and long horizon reasoning required for multi-step manipulation tasks such as peg-transfer. Recent developments in Reasoning Models (RM) demonstrate improved performance on mathematical reasoning benchmarks, however their planning capabilities remain unexplored in robotics.
         </p>
-        <p style="text-align:justify;">
+        <p>
             In this study, we propose HierarchicalRM to tackle long-horizon task planning and execution, which creates higher-level reusable routines to reduce planning depth. To systematically evaluate reasoning capabilities, we introduce a surgical reasoning benchmark, called ring-transfer, which systematically varies planning complexity. The results show that HierarchicalRM significantly increases the planning horizon and successfully completes tasks that are 3X more complex compared to standard VLMs, while reducing replanning by 50%. We investigate the reasoning behaviour using thinking tokens, noting a correlation between task success and thinking tokens. This study provides initial insights how RM can be integrated in surgical planning as we progress towards higher levels of surgical autonomy.
         </p>
     </div>
@@ -114,26 +68,26 @@
 
         <h3>Real Robot Experiments</h3>
 
-        <p class="video-label">Experiment 1</p>
+        <p class="video-label">Experiment 1<br>Real Robot Tower Of Hanoi Execution</p>
         <div class="video-wrap">
             <video controls><source src="videos/real_exp_1.mp4" type="video/mp4">Your browser does not support the video tag.</video>
         </div>
-        <p class="video-label">Experiment 2</p>
+        <p class="video-label">Experiment 2<br>Cyclic Movement Of Hoops</p>
         <div class="video-wrap">
             <video controls><source src="videos/real_exp_2.mp4" type="video/mp4">Your browser does not support the video tag.</video>
         </div>
-        <p class="video-label">Experiment 3</p>
+        <p class="video-label">Experiment 3<br>Outer Bot Recoverable Error</p>
         <div class="video-wrap">
             <video controls><source src="videos/real_exp_3.mp4" type="video/mp4">Your browser does not support the video tag.</video>
         </div>
 
         <h3>Simulation Environment Experiments</h3>
 
-        <p class="video-label">Experiment 1</p>
+        <p class="video-label">Experiment 1<br>Planning In Higher Action Hierarchy</p>
         <div class="video-wrap">
             <video controls><source src="videos/sim_exp_1.mp4" type="video/mp4">Your browser does not support the video tag.</video>
         </div>
-        <p class="video-label">Experiment 2</p>
+        <p class="video-label">Experiment 2<br>Correcting Errors In Task Plan</p>
         <div class="video-wrap">
             <video controls><source src="videos/sim_exp_2.mp4" type="video/mp4">Your browser does not support the video tag.</video>
         </div>
@@ -144,22 +98,32 @@
     <div class="section-inner">
         <h2>Results</h2>
 
-        <h3>Quantitative Results</h3>
+        <h3>Comparing HierarchicalRM To Baseline Methods</h3>
+        <p>The below table summarizes the simulation results grouped by metrics. The results show that for tasks with increasing task complextiy, HierarchicalRM extends the solbale complexity frontier by roughly 3X compared to other replanning only approaches. Furthermore, we see HierarchicalRM replan counts are significantly lesser and step count are near optimal. This further validates the effectiveness of hierarchical actions in reducing effective replans and planning depth.</p>
         <img class="fig fig-medium" src="images/table4.png" alt="Results table 1">
-        <p class="caption">Simulation results grouped by metric. Abbreviations: HRM = HierarchicalRM, RVLM = ReplanVLM, RP = REPLAN, SR = Success Rate, RC = Replan Count, SC = Step Count.</p>
-
+        <p class="caption">Abbreviations: HRM = HierarchicalRM, RVLM = ReplanVLM, RP = REPLAN, SR = Success Rate, RC = Replan Count, SC = Step Count.</p>
+        
+        <h3>Real Robot Experiments</h3>
+        <p>The below table summarizes the real robot experiment results on tasks of increasing complexity. We observe as task complexity increases, there are more frequent execution errors that are detected by the Outer Bot. This results in subsequent replans causing an increase in effective step count.</p>
         <img class="fig fig-medium" src="images/table5.png" alt="Results table 2">
-        <p class="caption">Real-robot results: success rate (SR), Outer Bot verification frequency (Outer Bot), and total Step Count (SC) including retries after verification triggers.</p>
+        <p class="caption">success rate (SR), Outer Bot verification frequency (Outer Bot), and total Step Count (SC) including retries after verification triggers.</p>
 
+        <h3>Ablation Study Across Reasoning Configs</h3>
+        <p>The below table highlights the effectiveness of various modules in our pipeline compared to ReplanVLM baseline. We observe that lack of scene and state descriptors reduces the success rate of the tasks by upto 50% for low reasoning configs while medium reasoning doesn't seem to incur this effect. However, removing the hierarchical actions module causes a significant drop in success rate for both reasoning configs. In addition to a drop in success rate, we also see that replan counts increases significantly in the ablation for hierarchical actions compared to the descriptors.</p>
         <img class="fig fig-medium" src="images/table6.png" alt="Results table 3">
-        <p class="caption">Ablation study reporting success rate (SR) and mean Replan Count (RC). Abbreviations: F = Full model, -D = w/o scene-state descriptors, -H = w/o hierarchical actions (H1/H2), RVLM = ReplanVLM.</p>
+        <p class="caption">Abbreviations: SR = Success Rate, RC = Mean Replan Count, F = Full model, -D = w/o scene-state descriptors, -H = w/o hierarchical actions (H1/H2), RVLM = ReplanVLM.</p>
 
-        <h3>Qualitative Analysis</h3>
+        <h3>Success-Rate Trends Across Task Complexity & Reasoning Configs</h3>
+        <p>The below figure demonstrates the performance between the various reasoning configs on tasks of increasing complexities. We compare the performance between ChatGPT models and Claude models. We observe that, Claude models achieve an higher average performance across tasks compared to ChatGPT models.</p>
         <img class="fig fig-medium" src="images/success_rate_plot.png" alt="Success rate plot">
-        <p class="caption">Success-rate trends across task complexity for Low Reasoning, Medium Reasoning, and High Reasoning configs of ChatGPT (a) and Claude models (b).</p>
+        <p class="caption">Success Rate trends across configs for ChatGPT (a) and Claude models (b).</p>
 
+        <h3>Reasoning Tokens Usage Trend & Ablations Performance</h3>
+        <p>Figure (a) demonstrates the reasoning tokens usage trends across tasks of increasing complexities and model configs. We observe that as task complexities increases, the token usage among various model families decreases. This insight suggests the degradation in performance among high reasoning models despite sufficient availibility of tokens for reasoning.</p>
+        </br>
+        <p>Figure (b) shows the performance between ablations of scene/state descriptors, hierarchical actions against the complete model among various reasoning configs and tasks.</p>
         <img class="fig fig-medium" src="images/reasoning_tokens_and_ablations_plot.png" alt="Reasoning tokens and ablations">
-        <p class="caption">Reasoning token usage trends by reasoning level across configs (a) and between primitive and hierarchical actions (b). Abbreviations: F = Full model, -D = w/o scene-state descriptors, -H = w/o hierarchical actions (H1/H2).</p>
+        <p class="caption">Reasoning token usage trends (a) and primitive vs hierarchical actions (b). Abbreviations: F = Full model, -D = w/o scene-state descriptors, -H = w/o hierarchical actions (H1/H2).</p>
     </div>
 </section>
 
