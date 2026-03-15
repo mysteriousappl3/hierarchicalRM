@@ -23,8 +23,6 @@ public class InnerBot : MonoBehaviour
     // 3. Is State Description fed into it as input to which we apply action and compare future states?
     // 4. The architecture shows Action Aggregator feeds into InnerBot. We are also passing the DecisionBot plan right?
 
-    public ActionAggregator actionAggregator;
-
     public string output;
     public string promptTemplateState;
     public string promptTemplate;

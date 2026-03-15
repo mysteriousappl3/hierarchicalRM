@@ -17,7 +17,6 @@ public class DropDownAPI : MonoBehaviour
     public H2ActionGenerator h2ActionGenerator;
     public SceneDescriptor sceneDescriptor;
     public StateDescriptor stateDescriptor;
-    public ActionStateTransition actionStateTransition;
     public DecisionBot decisionBot;
     public InnerBot innerBot;
     public OuterBot outerBot;
