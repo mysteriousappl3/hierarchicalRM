@@ -1,5 +1,0 @@
-# Ignore large files, only committing the final results of training
-[Dd]ata/
-[Dd]emonstrations/
-[Rr]esults/
-[Bb]uilds/
