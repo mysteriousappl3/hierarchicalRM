@@ -1,5 +1,12 @@
 /vscode/
 
+# Ignore large files, only committing the final results of training
+[Dd]ata/
+[Dd]emonstrations/
+[Rr]esults/
+[Bb]uilds/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
