@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.Assertions;
 
+[System.Serializable]
+public class PegHoopConfig
+{
+    public GameObject peg;
+    public List<GameObject> hoops; // bottom-to-top order
+}
+
 public class LowLevelMotor: MonoBehaviour
 {
     [SerializeField]
@@ -18,15 +25,11 @@ public class LowLevelMotor: MonoBehaviour
     private Vector3 armRotation;
     private float jawSignal;
 
-    // Keep track of the mapping from peg numbers to their peg game objects
-    [SerializeField]
-    public List<GameObject> pegsInScene = new List<GameObject>();
-    [SerializeField]
-    public List<GameObject> hoopsInScene = new List<GameObject>();
-    [SerializeField]
+    // Per-peg configuration: drag each peg and its starting hoops (bottom-to-top) in the Inspector
+    public List<PegHoopConfig> pegConfigs = new List<PegHoopConfig>();
+
     public Dictionary<int, GameObject> pegNumberToObjectMapping = new Dictionary<int, GameObject>();
     // Keep track of the mapping from peg numbers to the hoop game objects that are inside the peg
-    [SerializeField]
     public Dictionary<int, List<GameObject>> pegNumberToHoopObjMapping = new Dictionary<int, List<GameObject>>();
 
     // Peg Numbers start from 1.
@@ -56,32 +59,14 @@ public class LowLevelMotor: MonoBehaviour
         
         goalPegNumber = 0;
         currPegNumber = 0;
-        // Since all peg's are of the same height, we can calculate using any peg
-        pegHeight = pegsInScene[0].transform.position.y;
+        // Since all pegs are of the same height, calculate using the first peg
+        pegHeight = pegConfigs[0].peg.transform.position.y;
 
-        // TODO: Remove once you do the cleanup in scene view management.
-        // Add peg numbers and their game objects to the dictionary
-        for (int i = 0; i < pegsInScene.Count; i++)
-        {
-            pegNumberToObjectMapping.Add(i + 1, pegsInScene[i]);
-        }
-
-        // TODO: Remove once you do the cleanup in scene view management.
-
-        // We will initialize each scene as a tower of hanoi format meaning all the hoops are in the same pillar #1 and rest are empty lists
-        // IMP NOTE: If the scene is diff, make sure to change the ordering of the hoops appropriately in below code
-        for (int i = 0; i < pegsInScene.Count; i++)
+        for (int i = 0; i < pegConfigs.Count; i++)
         {
             int pegNum = i + 1;
-            if (pegNum == 1)
-            {
-                pegNumberToHoopObjMapping.Add(pegNum, hoopsInScene);
-            }
-            else
-            {
-                // For rest of pillars (pegs), initialize with empty list indicating these have no hoops in them yet
-                pegNumberToHoopObjMapping.Add(pegNum, new List<GameObject>());
-            }
+            pegNumberToObjectMapping.Add(pegNum, pegConfigs[i].peg);
+            pegNumberToHoopObjMapping.Add(pegNum, new List<GameObject>(pegConfigs[i].hoops));
         }
 
         // Calculate radius of the hoop

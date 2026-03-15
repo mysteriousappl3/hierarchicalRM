@@ -2871,14 +2871,16 @@ MonoBehaviour:
   hoopEdgeOneCollider: {fileID: 3165455496919767040}
   hoopEdgeTwoCollider: {fileID: 4191555702524225277}
   currHoop: {fileID: 0}
-  pegsInScene:
-  - {fileID: 5758275913036832820}
-  - {fileID: 7200646512184838105}
-  - {fileID: 8211555381957429190}
-  hoopsInScene:
-  - {fileID: 2132475427456792862}
-  - {fileID: 7422421962241521005}
-  - {fileID: 3468700804492929636}
+  pegConfigs:
+  - peg: {fileID: 5758275913036832820}
+    hoops:
+    - {fileID: 2132475427456792862}
+    - {fileID: 7422421962241521005}
+    - {fileID: 3468700804492929636}
+  - peg: {fileID: 7200646512184838105}
+    hoops: []
+  - peg: {fileID: 8211555381957429190}
+    hoops: []
   goalPegNumber: 0
   robotCont: {fileID: 8991793181689143221}
   collisionCont: {fileID: 8805083722054461760}
