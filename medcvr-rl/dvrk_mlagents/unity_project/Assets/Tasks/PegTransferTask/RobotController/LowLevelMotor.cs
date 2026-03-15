@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.Assertions;
 
-public class LowLevelMotor : BaseAgent
+public class LowLevelMotor: MonoBehaviour
 {
     // Game object references
     [SerializeField]

@@ -17,8 +17,6 @@ public class VLMJawCollision : MonoBehaviour
 
     public int edgeLayer;   // Default = 0, Inner edge collider = 1, Outer edge collider = 2
 
-    public PegTransferAgent agent;
-
     public LowLevelMotor motor;
 
     private Transform topMostParent;
@@ -170,9 +168,6 @@ public class VLMJawCollision : MonoBehaviour
                 }
                 // Jaw triggered to close 
                 SetJawAngle(contactAngle - 2.5f);    // -2.5f to close jaw even more to make it look realistic grab
-
-                // Add the reward for grabbing the object
-                agent.GrabBlockReward();
             }
         }
     }
