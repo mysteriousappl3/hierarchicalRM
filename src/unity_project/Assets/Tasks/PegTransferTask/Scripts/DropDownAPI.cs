@@ -24,16 +24,11 @@ public class DropDownAPI : MonoBehaviour
     public List<string> actionsExecutedSoFar = new();
 
     /////////////////////
-    public Dropdown plannerDropDown;
-
     public InputField taskInputField;
     public Button startButton;
 
     void Start()
     {
-        plannerDropDown.value = 0;
-        plannerDropDown.RefreshShownValue();
-
         startButton.interactable = false;
         taskInputField.onValueChanged.AddListener(OnTaskInputChanged);
         startButton.onClick.AddListener(OnStartButtonClicked);
@@ -180,8 +175,8 @@ public class DropDownAPI : MonoBehaviour
             do
             {
                 // Scene Descriptor
-                yield return StartCoroutine(cam.SaveImage());  // This increases the image counter locally first to save new image and we update the main.imageCounter to read this new image
-                main.imageCounter += 1;
+                yield return StartCoroutine(cam.SaveImage());
+                main.imageCounter = cam.imageCounter;  // sync to the counter cam actually saved with
                 yield return StartCoroutine(sceneDescriptor.generateSceneDescription());
                 if (sceneDescriptor.output.Contains("NO"))
                 {
@@ -233,7 +228,7 @@ public class DropDownAPI : MonoBehaviour
             {
                 Debug.LogWarning("No functions to execute. Skipping execution phase and proceeding to OuterBot Verification of states.");
                 yield return StartCoroutine(cam.SaveImage());
-                main.imageCounter += 1;
+                main.imageCounter = cam.imageCounter;  // sync to the counter cam actually saved with
 
                 // Before calling, call scene descriptor and check if output is NO. If yes, then break out of the while loop
                 yield return StartCoroutine(sceneDescriptor.generateSceneDescription());
@@ -303,7 +298,7 @@ public class DropDownAPI : MonoBehaviour
                 }
                 
                 yield return StartCoroutine(cam.SaveImage());
-                main.imageCounter += 1;
+                main.imageCounter = cam.imageCounter;  // sync to the counter cam actually saved with
                 yield return StartCoroutine(sceneDescriptor.generateSceneDescription());
                 if (sceneDescriptor.output.Contains("NO"))
                 {

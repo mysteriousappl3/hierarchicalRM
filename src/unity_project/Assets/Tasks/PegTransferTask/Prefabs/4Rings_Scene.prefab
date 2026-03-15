@@ -2894,8 +2894,8 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 0
-    m_HorizontalOverflow: 1
-    m_VerticalOverflow: 0
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 
 --- !u!1 &1658039345301473122
@@ -3340,15 +3340,15 @@ MonoBehaviour:
   hoopEdgeTwoCollider: {fileID: 994893861787688821}
   currHoop: {fileID: 0}
   pegConfigs:
-  - peg: {fileID: 0}
+  - peg: {fileID: 5731430002180768708}
     hoops:
     - {fileID: 5397957415139631496}
     - {fileID: 4286030416092489878}
     - {fileID: 134577798023125508}
     - {fileID: 1300832129158891092}
-  - peg: {fileID: 0}
+  - peg: {fileID: 6859255097852815796}
     hoops: []
-  - peg: {fileID: 0}
+  - peg: {fileID: 1372728704286195181}
     hoops: []
   goalPegNumber: 0
   robotCont: {fileID: 5419764193715601805}
@@ -5594,7 +5594,7 @@ MonoBehaviour:
   h1ActionGenerator: {fileID: 969938620225410408}
   h2ActionGenerator: {fileID: 1378178993255959017}
   sceneDescriptor: {fileID: 8727705742089166272}
-  stateDescriptor: {fileID: 0}
+  stateDescriptor: {fileID: 4365253749536890803}
   output: 
   promptTemplateState: 
   promptTemplate: 
@@ -6140,7 +6140,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -97.2, y: -232.4}
-  m_SizeDelta: {x: 400, y: 40}
+  m_SizeDelta: {x: 400, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3576252957598443823
 CanvasRenderer:
@@ -6227,7 +6227,7 @@ MonoBehaviour:
   m_InputType: 0
   m_AsteriskChar: 42
   m_KeyboardType: 0
-  m_LineType: 0
+  m_LineType: 2
   m_HideMobileInput: 0
   m_CharacterValidation: 0
   m_CharacterLimit: 0
@@ -11951,7 +11951,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 746cbecbb4f7a410fb084bbfb54ad9ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  snipCamera: {fileID: 0}
+  snipCamera: {fileID: 4703335866950239383}
   sceneDescriptor: {fileID: 8727705742089166272}
   main: {fileID: 7682251683170437036}
   h1ActionGenerator: {fileID: 969938620225410408}
@@ -12573,18 +12573,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddb3164fc50f14548957c4d8ee395525, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  motor: {fileID: 0}
-  cam: {fileID: 0}
-  main: {fileID: 0}
-  h1ActionGenerator: {fileID: 0}
-  h2ActionGenerator: {fileID: 0}
-  sceneDescriptor: {fileID: 0}
-  stateDescriptor: {fileID: 0}
-  decisionBot: {fileID: 0}
-  innerBot: {fileID: 0}
-  outerBot: {fileID: 0}
+  motor: {fileID: 483762124968149149}
+  cam: {fileID: 4703335866950239383}
+  main: {fileID: 7682251683170437036}
+  h1ActionGenerator: {fileID: 969938620225410408}
+  h2ActionGenerator: {fileID: 1378178993255959017}
+  sceneDescriptor: {fileID: 8727705742089166272}
+  stateDescriptor: {fileID: 4365253749536890803}
+  decisionBot: {fileID: 3030258167109017084}
+  innerBot: {fileID: 3393811558519631316}
+  outerBot: {fileID: 3051329505643760283}
   actionsExecutedSoFar: []
-  plannerDropDown: {fileID: 0}
   taskInputField: {fileID: 7724874971806865795}
   startButton: {fileID: 4495572162951998578}
 --- !u!1 &6171111818442748323
@@ -13565,7 +13564,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 180, y: -233}
+  m_AnchoredPosition: {x: 180, y: -232.3}
   m_SizeDelta: {x: 130, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &489162073311454426
@@ -16424,7 +16423,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Controller: 1
-  RobotType: 1
+  RobotType: 0
   Tool: 0
   BaseLink: {fileID: 4284450225613885663}
   XPositionLimit: {x: -3, y: 3}
