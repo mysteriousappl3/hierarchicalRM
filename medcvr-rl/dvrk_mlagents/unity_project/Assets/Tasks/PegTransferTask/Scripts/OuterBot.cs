@@ -26,7 +26,6 @@ public class OuterBot : MonoBehaviour
     public string feedback;
 
     public string systemPrompt;
-    public string replanVlmPrompt;
 
     public string lastResponseId = null;
 
@@ -208,19 +207,6 @@ public class OuterBot : MonoBehaviour
 
         ";
 
-        replanVlmPrompt = @"
-            You are a robot that detects errors. You need to compare the environmental information before and after 
-            task execution to determine whether the task is completed. If it is completed, reply with YES. Otherwise, 
-            reply with NO and explain the reason behind.
-
-            The first image shows the environment before task execution, and the second image shows the environment 
-            after task execution.
-
-            Information from Decision Bot:
-            Task requirement: {user_instruction}
-            Decision Bot Plan: {decision_bot_output}
-        ";
-            
     }
 
     public IEnumerator verifyTaskCompletion(string subtaskNL, string subtaskGoalState, string finalGoalState)
@@ -370,13 +356,6 @@ public class OuterBot : MonoBehaviour
         yield return StartCoroutine(CallOpenAIAPI(prompt));
     }
 
-    public IEnumerator verifyTaskCompletionReplanVlm(string decisionBotOutput)
-    {
-        string imagePath = Path.Combine(Application.dataPath, $"Tasks/PegTransferTask/Task_Images/SceneImage_{main.imageCounter-1}.png");
-        string imagePath2 = Path.Combine(Application.dataPath, $"Tasks/PegTransferTask/Task_Images/SceneImage_{main.imageCounter}.png");
-        yield return StartCoroutine(CallReplanVlmApi(imagePath, imagePath2, decisionBotOutput));
-    }
-
     IEnumerator CallOpenAIAPI(string prompt)
     {
         string APIKey = main.getOpenAIAPIKey();
@@ -517,130 +496,6 @@ public class OuterBot : MonoBehaviour
         }
     }
 
-    public IEnumerator CallReplanVlmApi(string imagePath1, string imagePath2, string decisionBotOutput)
-    {
-        // 1. Load both images from file
-        if (!File.Exists(imagePath1))
-        {
-            Debug.LogError($"[ReplanVLM] Image file not found: {imagePath1}");
-            yield break;
-        }
-        if (!File.Exists(imagePath2))
-        {
-            Debug.LogError($"[ReplanVLM] Image file not found: {imagePath2}");
-            yield break;
-        }
-
-        byte[] imageData1 = File.ReadAllBytes(imagePath1);
-        byte[] imageData2 = File.ReadAllBytes(imagePath2);
-        string base64Image1 = Convert.ToBase64String(imageData1);
-        string base64Image2 = Convert.ToBase64String(imageData2);
-        Debug.Log($"[ReplanVLM] Loaded images: {imagePath1}, {imagePath2}");
-
-        // 2. Prepare API credentials
-        string APIKey = main.getOpenAIAPIKey();
-        string APIurl = main.getOpenAIReasoningURL();
-
-        // 3. Escape prompt
-        replanVlmPrompt = replanVlmPrompt.Replace("{user_instruction}", main.userInstruction).Replace("{decision_bot_output}", decisionBotOutput);
-        string escapedPrompt = replanVlmPrompt
-            .Replace("\\", "\\\\")
-            .Replace("\"", "\\\"")
-            .Replace("\n", "\\n")
-            .Replace("\r", "\\r");
-
-        // 4. Assemble request body with both images
-        string jsonRequest = $@"{{
-            ""model"": ""o4-mini"",
-            ""reasoning"": {{ ""effort"": ""high"" }},
-            ""input"": [
-                {{
-                    ""role"": ""system"",
-                    ""content"": ""You are a robot that detects errors. You need to compare the environmental information before and after task execution to determine whether the task is completed. If it is completed, reply with YES. Otherwise, reply with NO and explain the reason behind.""
-                }},
-                {{
-                    ""role"": ""user"",
-                    ""content"": [
-                        {{
-                            ""type"": ""input_text"",
-                            ""text"": ""{escapedPrompt}""
-                        }},
-                        {{
-                            ""type"": ""input_image"",
-                            ""image_url"": ""data:image/png;base64,{base64Image1}""
-                        }},
-                        {{
-                            ""type"": ""input_image"",
-                            ""image_url"": ""data:image/png;base64,{base64Image2}""
-                        }}
-                    ]
-                }}
-            ]
-        }}";
-
-        // 5. Send request
-        UnityWebRequest request = new UnityWebRequest(APIurl, "POST");
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonRequest);
-        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-        request.downloadHandler = new DownloadHandlerBuffer();
-        request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", $"Bearer {APIKey}");
-
-        Debug.Log("[ReplanVLM] Sending API Request...");
-        yield return request.SendWebRequest();
-        Debug.Log("[ReplanVLM] Received API Response.");
-
-        // 6. Process response
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.LogError($"[ReplanVLM] API Request Failed: {request.error}\n{request.downloadHandler.text}");
-            yield break;
-        }
-
-        string jsonResponse = request.downloadHandler.text;
-        Debug.Log("[ReplanVLM] Raw API response:\n" + jsonResponse);
-
-        // Parse using the ResponsesAPIResponse class
-        ResponsesAPIResponse response = JsonUtility.FromJson<ResponsesAPIResponse>(jsonResponse);
-
-        OutputItem messageBlock = null;
-        if (response != null && response.output != null)
-        {
-            foreach (var item in response.output)
-            {
-                if (item.type == "message")
-                {
-                    messageBlock = item;
-                    break;
-                }
-            }
-        }
-
-        if (messageBlock == null || messageBlock.content == null || messageBlock.content.Length == 0)
-        {
-            Debug.LogError("[ReplanVLM] No valid message block in response.");
-            yield break;
-        }
-
-        string outputText = null;
-        foreach (var contentItem in messageBlock.content)
-        {
-            if (contentItem.type == "output_text")
-            {
-                outputText = contentItem.text;
-                break;
-            }
-        }
-
-        if (string.IsNullOrEmpty(outputText))
-        {
-            Debug.LogError("[ReplanVLM] No output_text found!");
-            yield break;
-        }
-
-        output = outputText.Trim();
-        Debug.Log("[ReplanVLM] Output:\n" + output);
-    }
 
 
     // IEnumerator CallOpenAIAPI(string prompt)
@@ -749,25 +604,4 @@ public class OuterBot : MonoBehaviour
         public string type;  // "output_text"
         public string text;  // the assistant’s actual response
     }
-
-
-    // // Response wrapper for JsonUtility
-    // [System.Serializable]
-    // private class OpenAIResponse
-    // {
-    //     public Choice[] choices;
-    // }
-
-    // [System.Serializable]
-    // private class Choice
-    // {
-    //     public Message message;
-    // }
-
-    // [System.Serializable]
-    // private class Message
-    // {
-    //     public string role;
-    //     public string content;
-    // }
 }

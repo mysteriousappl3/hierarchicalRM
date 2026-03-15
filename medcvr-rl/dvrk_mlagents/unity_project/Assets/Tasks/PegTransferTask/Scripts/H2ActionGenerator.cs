@@ -123,8 +123,6 @@ public class H2ActionGenerator : MonoBehaviour
             ;
 
 
-        // StartCoroutine(CallDeepSeekAPI(prompt));
-
         yield return StartCoroutine(CallOpenAIAPI(prompt));
     }
 
@@ -247,78 +245,4 @@ public class H2ActionGenerator : MonoBehaviour
         public string role;
         public string content;
     }
-
-    //IEnumerator CallDeepSeekAPI(string promptContent)
-    //{
-    //    // Manual escape for JSON-compatibility
-    //    string escapedPrompt = promptContent
-    //        .Replace("\\", "\\\\")
-    //        .Replace("\"", "\\\"")
-    //        .Replace("\n", "\\n")
-    //        .Replace("\r", "\\r");
-
-    //    string jsonRequest = $@"{{
-    //        ""model"": ""deepseek-reasoner"",
-    //        ""messages"": [
-    //            {{
-    //                ""role"": ""user"",
-    //                ""content"": ""{escapedPrompt}""
-    //            }}
-    //        ],
-    //        ""temperature"": 0.1,
-    //        ""max_tokens"": 1500
-    //    }}";
-
-    //    string apiUrl = main.getAPIURL();
-    //    string apiKey = main.getAPIKey();
-
-    //    UnityWebRequest request = new UnityWebRequest(apiUrl, "POST");
-    //    byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonRequest);
-    //    request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-    //    request.downloadHandler = new DownloadHandlerBuffer();
-    //    request.SetRequestHeader("Content-Type", "application/json");
-    //    request.SetRequestHeader("Authorization", "Bearer " + apiKey);
-
-    //    yield return request.SendWebRequest();
-
-    //    if (request.result != UnityWebRequest.Result.Success)
-    //    {
-    //        Debug.LogError($"API Request Failed: {request.error}\n{request.downloadHandler.text}");
-    //    }
-    //    else
-    //    {
-    //        string jsonResponse = request.downloadHandler.text;
-    //        DeepSeekResponse response = JsonUtility.FromJson<DeepSeekResponse>(jsonResponse);
-
-    //        if (response.choices != null && response.choices.Length > 0)
-    //        {
-    //            output = response.choices[0].message.content.Trim();
-    //            Debug.Log("<color=cyan>--------- DeepSeek H2 Output ---------</color>\n" + output);
-    //        }
-    //        else
-    //        {
-    //            Debug.LogError("DeepSeek Reasoner returned empty result or malformed response.");
-    //        }
-    //    }
-    //}
-
-    //// Minimal response wrapper classes
-    //[System.Serializable]
-    //private class DeepSeekResponse
-    //{
-    //    public Choice[] choices;
-    //}
-
-    //[System.Serializable]
-    //private class Choice
-    //{
-    //    public Message message;
-    //}
-
-    //[System.Serializable]
-    //private class Message
-    //{
-    //    public string role;
-    //    public string content;
-    //}
 }

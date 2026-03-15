@@ -19,7 +19,6 @@ public class DecisionBot : MonoBehaviour
 
     public string output;
     public string promptTemplate;
-    public string replanVlmPrompt;
 
     public string lastResponseId = null;
 
@@ -100,29 +99,6 @@ public class DecisionBot : MonoBehaviour
 
             Wrap each of the subtasks function calls in ```start_subtask_funcs_{num} and ```end_subtask_funcs_{num} flags.
             ";
-
-        replanVlmPrompt = @"
-            You are a task planning robot responsible for task planning and automatically generate code which outlines the execution plan.
-            Error messages from Inner Bot or Outer Bot feedback may also not exist.
-
-            Here's the instruction:
-            {user_instruction}
-
-            Code repository:
-            MoveCoroutine(reachable_object): Move robot arm above stationary input object. Objects not reachable cannot be passed as input.
-            GrabCoroutine(): Pick up top 'GRABBABLE' object below current position. Objects not GRABBABLE cannot be passed as input.
-            DropCoroutine(): Drop picked up object at current position.
-            PushCoroutine(final_dest): Push object at current position to specified position.
-            RollCoroutine(direction): Roll object at current position in specified direction.
-            CutCoroutine(): Cut top object below current position.
-
-            First, deduce the task step by step, and then automatically generate code based on the information in the task library. Here is an example:
-            1. Grab the apple first
-            2. Give it to me
-            code:
-            grasp(apple)
-            giveMe(apple)
-        ";
     }
 
     public IEnumerator generateDecisionBotPlan()
@@ -284,15 +260,6 @@ public class DecisionBot : MonoBehaviour
                     .Replace("{scene_description}", sceneDescriptionJSON)
                     .Replace("{state_description}", stateDescriptionJSON);
 
-        // TODO: OpenAI/Deepseek API call to pass 'prompt' sceneDescription, stateDescription, H1 actions, H2 actions and 'userInstruction' to the model
-        // to generate output and save in 'output' variable
-        //StartCoroutine(CallDeepSeekAPI(prompt));
-
-        // yield return StartCoroutine(CallOpenAIAPI(prompt));
-
-        // replanVLM: Use the same image path logic as StateDescriptor
-        string imagePath = Path.Combine(Application.dataPath, $"Tasks/PegTransferTask/Task_Images/SceneImage_{main.imageCounter}.png");
-        // yield return StartCoroutine(CallReplanVlmApi(imagePath));
         yield return StartCoroutine(CallOpenAIAPI(prompt));
     }
 
@@ -400,117 +367,6 @@ public class DecisionBot : MonoBehaviour
         Debug.Log($"All function calls: {string.Join(", ", main.allFunctions)}");
     }
 
-     public IEnumerator CallReplanVlmApi(string imagePath) {
-            // 1. Load the image from file
-            if (!File.Exists(imagePath))
-            {
-                Debug.LogError($"[ReplanVLM] Image file not found: {imagePath}");
-                yield break;
-            }
-
-            byte[] imageData = File.ReadAllBytes(imagePath);
-            string base64Image = Convert.ToBase64String(imageData);
-            Debug.Log($"[ReplanVLM] Loaded image from {imagePath}");
-
-            // 2. Prepare API credentials
-            string APIKey = main.getOpenAIAPIKey();
-            string APIurl = main.getOpenAIReasoningURL();
-
-            // 3. Escape prompt
-            replanVlmPrompt = replanVlmPrompt.Replace("{user_instruction}", main.userInstruction);
-            string escapedPrompt = replanVlmPrompt
-                .Replace("\\", "\\\\")
-                .Replace("\"", "\\\"")
-                .Replace("\n", "\\n")
-                .Replace("\r", "\\r");
-
-            // 4. Assemble request body with both text and image
-            string jsonRequest = $@"{{
-                ""model"": ""o4-mini"",
-                ""reasoning"": {{ ""effort"": ""high"" }},
-                ""input"": [
-                    {{
-                        ""role"": ""system"",
-                        ""content"": ""You are a task planning robot responsible for task planning and automatically generate code which outlines the execution plan.""
-                    }},
-                    {{
-                        ""role"": ""user"",
-                        ""content"": [
-                            {{
-                                ""type"": ""input_text"",
-                                ""text"": ""{escapedPrompt}""
-                            }},
-                            {{
-                                ""type"": ""input_image"",
-                                ""image_url"": ""data:image/png;base64,{base64Image}""
-                            }}
-                        ]
-                    }}
-                ]
-            }}";
-
-            // 5. Send request
-            UnityWebRequest request = new UnityWebRequest(APIurl, "POST");
-            byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonRequest);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-            request.SetRequestHeader("Authorization", $"Bearer {APIKey}");
-
-            Debug.Log("[ReplanVLM] Sending API Request...");
-            yield return request.SendWebRequest();
-            Debug.Log("[ReplanVLM] Received API Response.");
-
-            // 6. Process response
-            if (request.result != UnityWebRequest.Result.Success)
-            {
-                Debug.LogError($"[ReplanVLM] API Request Failed: {request.error}\n{request.downloadHandler.text}");
-                yield break;
-            }
-
-            string jsonResponse = request.downloadHandler.text;
-            Debug.Log("[ReplanVLM] Raw API response:\n" + jsonResponse);
-
-            // Parse using the ResponsesAPIResponse class
-            ResponsesAPIResponse response = JsonUtility.FromJson<ResponsesAPIResponse>(jsonResponse);
-
-            OutputItem messageBlock = null;
-            foreach (var item in response.output)
-            {
-                if (item.type == "message")
-                {
-                    messageBlock = item;
-                    break;
-                }
-            }
-
-            if (messageBlock == null || messageBlock.content == null || messageBlock.content.Length == 0)
-            {
-                Debug.LogError("[ReplanVLM] No valid message block in response.");
-                yield break;
-            }
-
-            string outputText = null;
-            foreach (var contentItem in messageBlock.content)
-            {
-                if (contentItem.type == "output_text")
-                {
-                    outputText = contentItem.text;
-                    break;
-                }
-            }
-
-            if (string.IsNullOrEmpty(outputText))
-            {
-                Debug.LogError("[ReplanVLM] No output_text found!");
-                yield break;
-            }
-
-            output = outputText.Trim();
-            Debug.Log("[ReplanVLM] Output:\n" + output);
-        }
-
-
     [Serializable]
     public class ResponsesAPIResponse
     {
@@ -531,99 +387,5 @@ public class DecisionBot : MonoBehaviour
         public string type;  // "output_text"
         public string text;  // the assistant’s text
     }
-
-    // // Response wrapper for JsonUtility
-    // [System.Serializable]
-    // private class OpenAIResponse
-    // {
-    //     public Choice[] choices;
-    // }
-
-    // [System.Serializable]
-    // private class Choice
-    // {
-    //     public Message message;
-    // }
-
-    // [System.Serializable]
-    // private class Message
-    // {
-    //     public string role;
-    //     public string content;
-    // }
-
-    //IEnumerator CallDeepSeekAPI(string promptContent)
-    //{
-    //    // Manual escape for JSON-compatibility
-    //    string escapedPrompt = promptContent
-    //        .Replace("\\", "\\\\")
-    //        .Replace("\"", "\\\"")
-    //        .Replace("\n", "\\n")
-    //        .Replace("\r", "\\r");
-
-    //    string jsonRequest = $@"{{
-    //        ""model"": ""deepseek-reasoner"",
-    //        ""messages"": [
-    //            {{
-    //                ""role"": ""user"",
-    //                ""content"": ""{escapedPrompt}""
-    //            }}
-    //        ],
-    //        ""temperature"": 0.1,
-    //        ""max_tokens"": 1500
-    //    }}";
-
-    //    string apiUrl = main.getAPIURL();
-    //    string apiKey = main.getAPIKey();
-
-    //    UnityWebRequest request = new UnityWebRequest(apiUrl, "POST");
-    //    byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonRequest);
-    //    request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-    //    request.downloadHandler = new DownloadHandlerBuffer();
-    //    request.SetRequestHeader("Content-Type", "application/json");
-    //    request.SetRequestHeader("Authorization", "Bearer " + apiKey);
-
-    //    yield return request.SendWebRequest();
-
-    //    if (request.result != UnityWebRequest.Result.Success)
-    //    {
-    //        Debug.LogError($"API Request Failed: {request.error}\n{request.downloadHandler.text}");
-    //    }
-    //    else
-    //    {
-    //        string jsonResponse = request.downloadHandler.text;
-    //        DeepSeekResponse response = JsonUtility.FromJson<DeepSeekResponse>(jsonResponse);
-
-    //        if (response.choices != null && response.choices.Length > 0)
-    //        {
-    //            output = response.choices[0].message.content.Trim();
-    //            Debug.Log("<color=cyan>--------- DeepSeek H2 Output ---------</color>\n" + output);
-    //        }
-    //        else
-    //        {
-    //            Debug.LogError("DeepSeek Reasoner returned empty result or malformed response.");
-    //        }
-    //    }
-    //}
-
-    //// Minimal response wrapper classes
-    //[System.Serializable]
-    //private class DeepSeekResponse
-    //{
-    //    public Choice[] choices;
-    //}
-
-    //[System.Serializable]
-    //private class Choice
-    //{
-    //    public Message message;
-    //}
-
-    //[System.Serializable]
-    //private class Message
-    //{
-    //    public string role;
-    //    public string content;
-    //}
 
 }

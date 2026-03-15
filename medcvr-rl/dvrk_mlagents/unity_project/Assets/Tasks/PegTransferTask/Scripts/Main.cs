@@ -9,12 +9,9 @@ public class Main : MonoBehaviour
 {
 
     public LowLevelMotor motor;
-    private const string openAIKey = "";
+    private string openAIKey = "";
     private const string openAIUrl = "https://api.openai.com/v1/chat/completions";
     private const string openAIReasoningURL = "https://api.openai.com/v1/responses";
-
-    private const string APIUrl = "https://api.deepseek.com/chat/completions";
-    private const string APIKey = "";
 
     public string userInstruction;
     public string h1Actions;
@@ -94,16 +91,6 @@ public class Main : MonoBehaviour
             { "brown", 4 },
             { "orange", 5 }
         };
-    }
-
-    public string getAPIKey()
-    {
-        return APIKey;
-    }
-
-    public string getAPIURL()
-    {
-        return APIUrl;
     }
 
     public string getOpenAIAPIKey()

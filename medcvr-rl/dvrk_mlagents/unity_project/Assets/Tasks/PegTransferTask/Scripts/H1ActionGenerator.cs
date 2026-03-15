@@ -111,7 +111,6 @@ public class H1ActionGenerator : MonoBehaviour
 
         string prompt = promptTemplate.Replace("{scene_description}", sceneDescriptionJSON).Replace("{h0_actions_descriptions}", h0_actions_descriptions).Replace("{single_state_change}", state_change_def);
 
-        // StartCoroutine(CallDeepSeekAPI(prompt));
 
         yield return StartCoroutine(CallOpenAIAPI(prompt));
         
@@ -238,70 +237,4 @@ public class H1ActionGenerator : MonoBehaviour
         public string content;
     }
 
-    //IEnumerator CallDeepSeekAPI(string promptContent)
-    //{
-    //    string jsonRequest = $@"{{
-    //        ""model"": ""deepseek-reasoner"",
-    //        ""messages"": [
-    //            {{
-    //                ""role"": ""user"",
-    //                ""content"": ""{promptContent.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "\\r")}""
-    //            }}
-    //        ],
-    //        ""temperature"": 0.1,
-    //        ""max_tokens"": 1500
-    //    }}";
-
-    //    UnityWebRequest request = new UnityWebRequest(APIurl, "POST");
-    //    byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonRequest);
-    //    request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-    //    request.downloadHandler = new DownloadHandlerBuffer();
-
-    //    request.SetRequestHeader("Content-Type", "application/json");
-    //    request.SetRequestHeader("Authorization", $"Bearer {APIKey}");
-
-    //    Debug.Log("Sending API Request");
-    //    yield return request.SendWebRequest();
-    //    Debug.Log("Received API Response");
-    //    if (request.result != UnityWebRequest.Result.Success)
-    //    {
-    //        Debug.LogError($"API Request Failed: {request.error}\n{request.downloadHandler.text}");
-    //    }
-    //    else
-    //    {
-    //        string jsonResponse = request.downloadHandler.text;
-
-    //        DeepSeekResponse response = JsonUtility.FromJson<DeepSeekResponse>(jsonResponse);
-
-    //        if (response.choices != null && response.choices.Length > 0)
-    //        {
-    //            output = response.choices[0].message.content.Trim();
-    //            Debug.Log("DeepSeek Reasoner Output:\n" + output);
-    //        }
-    //        else
-    //        {
-    //            Debug.LogError("DeepSeek API returned empty choices or malformed response.");
-    //        }
-    //    }
-    //}
-
-    //// Response wrappers for JsonUtility
-    //[System.Serializable]
-    //private class DeepSeekResponse
-    //{
-    //    public Choice[] choices;
-    //}
-
-    //[System.Serializable]
-    //private class Choice
-    //{
-    //    public Message message;
-    //}
-
-    //[System.Serializable]
-    //private class Message
-    //{
-    //    public string role;
-    //    public string content;
-    //}
 }

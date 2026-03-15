@@ -331,26 +331,6 @@ public class SceneDescriptor : MonoBehaviour
         public string text;  // the assistant’s actual response
     }
 
-    //// Response wrappers for JsonUtility
-    //[System.Serializable]
-    //private class DeepSeekResponse
-    //{
-    //    public Choice[] choices;
-    //}
-
-    //[System.Serializable]
-    //private class Choice
-    //{
-    //    public Message message;
-    //}
-
-    //[System.Serializable]
-    //private class Message
-    //{
-    //    public string role;
-    //    public string content;
-    //}
-
     // Response wrapper for JsonUtility
     [System.Serializable]
     private class OpenAIResponse
