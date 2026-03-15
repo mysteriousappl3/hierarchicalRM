@@ -304,7 +304,7 @@ GameObject:
   - component: {fileID: 5017810189756437177}
   - component: {fileID: 5153773767461589409}
   m_Layer: 0
-  m_Name: HoopThree
+  m_Name: RingThree
   m_TagString: Block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2405,7 +2405,7 @@ GameObject:
   - component: {fileID: 2567805644473891136}
   - component: {fileID: 157669819690523945}
   m_Layer: 0
-  m_Name: HoopFour
+  m_Name: RingFour
   m_TagString: Block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8434,7 +8434,7 @@ GameObject:
   - component: {fileID: 3948115501364936552}
   - component: {fileID: 344084292461679617}
   m_Layer: 0
-  m_Name: HoopTwo
+  m_Name: RingTwo
   m_TagString: Block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10876,7 +10876,7 @@ GameObject:
   - component: {fileID: 594804831200649717}
   - component: {fileID: 3684874888099885282}
   m_Layer: 0
-  m_Name: HoopOne
+  m_Name: RingOne
   m_TagString: Block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12469,7 +12469,7 @@ GameObject:
   - component: {fileID: 3834429331004778340}
   - component: {fileID: 1250180436142268741}
   - component: {fileID: 2438949513347136305}
-  - component: {fileID: 6191798711188246254}
+  - component: {fileID: 1991774968342923318}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -12561,7 +12561,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &6191798711188246254
+--- !u!114 &1991774968342923318
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -12570,7 +12570,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6164782000577625446}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ddb3164fc50f14548957c4d8ee395525, type: 3}
+  m_Script: {fileID: 11500000, guid: e81857576507940b29dffde5359916e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   motor: {fileID: 483762124968149149}

@@ -126,22 +126,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2567805644473891136, guid: f3476c090b9c648b49c9f10d2076513f, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.109
-      objectReference: {fileID: 0}
-    - target: {fileID: 2567805644473891136, guid: f3476c090b9c648b49c9f10d2076513f, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.524
-      objectReference: {fileID: 0}
-    - target: {fileID: 5017810189756437177, guid: f3476c090b9c648b49c9f10d2076513f, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.108
-      objectReference: {fileID: 0}
-    - target: {fileID: 5017810189756437177, guid: f3476c090b9c648b49c9f10d2076513f, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 1.046
-      objectReference: {fileID: 0}
     - target: {fileID: 7143575594763578117, guid: f3476c090b9c648b49c9f10d2076513f, type: 3}
       propertyPath: m_Name
       value: 4Rings_Scene

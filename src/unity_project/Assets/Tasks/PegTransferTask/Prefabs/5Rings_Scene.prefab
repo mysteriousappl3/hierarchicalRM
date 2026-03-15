@@ -64,7 +64,7 @@ GameObject:
   - component: {fileID: 6616609417378701457}
   - component: {fileID: 627156247187630185}
   m_Layer: 0
-  m_Name: HoopOne
+  m_Name: RingOne
   m_TagString: Block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2756,7 +2756,7 @@ GameObject:
   - component: {fileID: 5467433892008063039}
   - component: {fileID: 7955222001683713963}
   - component: {fileID: 5026444958072542721}
-  - component: {fileID: 4271759787610735025}
+  - component: {fileID: 212721127278541522}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -2848,7 +2848,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &4271759787610735025
+--- !u!114 &212721127278541522
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2857,7 +2857,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1342367049542464679}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ddb3164fc50f14548957c4d8ee395525, type: 3}
+  m_Script: {fileID: 11500000, guid: e81857576507940b29dffde5359916e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   motor: {fileID: 3192577613898326264}
@@ -5947,7 +5947,7 @@ GameObject:
   - component: {fileID: 2107103976930453968}
   - component: {fileID: 2553367187659115889}
   m_Layer: 0
-  m_Name: HoopTwo
+  m_Name: RingTwo
   m_TagString: Block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9125,7 +9125,7 @@ GameObject:
   - component: {fileID: 8462491888584727141}
   - component: {fileID: 6604232736269806550}
   m_Layer: 0
-  m_Name: HoopFive
+  m_Name: RingFive
   m_TagString: Block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10097,7 +10097,7 @@ GameObject:
   - component: {fileID: 5033258327715406520}
   - component: {fileID: 8528133753879817725}
   m_Layer: 0
-  m_Name: HoopFour
+  m_Name: RingFour
   m_TagString: Block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15091,7 +15091,7 @@ GameObject:
   - component: {fileID: 2509404944865460071}
   - component: {fileID: 4620640303465109336}
   m_Layer: 0
-  m_Name: HoopThree
+  m_Name: RingThree
   m_TagString: Block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
