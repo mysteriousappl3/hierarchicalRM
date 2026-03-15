@@ -54,13 +54,7 @@ public class Main : MonoBehaviour
 
     void Start() 
     {
-        userInstruction = "Following tower of hanoi rules, move the hoops to the red peg.";
-        // userInstruction = "Transfer all hoops to the red peg such that yellow hoop is on the top and purple hoop is on the bottom. Also, larger hoops should never be above smaller hoops.";
-        // userInstruction = "Transfer all hoops to the blue peg such that white hoop is on top and yellow hoop is on the bottom. Make sure the order [white, purple, yellow] is never violated on all pillars except green pillar.";
-        // userInstruction = "Transfer all hoops except brown hoop to the blue peg so that purple hoop is still in the bottom and yellow hoop is on top. Also, transfer brown hoop to the red peg. Make sure the order of hoops in the green peg is never violated on all pillars.";
-        // userInstruction = "Transfer all hoops on the green peg to the blue peg. For all hoops initially in green peg, make sure no lower hoop is above an upper hoop. Brown and purple hoops should not be above white hoop but white hoop can be above any hoop. White hoop should be in the red peg in goal state but it can be moved around during the task.";
-        // userInstruction = "Transfer purple hoop to red peg and yellow hoop to blue peg, and in final state the brown hoop must be above white hoop in the green peg.";
-        // userInstruction = "Transfer purple hoop to red peg and yellow hoop to green peg, and in final state the white hoop must be above brown hoop in the blue peg. Make sure a later hoop in the order [yellow, white, brown, purple] is never above an earlier hoop.";
+        userInstruction = ""; // Set via UI input field
 
         initialStateDesc = "";
         initialSceneDesc = "";

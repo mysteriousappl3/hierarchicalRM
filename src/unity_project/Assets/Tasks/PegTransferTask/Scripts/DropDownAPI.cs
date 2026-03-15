@@ -26,10 +26,28 @@ public class DropDownAPI : MonoBehaviour
     /////////////////////
     public Dropdown plannerDropDown;
 
+    public InputField taskInputField;
+    public Button startButton;
+
     void Start()
     {
         plannerDropDown.value = 0;
-        plannerDropDown.RefreshShownValue(); 
+        plannerDropDown.RefreshShownValue();
+
+        startButton.interactable = false;
+        taskInputField.onValueChanged.AddListener(OnTaskInputChanged);
+        startButton.onClick.AddListener(OnStartButtonClicked);
+    }
+
+    private void OnTaskInputChanged(string value)
+    {
+        startButton.interactable = !string.IsNullOrWhiteSpace(value);
+    }
+
+    public void OnStartButtonClicked()
+    {
+        main.userInstruction = taskInputField.text.Trim();
+        StartCoroutine(APIRunner());
     }
 
 
@@ -141,27 +159,6 @@ public class DropDownAPI : MonoBehaviour
         main.imageCounter += 1;
 
         yield break;
-    }
-
-    public void DecisionMaker()
-    {
-        int decisionIdx = plannerDropDown.value;
-
-        if (decisionIdx == 0)
-        {
-            return;
-        }
-
-        switch (decisionIdx)
-        {
-            case 1:
-                StartCoroutine(cam.SaveImage());
-                break;
-
-            case 2:
-                StartCoroutine(APIRunner());
-                break;
-        }
     }
 
     private void CleanForReplan()
