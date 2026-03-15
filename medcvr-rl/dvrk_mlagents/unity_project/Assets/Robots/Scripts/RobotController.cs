@@ -17,7 +17,7 @@ public class RobotController : MonoBehaviour
     [SerializeField]
     public ControllerType Controller = ControllerType.Cartesian;
 
-    public enum Robot {Franka, PSM};
+    public enum Robot {PSM};
     [SerializeField]
     public Robot RobotType = Robot.PSM;
 
@@ -79,17 +79,6 @@ public class RobotController : MonoBehaviour
             kinematics = new PSMKinematics(
                 new PSMKinematicParameters(Tool, this.transform.localScale.x));
         }
-        else if (RobotType == Robot.Franka)
-        {
-            kinematics = new FrankaKinematics(
-                new FrankaKinemticsParameters(Tool, this.transform.localScale.x),
-                new Vector3(0.3f, 0f, 0.2815f) * this.transform.localScale.x,
-                this.transform.localScale.x);
-
-            // Franka IK requires initial joint values to find closest IK solution
-            ((FrankaKinematics)kinematics).SetInitialJointValues(
-                new float[] {0, -0.772f, 0, -2.497f, 0, 1.725f, 0});
-        }
         else
         {
             Debug.LogError("Robot type not supported: " + RobotType.ToString());
@@ -98,7 +87,6 @@ public class RobotController : MonoBehaviour
         if (initialized) return;
         jointController = GetComponent<JointController>();
         if (jointController is UrdfJointController) axisConversion = AxisConversionMode.Urdf;
-        if (jointController is MjJointController) axisConversion = AxisConversionMode.Mujoco;
         jointController.Initialize();
         InitializeIKController();
         initialized = true;
@@ -147,25 +135,11 @@ public class RobotController : MonoBehaviour
             new Pose(BaseLink.transform.position, BaseLink.transform.rotation));
         currentJawAngle = startJawAngle;
         referenceRotation = currentTipPosewrtWorld.rotation.eulerAngles;
-
-        if (RobotType == Robot.Franka)
-        {
-            ((FrankaKinematics)kinematics).SetInitialJointValues(
-                jointController.GetCurrentJointPositions(7));
-        }
     }
 
     public void ResetTip(
         Vector3 tipPositionwrtWorld, Quaternion tipRotationwrtWorld)
     {
-        if (RobotType == Robot.Franka)
-        {
-            tipRotationwrtWorld = Quaternion.Euler(
-                tipRotationwrtWorld.eulerAngles.x,
-                tipRotationwrtWorld.eulerAngles.y - 180f,
-                tipRotationwrtWorld.eulerAngles.z);
-        }
-
         Pose tipPosewrtBase = ControllerUtils.TransformWorldToLocal(
             new Pose(tipPositionwrtWorld, tipRotationwrtWorld),
             new Pose(BaseLink.transform.position, BaseLink.transform.rotation));
@@ -192,12 +166,6 @@ public class RobotController : MonoBehaviour
         currentTipPosewrtWorld = new Pose(tipPositionwrtWorld, tipRotationwrtWorld);
         currentJawAngle = startJawAngle;
         referenceRotation = currentTipPosewrtWorld.rotation.eulerAngles;
-
-        if (RobotType == Robot.Franka)
-        {
-            ((FrankaKinematics)kinematics).SetInitialJointValues(
-                jointController.GetCurrentJointPositions(7));
-        }
     }
 
     public (Vector3, Vector3) CalculateMoveTipPosition(Vector3 positionDelta)
