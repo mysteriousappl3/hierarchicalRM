@@ -93,7 +93,7 @@ public class InnerBot : MonoBehaviour
         if (userInstruction == "")
         {
            Debug.Log("[InnerBot] -- Empty user instruction!");
-           return;
+           yield break;
         }
 
         string currentSceneDesc = sceneDescriptor.output;
@@ -101,7 +101,7 @@ public class InnerBot : MonoBehaviour
         if (currentSceneDesc == "")
         {
            Debug.Log("[InnerBot] -- Please generate current state scene description");
-           return;
+           yield break;
         }
 
         string stateDescription = stateDescriptor.output;
@@ -109,7 +109,7 @@ public class InnerBot : MonoBehaviour
         if (stateDescription == "")
         {
            Debug.Log("[InnerBot] -- Please generate state description");
-           return;
+           yield break;
         }
 
         string h1Actions = "";
@@ -122,21 +122,21 @@ public class InnerBot : MonoBehaviour
             if (h1Actions == "")
             {
                 Debug.Log("[InnerBot] -- H1 Actions empty!");
-                return;
+                yield break;
             }
 
             h2Actions = h2ActionGenerator.output;
             if (h2Actions == "")
             {
                 Debug.Log("[InnerBot] -- H2 Actions empty!");
-                return;
+                yield break;
             }
 
             decisionBotOutput = decisionBot.output;
             if (decisionBotOutput == "")
             {
                 Debug.Log("[InnerBot] -- Please generate a plan by calling Decision Bot!");
-                return;
+                yield break;
             }
         }
 

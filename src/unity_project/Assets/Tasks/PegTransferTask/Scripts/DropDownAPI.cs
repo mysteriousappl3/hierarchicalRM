@@ -26,7 +26,7 @@ public class DropDownAPI : MonoBehaviour
     /////////////////////
     public Dropdown plannerDropDown;
 
-    public IEnumerator Start()
+    void Start()
     {
         plannerDropDown.value = 0;
         plannerDropDown.RefreshShownValue(); 
