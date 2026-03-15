@@ -44,7 +44,7 @@ public class LowLevelMotor: MonoBehaviour
     // Scripts references
     public RobotController robotCont;
     public UrdfJointController urdfCont;
-    public VLMJawCollision collisionCont;
+    public JawCollision collisionCont;
 
     // Constants
     private const float speedMultiplier = 0.00115f; // original

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-public class VLMJawCollision : MonoBehaviour
+public class JawCollision : MonoBehaviour
 {
     private GameObject robot;
     [SerializeField]
@@ -11,7 +11,7 @@ public class VLMJawCollision : MonoBehaviour
     public Dictionary<string, UrdfJointMapping> jointNameToActiveJoint;
 
     public bool isColliding;
-    public VLMJawCollision otherJaw;
+    public JawCollision otherJaw;
     public bool objectGrabbed;
     public bool pickedBlockOnce = false;    // Tracks if agent has picked the block at least once or not
 
