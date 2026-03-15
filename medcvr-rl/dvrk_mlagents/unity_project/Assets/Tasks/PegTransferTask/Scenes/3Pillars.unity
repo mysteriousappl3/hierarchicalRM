@@ -118,379 +118,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &107901585
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 107901587}
-  - component: {fileID: 107901586}
-  m_Layer: 0
-  m_Name: GlobalInstances
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &107901586
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 107901585}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 660210a9723eed44ca953391ed4a3b46, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  RandomizationType: 0
-  UseConfigFile: 0
-  PathToConfig: 
-  UseCurriculum: 0
-  LessonName: 
-  CurrentPreset: 0
-  ConfigurationPresets:
-  - label: 0
-    presetItems:
-    - referenceName: light_px
-      value: 0
-    - referenceName: light_py
-      value: 5
-    - referenceName: light_pz
-      value: 0
-    - referenceName: light_rx
-      value: 90
-    - referenceName: light_ry
-      value: 0
-    - referenceName: light_rz
-      value: 0
-    - referenceName: camera_px
-      value: 0
-    - referenceName: camera_py
-      value: 5
-    - referenceName: camera_pz
-      value: 0
-    - referenceName: camera_rx
-      value: 90
-    - referenceName: camera_ry
-      value: 0
-    - referenceName: camera_rz
-      value: 0
-  - label: 1
-    presetItems:
-    - referenceName: light_px
-      value: -4
-    - referenceName: light_py
-      value: 5
-    - referenceName: light_pz
-      value: 2
-    - referenceName: light_rx
-      value: 30
-    - referenceName: light_ry
-      value: 90
-    - referenceName: light_rz
-      value: 90
-    - referenceName: camera_px
-      value: 0
-    - referenceName: camera_py
-      value: 5
-    - referenceName: camera_pz
-      value: 0
-    - referenceName: camera_rx
-      value: 90
-    - referenceName: camera_ry
-      value: 0
-    - referenceName: camera_rz
-      value: 0
-  - label: 2
-    presetItems:
-    - referenceName: light_px
-      value: -4
-    - referenceName: light_py
-      value: 5
-    - referenceName: light_pz
-      value: 0
-    - referenceName: light_rx
-      value: 30
-    - referenceName: light_ry
-      value: 90
-    - referenceName: light_rz
-      value: 90
-    - referenceName: camera_px
-      value: 0
-    - referenceName: camera_py
-      value: 5
-    - referenceName: camera_pz
-      value: 0
-    - referenceName: camera_rx
-      value: 90
-    - referenceName: camera_ry
-      value: 0
-    - referenceName: camera_rz
-      value: 0
-  - label: 3
-    presetItems:
-    - referenceName: light_px
-      value: -4
-    - referenceName: light_py
-      value: 5
-    - referenceName: light_pz
-      value: -2
-    - referenceName: light_rx
-      value: 30
-    - referenceName: light_ry
-      value: 90
-    - referenceName: light_rz
-      value: 90
-    - referenceName: camera_px
-      value: 0
-    - referenceName: camera_py
-      value: 5
-    - referenceName: camera_pz
-      value: 0
-    - referenceName: camera_rx
-      value: 90
-    - referenceName: camera_ry
-      value: 0
-    - referenceName: camera_rz
-      value: 0
-  - label: 4
-    presetItems:
-    - referenceName: light_px
-      value: 0
-    - referenceName: light_py
-      value: 5
-    - referenceName: light_pz
-      value: 0
-    - referenceName: light_rx
-      value: 90
-    - referenceName: light_ry
-      value: 0
-    - referenceName: light_rz
-      value: 0
-    - referenceName: camera_px
-      value: -0.2
-    - referenceName: camera_py
-      value: 5
-    - referenceName: camera_pz
-      value: -0.8
-    - referenceName: camera_rx
-      value: 75
-    - referenceName: camera_ry
-      value: 0
-    - referenceName: camera_rz
-      value: 0
-  - label: 5
-    presetItems:
-    - referenceName: light_px
-      value: 0
-    - referenceName: light_py
-      value: 5
-    - referenceName: light_pz
-      value: 0
-    - referenceName: light_rx
-      value: 90
-    - referenceName: light_ry
-      value: 0
-    - referenceName: light_rz
-      value: 0
-    - referenceName: camera_px
-      value: -0.2
-    - referenceName: camera_py
-      value: 4.5
-    - referenceName: camera_pz
-      value: -2.2
-    - referenceName: camera_rx
-      value: 60
-    - referenceName: camera_ry
-      value: 0
-    - referenceName: camera_rz
-      value: 0
-  - label: 6
-    presetItems:
-    - referenceName: light_px
-      value: 0
-    - referenceName: light_py
-      value: 5
-    - referenceName: light_pz
-      value: 0
-    - referenceName: light_rx
-      value: 90
-    - referenceName: light_ry
-      value: 0
-    - referenceName: light_rz
-      value: 0
-    - referenceName: camera_px
-      value: 0.7
-    - referenceName: camera_py
-      value: 4.5
-    - referenceName: camera_pz
-      value: 0.3
-    - referenceName: camera_rx
-      value: 80
-    - referenceName: camera_ry
-      value: -90
-    - referenceName: camera_rz
-      value: -90
-  - label: 7
-    presetItems:
-    - referenceName: light_px
-      value: -4
-    - referenceName: light_py
-      value: 5
-    - referenceName: light_pz
-      value: 0
-    - referenceName: light_rx
-      value: 30
-    - referenceName: light_ry
-      value: 90
-    - referenceName: light_rz
-      value: 90
-    - referenceName: camera_px
-      value: 0.7
-    - referenceName: camera_py
-      value: 4.5
-    - referenceName: camera_pz
-      value: 0.3
-    - referenceName: camera_rx
-      value: 80
-    - referenceName: camera_ry
-      value: -90
-    - referenceName: camera_rz
-      value: -90
-  - label: 8
-    presetItems:
-    - referenceName: light_px
-      value: 4
-    - referenceName: light_py
-      value: 5
-    - referenceName: light_pz
-      value: 0
-    - referenceName: light_rx
-      value: 30
-    - referenceName: light_ry
-      value: -90
-    - referenceName: light_rz
-      value: -90
-    - referenceName: camera_px
-      value: 0.7
-    - referenceName: camera_py
-      value: 4.5
-    - referenceName: camera_pz
-      value: 0.3
-    - referenceName: camera_rx
-      value: 80
-    - referenceName: camera_ry
-      value: -90
-    - referenceName: camera_rz
-      value: -90
-  - label: 9
-    presetItems:
-    - referenceName: light_px
-      value: 4
-    - referenceName: light_py
-      value: 5
-    - referenceName: light_pz
-      value: 0
-    - referenceName: light_rx
-      value: 30
-    - referenceName: light_ry
-      value: -90
-    - referenceName: light_rz
-      value: -90
-    - referenceName: camera_px
-      value: 0.7
-    - referenceName: camera_py
-      value: 4.5
-    - referenceName: camera_pz
-      value: 0.3
-    - referenceName: camera_rx
-      value: 80
-    - referenceName: camera_ry
-      value: -90
-    - referenceName: camera_rz
-      value: -90
-  baseRandomizations:
-  - name: Camera X Position
-    referenceName: camera_px
-    min: -0.05
-    max: 0.05
-  - name: Camera Y Position
-    referenceName: camera_py
-    min: 2.15
-    max: 2.25
-  - name: Camera Z Position
-    referenceName: camera_pz
-    min: 0.1
-    max: 0.2
-  - name: Camera X Rotation
-    referenceName: camera_rx
-    min: 43
-    max: 47
-  - name: Camera Y Rotation
-    referenceName: camera_ry
-    min: -1.5
-    max: 1.5
-  - name: Camera Z Rotation
-    referenceName: camera_rz
-    min: -1.5
-    max: 1.5
-  - name: Light X Position
-    referenceName: light_px
-    min: -3
-    max: 3
-  - name: Light Y Position
-    referenceName: light_py
-    min: 4
-    max: 7
-  - name: Light Z Position
-    referenceName: light_pz
-    min: -2
-    max: 1.5
-  - name: Light Intensity
-    referenceName: light_intensity
-    min: 10
-    max: 30
-  - name: Ground Static Friction
-    referenceName: static_friction
-    min: 0
-    max: 0.3
-  - name: Ground Dynamic Friction
-    referenceName: dynamic_friction
-    min: 0
-    max: 0.3
-  - name: Ground R Color
-    referenceName: ground_r
-    min: 0.25
-    max: 0.35
-  - name: Ground G Color
-    referenceName: ground_g
-    min: 0.65
-    max: 0.75
-  - name: Ground B Color
-    referenceName: ground_b
-    min: 0.95
-    max: 1
-  taskSpecificRandomizations: []
---- !u!4 &107901587
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 107901585}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 24.956404, y: 9.285222, z: 6.842095}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &141218484
 GameObject:
   m_ObjectHideFlags: 0
@@ -3499,66 +3126,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1385910791633784685
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2622856868557990215}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 941853c4d66894d25b2c963edfd70aa6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  agentParameters:
-    maxStep: 0
-  hasUpgradedFromAgentParameters: 1
-  MaxStep: 3000
-  ParentScene: {fileID: 6024727900555215926}
-  ToolTip: {fileID: 9130579264207533968}
-  Ground: {fileID: 2765385044668650379}
-  SpawnGround: {fileID: 1359114611287635604}
-  SceneLight: {fileID: 5435501162618896457}
-  SceneCamera: {fileID: 3183768610848531236}
-  Arms:
-  - RootObject: {fileID: 3910919318239077893}
-    prefix: 
-    ActionSettings:
-    - id: position_x
-      mode: 2
-    - id: position_y
-      mode: 2
-    - id: position_z
-      mode: 2
-    - id: jaw
-      mode: 1
-    - id: rotation_x
-      mode: 0
-    - id: rotation_y
-      mode: 0
-    - id: rotation_z
-      mode: 0
-    PositionSpeedMultiplier: 0.01
-    controller: {fileID: 0}
-    jawOpen: 0
-    _serielized: 1
-  UseVectorObservation: 0
-  blockPeg: {fileID: 0}
-  goalPeg: {fileID: 0}
-  blockTransform: {fileID: 0}
-  goalPosition: {x: 0, y: 0, z: 0}
-  prefab: {fileID: 9117440551691363278, guid: 55b49c5cede004e749865be27b293509, type: 3}
-  blockPosition: {x: 0, y: 0, z: 0}
-  blockGrabbed: 0
-  escapedStartPeg: 0
-  escapePegReward: 0
-  distRewardScaling: 0
-  heightRewardScaling: 0
-  lowerBlockRewardScaling: 0
-  rewardMode: 1
-  behaviourMode: 1
-  blockGrabReward: 0
 --- !u!224 &1401485571927192956
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5432,10 +4999,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2191135913027211198}
-  - component: {fileID: 4139131406705920675}
-  - component: {fileID: 1385910791633784685}
-  - component: {fileID: 4666703344139473808}
-  - component: {fileID: 5479229029594211648}
   - component: {fileID: 3299996900712481734}
   m_Layer: 0
   m_Name: Agent
@@ -5444,11 +5007,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!20 &2633172035620465595 stripped
-Camera:
-  m_CorrespondingSourceObject: {fileID: 6550702855771380386, guid: 5e5592508a8eb449dbb834de2898129b, type: 3}
-  m_PrefabInstance: {fileID: 8291044503803195683}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2637281636468137302
 GameObject:
   m_ObjectHideFlags: 0
@@ -5484,7 +5042,6 @@ MonoBehaviour:
   objectGrabbed: 0
   pickedBlockOnce: 0
   edgeLayer: 0
-  agent: {fileID: 1385910791633784685}
   motor: {fileID: 3299996900712481734}
   behaviourMode: 1
   GRAB_BLOCK_ENABLED: 1
@@ -6456,11 +6013,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &3183768610848531236 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2668942389752452859, guid: 5e5592508a8eb449dbb834de2898129b, type: 3}
-  m_PrefabInstance: {fileID: 8291044503803195683}
-  m_PrefabAsset: {fileID: 0}
 --- !u!33 &3189499957201021266
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -7825,37 +7377,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5944038067425929681}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4139131406705920675
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2622856868557990215}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d1c4e0b1822b495aa52bc52839ecb30, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_BrainParameters:
-    VectorObservationSize: 0
-    NumStackedVectorObservations: 1
-    m_ActionSpec:
-      m_NumContinuousActions: 3
-      BranchSizes: 02000000
-    VectorActionSize: 
-    VectorActionDescriptions: []
-    VectorActionSpaceType: 1
-    hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
-  m_InferenceDevice: 0
-  m_BehaviorType: 1
-  m_BehaviorName: PegTransfer
-  TeamId: 0
-  m_UseChildSensors: 0
-  m_UseChildActuators: 1
-  m_DeterministicInference: 0
-  m_ObservableAttributeHandling: 0
 --- !u!1 &4150656661029637650
 GameObject:
   m_ObjectHideFlags: 0
@@ -8602,21 +8123,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &4666703344139473808
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2622856868557990215}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a5c9d521e5ef4759a8246a07d52221e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  DecisionPeriod: 10
-  DecisionStep: 0
-  TakeActionsBetweenDecisions: 1
 --- !u!4 &4688186192435049392
 Transform:
   m_ObjectHideFlags: 0
@@ -9351,7 +8857,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2126b6aba1a145258cede9146aa7738, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Agent: {fileID: 1385910791633784685}
+  Agent: {fileID: 0}
 --- !u!4 &5357487678864178777
 Transform:
   m_ObjectHideFlags: 0
@@ -9594,27 +9100,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 871419537701902965}
   m_LocalEulerAnglesHint: {x: 0, y: 244.8, z: 0}
---- !u!114 &5479229029594211648
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2622856868557990215}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 282f342c2ab144bf38be65d4d0c4e07d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Camera: {fileID: 2633172035620465595}
-  m_SensorName: CameraSensor
-  m_Width: 64
-  m_Height: 64
-  m_Grayscale: 0
-  m_ObservationType: 0
-  m_RuntimeCameraEnable: 0
-  m_ObservationStacks: 1
-  m_Compression: 1
 --- !u!4 &5487354372296033156
 Transform:
   m_ObjectHideFlags: 0
@@ -13629,7 +13114,6 @@ MonoBehaviour:
   objectGrabbed: 0
   pickedBlockOnce: 0
   edgeLayer: 0
-  agent: {fileID: 1385910791633784685}
   motor: {fileID: 3299996900712481734}
   behaviourMode: 1
   GRAB_BLOCK_ENABLED: 1
@@ -15736,7 +15220,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 633866470863306443}
   - {fileID: 894531134}
-  - {fileID: 107901587}
   - {fileID: 3890680848912615535}
   - {fileID: 1974081843}
   - {fileID: 1300198385285108961}
