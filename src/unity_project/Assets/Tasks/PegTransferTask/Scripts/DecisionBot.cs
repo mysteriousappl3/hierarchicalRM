@@ -26,10 +26,6 @@ public class DecisionBot : MonoBehaviour
     {
         output = "";
 
-        // Note: If you use a different scene, then the Role play: section will change to include proper ordering of the pegs unless we change our design to use VLM to use colors.
-        // Then, we can have a variable in that scene to map the color to the peg number to avoid frequent changes to the prompts. This seems like the better idea to go with and makes
-        // our solution scalable and easier to debug and work with.
-
         promptTemplate = @"
             This is the task that we want to perform: (Look carefully at the user instruction and constraints)
             {user_instruction}
@@ -105,131 +101,43 @@ public class DecisionBot : MonoBehaviour
     {
         string userInstruction = main.userInstruction;
 
-        //if (userInstruction == "")
-        //{
-        //    Debug.Log("[DecisionBot] -- Please ensure a non-empty user instruction is provided");
-        //    yield break;
-        //}
-
-        //string h1Actions = h1ActionGenerator.output;
-
-        //if (h1Actions == "")
-        //{
-        //    Debug.Log("[DecisionBot] -- Please ensure H1 actions are generated prior to generating plan");
-        //    yield break;
-        //}
-
-        //string h2Actions = h2ActionGenerator.output;
-
-        //if (h2Actions == "")
-        //{
-        //    Debug.Log("[DecisionBot] -- Please ensure H2 actions are generated prior to generating plan");
-        //    yield break;
-        //}
-
-        //string sceneDescription = sceneDescriptor.output;
-
-        //if (sceneDescription == "")
-        //{
-        //    Debug.Log("[DecisonBot] -- Please ensure scene description is generated prior to generating plan");
-        //    yield break;
-        //}
-
-        //string stateDescription = stateDescriptor.output;
-
-        //if (stateDescription == "")
-        //{
-        //    Debug.Log("[DecisonBot] -- Please ensure scene description is generated prior to generating plan");
-        //    yield break;
-        //}
-
-
-        // string stateDescriptionJSON = @"
-        //     {
-        //         ""goal_spatial_relations"": {
-        //             ""ring_purple"": [""in(peg_red)""],
-        //             ""ring_white"": [""in(peg_red)"", ""above(ring_purple)""],
-        //             ""ring_yellow"": [""in(peg_red)"", ""above(ring_white)""]  
-        //         },
-        //         ""constraint_spatial_relations"": {
-        //             ""ring_purple"": [
-        //                 ""NOT(above(ring_purple, ring_white))"",
-        //                 ""NOT(above(ring_purple, ring_yellow))""
-        //             ],
-        //             ""ring_white"": [
-        //                 ""NOT(above(ring_white, ring_yellow))""
-        //             ],
-        //             ""ring_yellow"": []
-        //         }
-        //     }";
-
-        string stateDescriptionJSON = stateDescriptor.output;
-
-        // string sceneDescriptionJSON = @"
-        // {
-        //     ""objects"": [
-        //         ""<peg_green>"",
-        //         ""<hoop_yellow>"",
-        //         ""<hoop_white>"",
-        //         ""<hoop_purple>"",
-        //         ""<peg_red>"",
-        //         ""<peg_blue>""
-        //     ],
-        //     ""object_properties"": {
-        //         ""<peg_green>"": [],
-        //         ""<hoop_yellow>"": [""GRABBABLE""],
-        //         ""<hoop_white>"": [""GRABBABLE""],
-        //         ""<hoop_purple>"": [""GRABBABLE""],
-        //         ""<peg_red>"": [],
-        //         ""<peg_blue>"": []
-        //     },
-        //     ""spatial_relations"": {
-        //         ""<peg_green>"": [],
-        //         ""<hoop_yellow>"": [""in(<peg_green>)"", ""above(<hoop_white>)""],
-        //         ""<hoop_white>"": [""in(<peg_green>)"", ""above(<hoop_purple>)""],
-        //         ""<hoop_purple>"": [""in(<peg_green>)""],
-        //         ""<peg_red>"": [],
-        //         ""<peg_blue>"": []
-        //     },
-        //     ""your_explanation"": ""I included three hoops (yellow, white, purple) that are on the green peg, along with two additional pegs (red and blue). Each hoop is in the green peg, and the yellow hoop is above the white, which is above the purple, showing their stacked order. There are no other objects in the scene.""
-        // }";
+        if (userInstruction == "")
+        {
+            Debug.Log("[DecisionBot] -- Please ensure a non-empty user instruction is provided");
+            yield break;
+        }
 
         string sceneDescriptionJSON = sceneDescriptor.output;
 
-        // string h1Actions = @"
-        //     public void MoveHoop(string hoop, string target)
-        //     {
-        //         Move(hoop);
-        //         Grab();
-        //         Move(target);
-        //         Drop();
-        //     }
-        //     ";
+        if (sceneDescriptionJSON == "")
+        {
+            Debug.Log("[DecisionBot] -- Please ensure scene description is generated prior to generating plan");
+            yield break;
+        }
+
+        string stateDescriptionJSON = stateDescriptor.output;
+
+        if (stateDescriptionJSON == "")
+        {
+            Debug.Log("[DecisionBot] -- Please ensure state description is generated prior to generating plan");
+            yield break;
+        }
 
         string h1Actions = h1ActionGenerator.output;
 
-        // string h2Actions = @"
-        //     public void MoveTwoHoops(string hoop1, string hoop2, string targetPeg)
-        //     {
-        //         MoveHoop(hoop1, targetPeg);
-        //         MoveHoop(hoop2, targetPeg);
-        //     }
-
-        //     public void MoveThreeHoops(string hoop1, string hoop2, string hoop3, string targetPeg)
-        //     {
-        //         MoveHoop(hoop1, targetPeg);
-        //         MoveHoop(hoop2, targetPeg);
-        //         MoveHoop(hoop3, targetPeg);
-        //     }
-
-        //     public void SwapHoopsBetweenPegs(string hoop1, string peg1, string hoop2, string peg2)
-        //     {
-        //         MoveHoop(hoop1, peg2);
-        //         MoveHoop(hoop2, peg1);
-        //     }
-        //     ";
+        if (h1Actions == "")
+        {
+            Debug.Log("[DecisionBot] -- Please ensure H1 actions are generated prior to generating plan");
+            yield break;
+        }
 
         string h2Actions = h2ActionGenerator.output;
+
+        if (h2Actions == "")
+        {
+            Debug.Log("[DecisionBot] -- Please ensure H2 actions are generated prior to generating plan");
+            yield break;
+        }
 
         string outerBotFeedback = outerBot.output;
 
@@ -244,12 +152,6 @@ public class DecisionBot : MonoBehaviour
         {
             innerBotFeedback = "N/A";
         }
-
-        Debug.Log("[DECISION BOT] Scene Desc -- " + sceneDescriptionJSON);
-        Debug.Log("[DECISION BOT] User Instruction -- " + userInstruction);
-        Debug.Log("[DECISION BOT] State Desc -- " + stateDescriptionJSON);
-        Debug.Log("[DECISION BOT] Inner feedback -- " + innerBotFeedback);
-        Debug.Log("[DECISION BOT] Outer feedback -- " + outerBotFeedback);
         
         string prompt = promptTemplate
                     .Replace("{h1_actions}", h1Actions)

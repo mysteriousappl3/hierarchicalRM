@@ -64,40 +64,6 @@ public class StateDescriptor : MonoBehaviour
             Make sure to wrap the entire JSON definition for both dictionary within a ```start_flag and ```end_flag for parsing purposes.
             ";
 
-        // promptTemplate = @"
-        //     Using the given JSON scene description and user instruction,
-        //     create a dictionary called ""goal_spatial_relations"". 
-        //     ""goal_spatial_relations"" should follow the format of spatial_relations.
-        //     Note that spatial_relations denotes the list of relationships between objects. Use only the following objects to describe these relations. [A, B] means A AND B and you may use (A OR B) and NOT A to indicate disjunction and negation. Make sure your predicate only contains object names as parameters.
-        //     {predicates_description}
-        //     Please take note of the following:
-        //     1. The response should be a Python dictionary only, without any explanatory text (e.g., Do not include a sentence like ""here is the environment"").
-            
-        //     VLM output format:
-        //     {
-        //         ""goal_spatial_relations"": {
-        //             ""<object_one>"": [""predicate_one(<object_three>)""],
-        //             ""<object_two>"": [...],
-        //             ...
-        //         }
-        //     }
-
-
-        //     Also, a previous response of this VLM and a feedback on either the state descriptor dictionary or a generated plan are provided OPTIONALLY.
-        //     If the feedback is on the state descriptor JSON OR you think your previous response do not interpret the user instruction accurately,
-        //     generate a new state descriptor JSON. Otherwise, JUST RETURN the previous state descriptor JSON without any changes.
-        //     If the feedback is on the generated plan and you don't think it has anything to do with the goal state or constrinst you defined, you can ignore it and just return the previous state descriptor JSON.
-        //     If the previous state descriptor JSON is not provided, you can generate a new state descriptor JSON.
-
-        //     Now, solve the following task:
-        //     User Instruction: {user_instruction}
-        //     Scene Description JSON: {scene_description}
-        //     Previous state description JSON: {state_description}
-        //     Previous feedback: {previous_feedback}
-
-        //     Make sure to wrap the entire JSON definition for both dictionary within a ```start_flag and ```end_flag for parsing purposes.
-        //     ";
-
         predicates_description = "Here are the predicates to be used: [in(), above()].\nFor example, ‘in(<obj_1>)’ indicates that an object is in obj_1 and ‘above(<obj_2>)’ means an object is DIRECTLY above obj_2 and there are no objects between them.";
     }
 
@@ -105,55 +71,22 @@ public class StateDescriptor : MonoBehaviour
     {
         string userInstruction = main.userInstruction;
 
-        //if (userInstruction == "")
-        //{
-        //    Debug.Log("[StateDescriptor] -- Please ensure a non-empty user instruction is provided");
-        //    yield break;
-        //}
+        if (userInstruction == "")
+        {
+            Debug.Log("[StateDescriptor] -- Please ensure a non-empty user instruction is provided");
+            yield break;
+        }
 
         string sceneDescriptionJSON = sceneDescriptor.output;
 
-        //sceneDescriptionJSON = @"
-        //{
-        //    ""objects"": [
-        //        ""<peg_green>"",
-        //        ""<hoop_yellow>"",
-        //        ""<hoop_white>"",
-        //        ""<hoop_purple>"",
-        //        ""<peg_red>"",
-        //        ""<peg_blue>""
-        //    ],
-        //    ""object_properties"": {
-        //        ""<peg_green>"": [],
-        //        ""<hoop_yellow>"": [""GRABBABLE""],
-        //        ""<hoop_white>"": [""GRABBABLE""],
-        //        ""<hoop_purple>"": [""GRABBABLE""],
-        //        ""<peg_red>"": [],
-        //        ""<peg_blue>"": []
-        //    },
-        //    ""spatial_relations"": {
-        //        ""<peg_green>"": [],
-        //        ""<hoop_yellow>"": [""in(<peg_green>)"", ""above(<hoop_white>)""],
-        //        ""<hoop_white>"": [""in(<peg_green>)"", ""above(<hoop_purple>)""],
-        //        ""<hoop_purple>"": [""in(<peg_green>)""],
-        //        ""<peg_red>"": [],
-        //        ""<peg_blue>"": []
-        //    },
-        //    ""your_explanation"": ""I included three hoops (yellow, white, purple) that are on the green peg, along with two additional pegs (red and blue). Each hoop is in the green peg, and the yellow hoop is above the white, which is above the purple, showing their stacked order. There are no other objects in the scene.""
-        //}";
+        if (sceneDescriptionJSON == "")
+        {
+            Debug.Log("[StateDescriptor] -- Please ensure sceneDescriptor is called first");
+            yield break;
+        }
 
-        string state_description = main.stateDescription;
-
-        //if (sceneDescriptionJSON == "")
-        //{
-        //    Debug.Log("[StateDescriptor] -- Please ensure sceneDescriptor is called first");
-        //    yield break;
-        //}
-
-        string previous_feedback = main.innerbot_feedback;
-
-        Debug.Log("[StateDescriptor] Previous state description:" + state_description);
-        Debug.Log("[StateDescriptor] Previous feedback:" + previous_feedback);
+        string state_description = main.stateDescription;   // optional: empty on first call
+        string previous_feedback = main.innerbot_feedback;  // optional: empty on first call
 
         string prompt = promptTemplate
                     .Replace("{scene_description}", sceneDescriptionJSON)
@@ -238,48 +171,7 @@ public class StateDescriptor : MonoBehaviour
                 Debug.LogError("[StateDescriptor] OpenAI API returned empty choices or malformed response.");
             }
         }
-
-        // main.stateDescription = @"
-        //     {
-        //         ""goal_spatial_relations"": {
-        //             ""yellow_hoop"": [""in(<blue_pillar>)""],
-        //             ""purple_hoop"": [""in(<blue_pillar>)"", ""above(<yellow_hoop>)""],
-        //             ""white_hoop"": [""in(<blue_pillar>)"", ""above(<purple_hoop>)""]
-        //         },
-        //         ""constraint_spatial_relations"": {
-        //             ""purple_hoop"": [""NOT(above(<white_hoop>)) OR in(<green_pillar>)""],
-        //             ""yellow_hoop"": [
-        //             ""NOT(above(<purple_hoop>)) OR in(<green_pillar>)"",
-        //             ""NOT(above(<white_hoop>)) OR in(<green_pillar>)""
-        //             ]
-        //         }
-        //     }
-        // ";
-        // output = main.stateDescription;
-        // yield break;
     }
-
-    [Serializable]
-    public class ResponsesAPIResponse
-    {
-        public string id;
-        public OutputItem[] output;
-    }
-
-    [Serializable]
-    public class OutputItem
-    {
-        public string type;           // "reasoning" or "message"
-        public ContentItem[] content; // only present when type=="message"
-    }
-
-    [Serializable]
-    public class ContentItem
-    {
-        public string type;  // "output_text"
-        public string text;  // the assistant’s actual response
-    }
-
 
     // Response wrapper for JsonUtility
         [System.Serializable]

@@ -75,53 +75,10 @@ public class H2ActionGenerator : MonoBehaviour
            yield break;
         }
 
-
-        //// [TODO] - Example scene_description. Remove when using OpenAI API
-        //sceneDescriptionJSON = @"
-        //{
-        //    ""objects"": [
-        //        ""<peg_green>"",
-        //        ""<hoop_yellow>"",
-        //        ""<hoop_white>"",
-        //        ""<hoop_purple>"",
-        //        ""<peg_red>"",
-        //        ""<peg_blue>""
-        //    ],
-        //    ""object_properties"": {
-        //        ""<peg_green>"": [],
-        //        ""<hoop_yellow>"": [""GRABBABLE""],
-        //        ""<hoop_white>"": [""GRABBABLE""],
-        //        ""<hoop_purple>"": [""GRABBABLE""],
-        //        ""<peg_red>"": [],
-        //        ""<peg_blue>"": []
-        //    },
-        //    ""spatial_relations"": {
-        //        ""<peg_green>"": [],
-        //        ""<hoop_yellow>"": [""in(<peg_green>)"", ""above(<hoop_white>)""],
-        //        ""<hoop_white>"": [""in(<peg_green>)"", ""above(<hoop_purple>)""],
-        //        ""<hoop_purple>"": [""in(<peg_green>)""],
-        //        ""<peg_red>"": [],
-        //        ""<peg_blue>"": []
-        //    },
-        //    ""your_explanation"": ""I included three hoops (yellow, white, purple) that are on the green peg, along with two additional pegs (red and blue). Each hoop is in the green peg, and the yellow hoop is above the white, which is above the purple, showing their stacked order. There are no other objects in the scene.""
-        //}";
-
-        //// TODO: Remove later this dummy h1Actions function
-        //h1Actions = @"
-        //    public void transfer_ring(string source_peg, string destination_peg)
-        //    {
-        //        Move(source_peg);
-        //        Grab();
-        //        Move(destination_peg);
-        //        Drop();
-        //    }
-        //    ";
-
         string prompt = promptTemplate
-            .Replace("{scene_description}", sceneDescriptionJSON)
-            .Replace("{h1_actions}", h1Actions)
+                            .Replace("{scene_description}", sceneDescriptionJSON)
+                            .Replace("{h1_actions}", h1Actions)
             ;
-
 
         yield return StartCoroutine(CallOpenAIAPI(prompt));
     }

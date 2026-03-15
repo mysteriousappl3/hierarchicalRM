@@ -79,38 +79,10 @@ public class H1ActionGenerator : MonoBehaviour
         }
 
 
-        // string sceneDescriptionJSON = @"
-        // {
-        //     ""objects"": [
-        //         ""<peg_green>"",
-        //         ""<hoop_yellow>"",
-        //         ""<hoop_white>"",
-        //         ""<hoop_purple>"",
-        //         ""<peg_red>"",
-        //         ""<peg_blue>""
-        //     ],
-        //     ""object_properties"": {
-        //         ""<peg_green>"": [],
-        //         ""<hoop_yellow>"": [""GRABBABLE""],
-        //         ""<hoop_white>"": [""GRABBABLE""],
-        //         ""<hoop_purple>"": [""GRABBABLE""],
-        //         ""<peg_red>"": [],
-        //         ""<peg_blue>"": []
-        //     },
-        //     ""spatial_relations"": {
-        //         ""<peg_green>"": [],
-        //         ""<hoop_yellow>"": [""in(<peg_green>)"", ""above(<hoop_white>)""],
-        //         ""<hoop_white>"": [""in(<peg_green>)"", ""above(<hoop_purple>)""],
-        //         ""<hoop_purple>"": [""in(<peg_green>)""],
-        //         ""<peg_red>"": [],
-        //         ""<peg_blue>"": []
-        //     },
-        //     ""your_explanation"": ""I included three hoops (yellow, white, purple) that are on the green peg, along with two additional pegs (red and blue). Each hoop is in the green peg, and the yellow hoop is above the white, which is above the purple, showing their stacked order. There are no other objects in the scene.""
-        // }";
-
-
-        string prompt = promptTemplate.Replace("{scene_description}", sceneDescriptionJSON).Replace("{h0_actions_descriptions}", h0_actions_descriptions).Replace("{single_state_change}", state_change_def);
-
+        string prompt = promptTemplate
+                            .Replace("{scene_description}", sceneDescriptionJSON)
+                            .Replace("{h0_actions_descriptions}", h0_actions_descriptions)
+                            .Replace("{single_state_change}", state_change_def);
 
         yield return StartCoroutine(CallOpenAIAPI(prompt));
         

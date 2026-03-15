@@ -66,19 +66,17 @@ public class SceneDescriptor : MonoBehaviour
 
     public IEnumerator generateSceneDescription()
     {
-        // TODO: Use variable to dynamically take image instead of hardcoding path.
-        Debug.Log("main img cnt = " + main.imageCounter);
         string filePath = Path.Combine(Application.dataPath, $"Tasks/PegTransferTask/Task_Images/SceneImage_{main.imageCounter}.png");
 
         if (File.Exists(filePath))
         {
             byte[] imageData = File.ReadAllBytes(filePath);
 
-            Texture2D texture = new Texture2D(2, 2); // size ignored; overwritten by LoadImage
+            Texture2D texture = new Texture2D(2, 2);
             if (texture.LoadImage(imageData))
             {
                 Debug.Log("Successfully loaded image into Texture2D");
-                sceneImage = texture;  // assign to your existing variable
+                sceneImage = texture;
             }
             else
             {
@@ -96,36 +94,6 @@ public class SceneDescriptor : MonoBehaviour
             Debug.LogError("[SceneDescriptor] -- Please ensure to capture a screenshot of the scene.");
             yield break;
         }
-
-        // Extract reference image of scene
-        // string refFilePath = Path.Combine(Application.dataPath, "Tasks/PegTransferTask/ValidSceneImage.png");
-
-        // if (File.Exists(refFilePath))
-        // {
-        //     byte[] imageData = File.ReadAllBytes(refFilePath);
-
-        //     Texture2D texture = new Texture2D(2, 2); // size ignored; overwritten by LoadImage
-        //     if (texture.LoadImage(imageData))
-        //     {
-        //         Debug.Log("Successfully loaded ref image into Texture2D");
-        //         refImage = texture;  // assign to your existing variable
-        //     }
-        //     else
-        //     {
-        //         Debug.LogError("Failed to load ref image data into texture.");
-        //         yield break;
-        //     }
-        // }
-        // else
-        // {
-        //     Debug.LogError("Ref Image file not found: " + refFilePath);
-        // }
-
-        // if (refImage == null)
-        // {
-        //     Debug.LogError("[SceneDescriptor] -- Please ensure reference image exists in the defined path.");
-        //     yield break;
-        // }
 
 
         string prompt = "For the given input image, please follow the system prompt to generate the scene description JSON.";
@@ -275,39 +243,6 @@ public class SceneDescriptor : MonoBehaviour
         {
             main.initialSceneDesc = output;
         }
-
-        // output = @"
-        //      {
-        //         ""objects"": [
-        //             ""<green_pillar>"",
-        //             ""<red_pillar>"",
-        //             ""<blue_pillar>"",
-        //             ""<yellow_hoop>"",
-        //             ""<white_hoop>"",
-        //             ""<purple_hoop>""
-        //         ],
-        //         ""object_properties"": {
-        //             ""<green_pillar>"": [""REACHABLE""],
-        //             ""<red_pillar>"": [""REACHABLE""],
-        //             ""<blue_pillar>"": [""REACHABLE""],
-        //             ""<yellow_hoop>"": [""GRABBABLE""],
-        //             ""<white_hoop>"": [""GRABBABLE""],
-        //             ""<purple_hoop>"": [""GRABBABLE""]
-        //         },
-        //         ""spatial_relations"": {
-        //             ""<green_pillar>"": [],
-        //             ""<red_pillar>"": [],
-        //             ""<blue_pillar>"": [],
-        //             ""<yellow_hoop>"": [""in(<green_pillar>)"", ""above(<white_hoop>)""],
-        //             ""<white_hoop>"": [""in(<green_pillar>)"", ""above(<purple_hoop>)""],
-        //             ""<purple_hoop>"": [""in(<green_pillar>)""]
-        //         },
-        //         ""your_explanation"": ""All hoops (yellow, white, purple) are on the green pillar, so the white hoop is directly below the yellow hoop, and the purple hoop is below the white hoop. The red and blue pillars are empty. Since each hoop is on a pillar, the scene is valid.""
-        //     }
-        // ";
-
-        // Debug.Log(output);
-        // yield break;
     }
 
     [Serializable]
@@ -327,27 +262,7 @@ public class SceneDescriptor : MonoBehaviour
     [Serializable]
     public class ContentItem
     {
-        public string type;  // "output_text"
-        public string text;  // the assistant’s actual response
-    }
-
-    // Response wrapper for JsonUtility
-    [System.Serializable]
-    private class OpenAIResponse
-    {
-        public Choice[] choices;
-    }
-
-    [System.Serializable]
-    private class Choice
-    {
-        public Message message;
-    }
-
-    [System.Serializable]
-    private class Message
-    {
-        public string role;
-        public string content;
+        public string type;
+        public string text;
     }
 }

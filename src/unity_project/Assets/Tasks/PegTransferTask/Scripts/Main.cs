@@ -26,14 +26,11 @@ public class Main : MonoBehaviour
     public List<List<string>> subtaskFunctions = new List<List<string>>();
     public List<string> subtaskGoalstates = new List<string>();
     public List<string> allFunctions = new List<string>();
-
-    // TODO: Drag Unity Instance
     public StateDescriptor stateDescriptor;
-    //public H1ActionGenerator h1actionGenerator;
 
     public Dictionary<string, int> pegColorToNumMapping;  
 
-    public int totalReplanAttempts; // Allow upto a maximum of 3 total replans before terminating session
+    public int totalReplanAttempts;
     public int index = 0;   // Index to keep track of Innerbot iterations for subtask checks.
 
     public int imageCounter = 1;
@@ -66,20 +63,9 @@ public class Main : MonoBehaviour
         // userInstruction = "Transfer purple hoop to red peg and yellow hoop to green peg, and in final state the white hoop must be above brown hoop in the blue peg. Make sure a later hoop in the order [yellow, white, brown, purple] is never above an earlier hoop.";
 
         initialStateDesc = "";
-
         initialSceneDesc = "";
-
-        // Since all states have same constraints, we will take the env constraint from the initial state
-
-        // old TODO: Remove this commented line later
-        // stateDescriptor.generateStateDescription();
-        // old TODO: Remove this commented line later
-        // string stateDesc = stateDescriptor.output;
-
-        // Done in state desc -- TODO: Add function to parse and extract the env constraints section from the dictionary
         envConstraint = "";
         stateDescription = "";
-
         innerbot_feedback = "";
 
         pegColorToNumMapping = new Dictionary<string, int>
@@ -212,10 +198,6 @@ public class Main : MonoBehaviour
             yield return StartCoroutine(ExecuteRecursiveCoroutine(subFunc, resolvedArgs));
         }
     }
-    
-    ////////
-
-
 
     //// Helper Function Definitions/////
     public string ExtractBetweenFlags(string input, string startFlag = "```start_flag", string endFlag = "```end_flag")
@@ -252,12 +234,8 @@ public class Main : MonoBehaviour
         return null;
     }
 
-    // Old unused function
     public Dictionary<string, List<string>> ParseFunctionMappings(string block)
     {
-        // Debug.Log("AAAA");
-        Debug.Log(block);
-
         Dictionary<string, List<string>> mapping = new Dictionary<string, List<string>>();
 
         // Split by line, not comma
@@ -390,7 +368,7 @@ public class Main : MonoBehaviour
         foreach (var kv in h2) h2Toh1Mapping[kv.Key] = kv.Value;
         foreach (var kv in sigs) functionParamSignature[kv.Key] = kv.Value;
         foreach (var kv in calls) functionToCallsWithArgs[kv.Key] = kv.Value;
-        Debug.Log($"function map = {string.Join(", ", functionToCallsWithArgs.Select(kv => $"{kv.Key}: [{string.Join(", ", kv.Value)}]"))}");
+        Debug.Log($"Function map = {string.Join(", ", functionToCallsWithArgs.Select(kv => $"{kv.Key}: [{string.Join(", ", kv.Value)}]"))}");
     }
 
 
@@ -445,9 +423,6 @@ public class Main : MonoBehaviour
 
         return expandedSubtaskFunctions;
     }
-
-
-
 
     public void ParseDecisionBotOutput(string input, out List<string> subtaskDescriptions, out List<List<string>> subtaskFunctions, out List<string> subtaskGoalstates, out List<string> allFunctions)
     {

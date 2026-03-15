@@ -13,16 +13,13 @@ public class JawCollision : MonoBehaviour
     public bool isColliding;
     public JawCollision otherJaw;
     public bool objectGrabbed;
-    public bool pickedBlockOnce = false;    // Tracks if agent has picked the block at least once or not
+    public bool pickedBlockOnce = false;
 
-    public int edgeLayer;   // Default = 0, Inner edge collider = 1, Outer edge collider = 2
+    public int edgeLayer;
 
     public LowLevelMotor motor;
 
     private Transform topMostParent;
-
-    public enum BehaviourMode { RL, API }
-    public BehaviourMode behaviourMode = BehaviourMode.RL;
 
     public bool GRAB_BLOCK_ENABLED = true;
 
@@ -39,23 +36,16 @@ public class JawCollision : MonoBehaviour
             controller = robot.GetComponent<UrdfJointController>();
             jointNameToActiveJoint = controller.GetJointMapping();
         }
-
-        if (behaviourMode == BehaviourMode.RL)
-        {
-            GRAB_BLOCK_ENABLED = true;
-        }
-
     }
 
 
     Transform GetTopMostParent(Transform child)
     {
-        // Traverse up the hierarchy until we reach the root
         while (child.parent != null)
         {
             child = child.parent;
         }
-        return child; // Return the top-most parent
+        return child;
     }
 
     private GameObject FindChildWithTag(Transform parent, string tag)
@@ -108,47 +98,28 @@ public class JawCollision : MonoBehaviour
                 objectGrabbed = true;
 
                 // Remove the rigid body component from it
-                if (behaviourMode == BehaviourMode.API)
+                if (motor.currHoop == null)
                 {
-                    // Use the motor.currHoop
-                    //Assert.IsNotNull(motor.currHoop);
-
-                    if (motor.currHoop == null)
-                    {
-                        // Reset set variables
-                        edgeLayer = 0;
-                        otherJaw.edgeLayer = 0;
-                        pickedBlockOnce = false;
-                        otherJaw.pickedBlockOnce = false;
-                        isColliding = false;
-                        otherJaw.isColliding = false;
-                        objectGrabbed = false;
-                        otherJaw.objectGrabbed = false;
-                        return;
-                    }
-
-                    GameObject block = motor.currHoop;
-                    Rigidbody rb = block.GetComponent<Rigidbody>();
-                    if (rb != null)
-                    {
-                        // Debug.Log("[API] Removing RigidBody");
-                        Destroy(rb);
-                    }
-                    GameObject tooltip = GameObject.Find("tool_midpoint");
-                    block.transform.SetParent(tooltip.transform);
+                    // Reset set variables
+                    edgeLayer = 0;
+                    otherJaw.edgeLayer = 0;
+                    pickedBlockOnce = false;
+                    otherJaw.pickedBlockOnce = false;
+                    isColliding = false;
+                    otherJaw.isColliding = false;
+                    objectGrabbed = false;
+                    otherJaw.objectGrabbed = false;
+                    return;
                 }
-                else
+
+                GameObject block = motor.currHoop;
+                Rigidbody rb = block.GetComponent<Rigidbody>();
+                if (rb != null)
                 {
-                    GameObject block = GameObject.FindWithTag("Block");
-                    Rigidbody rb = block.GetComponent<Rigidbody>();
-                    if (rb != null)
-                    {
-                        // Debug.Log("Removing RigidBody");
-                        Destroy(rb);
-                    }
-                    GameObject tooltip = GameObject.Find("tool_midpoint");
-                    block.transform.SetParent(tooltip.transform);
+                    Destroy(rb);
                 }
+                GameObject tooltip = GameObject.Find("tool_midpoint");
+                block.transform.SetParent(tooltip.transform);
 
                 controller.isCollisionDetected = true;
 
@@ -167,16 +138,13 @@ public class JawCollision : MonoBehaviour
                     }
                 }
                 // Jaw triggered to close 
-                SetJawAngle(contactAngle - 2.5f);    // -2.5f to close jaw even more to make it look realistic grab
+                SetJawAngle(contactAngle - 2.5f);
             }
         }
     }
 
     public void RemoveBlockRB()
     {
-        // Remove the rigid body component from it
-        // Use currHoop from motor script ref.
-        // Assert.IsNotNull(motor.currHoop);
         if (motor.currHoop == null)
         {
             return;
@@ -185,11 +153,8 @@ public class JawCollision : MonoBehaviour
         Rigidbody rb = block.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            // Debug.Log("[API] Removing RigidBody");
             Destroy(rb);
         }
-        // TODO: Make sure to reassign this updated block with new parent to the dict mapping
-        // code here...
     }
 
     public void SetJawAngle(float contactAngle)
@@ -198,7 +163,6 @@ public class JawCollision : MonoBehaviour
         ArticulationDrive currentDrive = jointMap.Joint.xDrive;
         currentDrive.target = contactAngle;
         jointMap.Joint.xDrive = currentDrive;
-        // Update the joint mapping and angle of contact in UrdfController
         controller.SetAngleOfContact(contactAngle);
         controller.SetJointMapping("jaw", jointMap);
     }
@@ -209,19 +173,15 @@ public class JawCollision : MonoBehaviour
         otherJaw.isColliding = false;
         objectGrabbed = false;
         otherJaw.objectGrabbed = false;
-        // Unparent the block when released
         GameObject parentTooltip = GameObject.Find("tool_midpoint");
         if (parentTooltip != null && parentTooltip.transform.childCount > 0)
         {
             Transform block = parentTooltip.transform.GetChild(0);
-            // Set the block's parent to be the env prefab
             block.SetParent(topMostParent);
-            // Add rigidbody component back to it
             block.gameObject.AddComponent<Rigidbody>();
             
             controller.isCollisionDetected = false;
         }
-        // Debug.Log("Dropped");
     }
 
     private void ManualOnCollisionExit()
@@ -239,11 +199,11 @@ public class JawCollision : MonoBehaviour
         // Since the jaw's only open upto +- 28.64 degrees, we'll clip it to that limit
         if ((angle < 0f) && (angle < -28.64f))
         {
-            return -28.64f + 5f;    // 5f for adjustment of visuals to match
+            return -28.64f + 5f;
         }
         else if ((angle > 0f) && (angle > 28.64f))
         {
-            return 28.64f - 5f;     // 5f for adjustment of visuals to match
+            return 28.64f - 5f;
         }
 
         return angle;

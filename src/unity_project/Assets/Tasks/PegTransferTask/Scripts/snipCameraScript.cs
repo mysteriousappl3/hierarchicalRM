@@ -117,10 +117,8 @@ public class SnipCameraScript : MonoBehaviour
         }
         else
         {
-            // TODO: Make it dynamic so that for start scene it's Image_Start and for final outerbot check its Image_End
             filePath = Path.Combine(folderPath, $"SceneImage_{imageCounter}.png");
             UnityEngine.Debug.Log("save image with name = " + $"SceneImage_{imageCounter}.png");
-            //filePath = Path.Combine(folderPath, $"SceneImage.png");
         }
 
         File.WriteAllBytes(filePath, bytes);

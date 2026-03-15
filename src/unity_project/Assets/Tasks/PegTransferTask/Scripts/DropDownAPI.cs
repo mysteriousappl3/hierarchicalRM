@@ -26,13 +26,10 @@ public class DropDownAPI : MonoBehaviour
     /////////////////////
     public Dropdown plannerDropDown;
 
-    void Start()
+    public IEnumerator Start()
     {
         plannerDropDown.value = 0;
-        plannerDropDown.RefreshShownValue();
-
-        // Render the camera view into an image
-        // yield return StartCoroutine(cam.SaveImage());
+        plannerDropDown.RefreshShownValue(); 
     }
 
 
@@ -143,137 +140,9 @@ public class DropDownAPI : MonoBehaviour
         yield return StartCoroutine(cam.SaveImage());
         main.imageCounter += 1;
 
-
-        // yield return StartCoroutine(cam.SaveImage());
-        // main.imageCounter += 1;
-        // yield return StartCoroutine(sceneDescriptor.generateSceneDescription());
-        // if (main.prevState == "")
-        // {
-        //     main.prevState = main.initialSceneDesc;
-        // }
-
-        // yield return StartCoroutine(motor.MoveCoroutine(1));
-        // yield return StartCoroutine(motor.GrabCoroutine());
-        // yield return StartCoroutine(motor.MoveCoroutine(2));
-        // yield return StartCoroutine(motor.DropCoroutine());
-
-        // yield return StartCoroutine(cam.SaveImage());
-        // main.imageCounter += 1;
-        // yield return StartCoroutine(sceneDescriptor.generateSceneDescription());
-
-        // yield return StartCoroutine(outerBot.verifyTaskCompletion());
-        // Debug.Log("RESPOS = " + outerBot.output);
-        // main.prevState = sceneDescriptor.output;
-        // // Debug.Log("Prev State # 1= " + main.prevState);
-
-        // yield return StartCoroutine(motor.MoveCoroutine(1));
-        // yield return StartCoroutine(motor.GrabCoroutine());
-        // yield return StartCoroutine(motor.MoveCoroutine(3));
-        // yield return StartCoroutine(motor.DropCoroutine());
-
-        // yield return StartCoroutine(cam.SaveImage());
-        // main.imageCounter += 1;
-        // yield return StartCoroutine(sceneDescriptor.generateSceneDescription());
-        // yield return StartCoroutine(outerBot.verifyTaskCompletion());
-        // Debug.Log("RESPOS = " + outerBot.output);
-        // main.prevState = sceneDescriptor.output;
-        // // Debug.Log("Prev State # 2= " + main.prevState);
-
-        // yield return StartCoroutine(motor.MoveCoroutine(2));
-        // yield return StartCoroutine(motor.GrabCoroutine());
-        // yield return StartCoroutine(motor.MoveCoroutine(3));
-        // yield return StartCoroutine(motor.DropCoroutine());
-
-        // yield return StartCoroutine(cam.SaveImage());
-        // main.imageCounter += 1;
-        // yield return StartCoroutine(sceneDescriptor.generateSceneDescription());
-        // yield return StartCoroutine(outerBot.verifyTaskCompletion());
-        // Debug.Log("RESPOS = " + outerBot.output);
-        // main.prevState = sceneDescriptor.output;
-        // // Debug.Log("Prev State # 3= " + main.prevState);
-
-        // yield return StartCoroutine(motor.MoveCoroutine(1));
-        // yield return StartCoroutine(motor.GrabCoroutine());
-        // yield return StartCoroutine(motor.MoveCoroutine(2));
-        // yield return StartCoroutine(motor.DropCoroutine());
-
-        // yield return StartCoroutine(cam.SaveImage());
-        // main.imageCounter += 1;
-        // yield return StartCoroutine(sceneDescriptor.generateSceneDescription());
-        // yield return StartCoroutine(outerBot.verifyTaskCompletion());
-        // Debug.Log("RESPOS = " + outerBot.output);
-        // main.prevState = sceneDescriptor.output;
-        // // Debug.Log("Prev State # 4= " + main.prevState);
-
-        // yield return StartCoroutine(motor.MoveCoroutine(3));
-        // yield return StartCoroutine(motor.GrabCoroutine());
-        // yield return StartCoroutine(motor.MoveCoroutine(1));
-        // yield return StartCoroutine(motor.DropCoroutine());
-
-        // yield return StartCoroutine(cam.SaveImage());
-        // main.imageCounter += 1;
-        // yield return StartCoroutine(sceneDescriptor.generateSceneDescription());
-        // yield return StartCoroutine(outerBot.verifyTaskCompletion());
-        // Debug.Log("RESPOS = " + outerBot.output);
-        // main.prevState = sceneDescriptor.output;
-        // // Debug.Log("Prev State # 5= " + main.prevState);
-
-        // yield return StartCoroutine(motor.MoveCoroutine(3));
-        // yield return StartCoroutine(motor.GrabCoroutine());
-        // yield return StartCoroutine(motor.MoveCoroutine(2));
-        // yield return StartCoroutine(motor.DropCoroutine());
-
-        // yield return StartCoroutine(cam.SaveImage());
-        // main.imageCounter += 1;
-        // yield return StartCoroutine(sceneDescriptor.generateSceneDescription());
-        // yield return StartCoroutine(outerBot.verifyTaskCompletion());
-        // Debug.Log("RESPOS = " + outerBot.output);
-        // main.prevState = sceneDescriptor.output;
-        // // Debug.Log("Prev State # 6= " + main.prevState);
-
-        // yield return StartCoroutine(motor.MoveCoroutine(1));
-        // yield return StartCoroutine(motor.GrabCoroutine());
-        // yield return StartCoroutine(motor.MoveCoroutine(2));
-        // yield return StartCoroutine(motor.DropCoroutine());
-
-        // yield return StartCoroutine(cam.SaveImage());
-        // main.imageCounter += 1;
-        // yield return StartCoroutine(sceneDescriptor.generateSceneDescription());
-        // yield return StartCoroutine(outerBot.verifyTaskCompletion());
-        // Debug.Log("RESPOS = " + outerBot.output);
-
-        // Debug.Log("Image #1");
-        // yield return StartCoroutine(cam.SaveImage());
-        // yield return StartCoroutine(motor.MoveCoroutine(1));
-        // yield return StartCoroutine(motor.GrabCoroutine());
-        // yield return StartCoroutine(motor.MoveCoroutine(2));
-        // yield return StartCoroutine(motor.DropCoroutine());
-        // Debug.Log("Image #2");
-        // yield return StartCoroutine(cam.SaveImage());
-        // yield return StartCoroutine(motor.MoveCoroutine(1));
-        // yield return StartCoroutine(motor.GrabCoroutine());
-        // yield return StartCoroutine(motor.MoveCoroutine(2));
-        // yield return StartCoroutine(motor.DropCoroutine());
-        // Debug.Log("Image #3");
-        // yield return StartCoroutine(cam.SaveImage());
-        // yield return StartCoroutine(motor.MoveCoroutine(1));
-        // yield return StartCoroutine(motor.GrabCoroutine());
-        // yield return StartCoroutine(motor.MoveCoroutine(3));
-        // yield return StartCoroutine(motor.DropCoroutine());
-        // Debug.Log("Image #4");
-        // yield return StartCoroutine(cam.SaveImage());
-        // yield return StartCoroutine(motor.MoveCoroutine(3));
-        // yield return StartCoroutine(motor.GrabCoroutine());
-        // yield return StartCoroutine(motor.MoveCoroutine(2));
-        // yield return StartCoroutine(motor.DropCoroutine());
-
         yield break;
     }
 
-    // Performs decision making for the planning dropdown option:
-    // Actions can be: Take ScreenShot
-    // Wait for python script to run
-    // Execute plan
     public void DecisionMaker()
     {
         int decisionIdx = plannerDropDown.value;
@@ -307,41 +176,6 @@ public class DropDownAPI : MonoBehaviour
 
     public IEnumerator APIRunner()
     {
-        // // Test running main method for H1 action
-        // Debug.Log("BREAKING DOWN H1 ACTION : MoveHoop()");
-        // main.RunHighLevelFunction("MoveHoop(green, red)");
-        // // Test with H2 hierarchy function
-
-
-
-        //// Action State Transition
-        //// yield return StartCoroutine(actionStateTransition.generateTransitionFunctions());
-        //// Decision Bot
-        //yield return StartCoroutine(decisionBot.generateDecisionBotPlan());
-        //// Inner Bot
-        //yield return StartCoroutine(innerBot.verifyPlan());
-
-        //// Save new image pic and call Outer bot to verify
-        //yield return StartCoroutine(cam.SaveImage());  // This increases the image counter locally first to save new image and we update the main.imageCounter to read this new image
-        //main.imageCounter += 1;
-
-        // Before calling, call scene descriptor and check if output is NO. If yes, then break out of the while loop
-        //sceneDescriptor.generateSceneDescription();
-        //if (sceneDescriptor.output.Contains("NO"))
-        //{
-        //    Debug.Log("[OUTER BOT] -- Fatal Scene Error Detected. Terminating Process.");
-        //    // Set the totalReplanAttempts to -1 as we want to termiante
-        //    main.totalReplanAttempts = -1;
-        //    yield break;
-        //}
-
-        //// Outer Bot
-        //yield return StartCoroutine(outerBot.verifyTaskCompletion());
-
-        // Main entry point
-
-        // TEST ONLY: Remove below line
-        main.totalReplanAttempts = 15;   // This means we only call API once so not stuck in loop for testing.
         while (main.totalReplanAttempts >= 0)
         {
             CleanForReplan();
@@ -363,7 +197,7 @@ public class DropDownAPI : MonoBehaviour
                 yield return StartCoroutine(stateDescriptor.generateStateDescription());
                 yield return StartCoroutine(innerBot.verifyPlan(true));
                 main.totalReplanAttempts -= 1;
-                Debug.Log("total replan attempts = " + main.totalReplanAttempts);
+                Debug.Log("Total replan attempts = " + main.totalReplanAttempts);
             } while ((innerBot.verdict.Contains("NO") || sceneDescriptor.output.Contains("NO")) && main.totalReplanAttempts >= 0);
             if (main.totalReplanAttempts < 0)
             {
@@ -380,12 +214,7 @@ public class DropDownAPI : MonoBehaviour
                 yield return StartCoroutine(h2ActionGenerator.generateH2Actions());
                 // Decision Bot
                 yield return StartCoroutine(decisionBot.generateDecisionBotPlan());
-
-                // TODO: REMOVE THIS
-                // yield break;
-
-                // Inner Bot -- Using ReplanVLM, it verifies entire plan and tells us NO if invalid.
-                // NOTE: REPLAN VLM PAPER DOESN'T NEED IMAGE FOR INNERBOT VERIFICATION so we didn't call main.imageCounter++ or cam.SaveImage()
+                // Inner Bot
                 yield return StartCoroutine(innerBot.verifyPlan(false));
                 main.totalReplanAttempts -= 1;
             } while (innerBot.verdict.Contains("NO") && main.totalReplanAttempts >= 0);
@@ -393,16 +222,9 @@ public class DropDownAPI : MonoBehaviour
             {
                 break;
             }
+
             Debug.Log("PLAN IS VERIFIED AND VALID!");
-
-            // NOTE: Since the plan is verified, we reset the feedback from inner bot as it doesn't apply to any planning mistake in terms of verification.
-            // If anything, the outer bot will flag it for us.
             innerBot.output = "";
-
-
-            // Plan is VALID -- Execute motor function 
-            // (For now execute, all functions and later make it so after each transfer level, we check outer bot i.e after each H1)
-
             Debug.Log("[Robot Controller] -- Executing Functions now");
 
             if (string.IsNullOrEmpty(main.prevState))
@@ -413,7 +235,7 @@ public class DropDownAPI : MonoBehaviour
             if (main.subtaskFunctions.Count == 0)
             {
                 Debug.LogWarning("No functions to execute. Skipping execution phase and proceeding to OuterBot Verification of states.");
-                yield return StartCoroutine(cam.SaveImage());  // This increases the image counter locally first to save new image and we update the main.imageCounter to read this new image
+                yield return StartCoroutine(cam.SaveImage());
                 main.imageCounter += 1;
 
                 // Before calling, call scene descriptor and check if output is NO. If yes, then break out of the while loop
@@ -441,15 +263,12 @@ public class DropDownAPI : MonoBehaviour
                                         .Replace("‘", "")
                                         .ToUpperInvariant();
 
-                // Only take the first line (before "REASON :" or any newlines)
                 string[] verdictLines = rawVerdict.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
                 string verdict = verdictLines[0].Trim();
 
-                // Since we have completed the API call for OuterBot, update prevState to equal currState Desc
                 main.prevState = sceneDescriptor.output;
 
-                Debug.Log("OUTER BOT FEEDBACK VALUE = " + verdict);
-                Debug.Log($"[OUTERBOT] Raw verdict: '{rawVerdict}'");
+                Debug.Log("Outer Bot Result = " + verdict);
                 Debug.Log($"[OUTERBOT] Cleaned verdict line: '{verdict}'");
 
                 if (verdict.Contains("SUCCESS"))
@@ -485,10 +304,8 @@ public class DropDownAPI : MonoBehaviour
 
                     actionsExecutedSoFar.Add(action);
                 }
-                // Note - You dont need to call scene desc or capture image of scene since all actions in subtaks executed so you already have the updated state data in sceneDesc.output var
-
-                // [Check #1] -- Save new image pic and call Scene Desc to check if state is still valid
-                yield return StartCoroutine(cam.SaveImage());  // This increases the image counter locally first to save new image and we update the main.imageCounter to read this new image
+                
+                yield return StartCoroutine(cam.SaveImage());
                 main.imageCounter += 1;
                 yield return StartCoroutine(sceneDescriptor.generateSceneDescription());
                 if (sceneDescriptor.output.Contains("NO"))
@@ -499,7 +316,6 @@ public class DropDownAPI : MonoBehaviour
                     yield break;
                 }
 
-                // [Check #2] -- Outer Bot subtask verification
                 string finalGoalState = main.subtaskGoalstates[main.subtaskGoalstates.Count - 1];
                 string subtaskGoalState;
                 if (idx == main.subtaskGoalstates.Count - 1)
@@ -510,12 +326,6 @@ public class DropDownAPI : MonoBehaviour
                 {
                     subtaskGoalState = main.subtaskGoalstates[idx];
                 }
-                // if (idx > 0)
-                // {
-                //     prev_action = main.h1OnlyFunctionList[idx - 1];
-                // }
-
-                bool all_actions_executed = (idx == main.h1OnlyFunctionList.Count - 1);
 
                 string subtaskNL = main.subtaskDescriptions[idx];
 
@@ -531,14 +341,13 @@ public class DropDownAPI : MonoBehaviour
                                         .Replace("‘", "")
                                         .ToUpperInvariant();
 
-                // Only take the first line (before "REASON :" or any newlines)
+                
                 string[] verdictLines = rawVerdict.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
                 string verdict = verdictLines[0].Trim();
 
-                // Since we have completed the API call for OuterBot, update prevState to equal currState Desc
                 main.prevState = sceneDescriptor.output;
 
-                Debug.Log("OUTER BOT FEEDBACK VALUE = " + verdict);
+                Debug.Log("Outer Bot Result = " + verdict);
                 Debug.Log($"[OUTERBOT] Raw verdict: '{rawVerdict}'");
                 Debug.Log($"[OUTERBOT] Cleaned verdict line: '{verdict}'");
 
@@ -552,7 +361,6 @@ public class DropDownAPI : MonoBehaviour
 
                 if (verdict.Contains("TASK SUCCESS"))
                 {
-                    // If we reach here, then that means the task has been executed successfully
                     Debug.Log("TASK COMPLETED SUCCESSFULLY!");
 #if UNITY_EDITOR
                     UnityEditor.EditorApplication.isPlaying = false;
@@ -579,9 +387,6 @@ public class DropDownAPI : MonoBehaviour
             if (replan)
             {
                 main.totalReplanAttempts -= 1;
-                // outerBot.output = "";
-                // outerBot.lastResponseId = null;
-                // sceneDescriptor.lastResponseId = null;
                 continue;
             }
         }
@@ -594,25 +399,5 @@ public class DropDownAPI : MonoBehaviour
 #endif
             yield break;
         }
-
-        // OLD INNER BOT CODE BELOW
-        // while ((main.index <= main.subtaskGoalstates.Count - 1) && (innerBot.verdict != "" && innerBot.verdict != "INVALID"))
-        // {
-        //     // If we take action after each subtask verification, then before next subtask verification, we need to execute the action
-        //     // and call scene descriptor on the updated state.
-        //     // TODO: See above comment
-        //     yield return StartCoroutine(innerBot.verifyPlan(main.index));
-        //     main.index += 1;
-        // }
-
-        // // TODO: When you call snipCam before passing updated image to InnerBot and OuterBot, make sure to add below line
-        // main.imageCounter += 1;
-        // if (innerBot.verdict == "INVALID")
-        // {
-        //     // Replan
-        //     main.totalReplanAttempts -= 1;
-        //     continue;
-        // }
-
     }
 }

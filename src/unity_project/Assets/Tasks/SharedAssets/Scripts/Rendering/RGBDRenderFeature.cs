@@ -48,13 +48,6 @@ public class RGBDRenderFeature : ScriptableRendererFeature
         {
             // Grab a command buffer. We put the actual execution of the pass inside of a profiling scope.
             CommandBuffer cmd = CommandBufferPool.Get();
-            using (new ProfilingScope(cmd, new ProfilingSampler(ProfilerTag)))
-            {
-                // Blit from the color buffer to a temporary buffer and back.
-                // TODO FIX
-                // Blit(cmd, colorBuffer, temporaryBuffer, material);
-                // Blit(cmd, temporaryBuffer, colorBuffer);
-            }
 
             // Execute the command buffer and release it.
             context.ExecuteCommandBuffer(cmd);
