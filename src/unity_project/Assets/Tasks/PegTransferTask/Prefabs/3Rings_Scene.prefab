@@ -6711,17 +6711,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   toolTip: {fileID: 784839460267753005}
-  hoopEdgeOneCollider: {fileID: 0}
-  hoopEdgeTwoCollider: {fileID: 0}
+  hoopEdgeOneCollider: {fileID: 7435006319384229769}
+  hoopEdgeTwoCollider: {fileID: 6397111365965034900}
   currHoop: {fileID: 0}
   pegsInScene:
   - {fileID: 7634810909362435955}
   - {fileID: 2133191534608481323}
   - {fileID: 2862533066393872}
   hoopsInScene:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 7491746226829845203}
+  - {fileID: 6063689566581284546}
+  - {fileID: 8032190994321820030}
   goalPegNumber: 0
   robotCont: {fileID: 394845286208627018}
   urdfCont: {fileID: 5090497159980827372}
@@ -7123,7 +7123,6 @@ MonoBehaviour:
   promptTemplate: 
   feedback: 
   systemPrompt: 
-  replanVlmPrompt: 
   lastResponseId: 
 --- !u!1 &3760588996706732702
 GameObject:
@@ -11931,7 +11930,6 @@ GameObject:
   - component: {fileID: 4858541353502803692}
   - component: {fileID: 4671843887460807268}
   - component: {fileID: 8459143072682156648}
-  - component: {fileID: 3647800694499405314}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -12046,21 +12044,6 @@ MonoBehaviour:
   outerBot: {fileID: 3216415905348476453}
   actionsExecutedSoFar: []
   plannerDropDown: {fileID: 4671413195417777703}
---- !u!114 &3647800694499405314
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7103434054069153329}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de9427e4c85454172bbe00cd4b2a1d73, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isExecuting: 0
-  motor: {fileID: 0}
-  actionExecutor: {fileID: 0}
 --- !u!1 &7104365259073609002
 GameObject:
   m_ObjectHideFlags: 0
@@ -13052,7 +13035,7 @@ GameObject:
   - component: {fileID: 8853580386611439771}
   - component: {fileID: 2969256260179854169}
   m_Layer: 0
-  m_Name: HoopThree
+  m_Name: HoopOne
   m_TagString: Block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14164,7 +14147,7 @@ GameObject:
   - component: {fileID: 2885509993340276812}
   - component: {fileID: 3147412355802733038}
   m_Layer: 0
-  m_Name: HoopOne
+  m_Name: HoopThree
   m_TagString: Block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14492,7 +14475,6 @@ MonoBehaviour:
   output: 
   promptTemplateState: 
   promptTemplate: 
-  replanVlmprompt: 
   verdict: 
 --- !u!1 &8128584557207547740
 GameObject:
@@ -15277,7 +15259,6 @@ MonoBehaviour:
   innerBot: {fileID: 3002401707135284979}
   output: 
   promptTemplate: 
-  replanVlmPrompt: 
   lastResponseId: 
 --- !u!1 &8449963827028783834
 GameObject:

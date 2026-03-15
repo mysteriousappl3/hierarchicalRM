@@ -295,6 +295,15 @@ public class DropDownAPI : MonoBehaviour
         }
     }
 
+    private void CleanForReplan()
+    {
+        main.h1Toh0Mapping.Clear();
+        main.h2Toh1Mapping.Clear();
+        main.functionParamSignature.Clear();
+        main.functionToCallsWithArgs.Clear();
+        main.subtaskFunctions.Clear();
+        actionsExecutedSoFar.Clear();
+    }
 
     public IEnumerator APIRunner()
     {
