@@ -30,10 +30,10 @@
     <div class="section-inner narrow">
         <h2>Abstract</h2>
         <p>
-            Peg-transfer is a well known surgical training task in the fundamentals of laparoscopic surgery. While clinicians can accurately perform complex multi-step maneuvers using the da Vinci Research Kit (dVRK) robot, prior studies in automating this task have largely focused on simple maneuvers. Vision-Language Models (VLMs) have been used for tackling such problems by combining visual understanding and language instructions. However, existing VLMs struggle with accurate perception and long horizon reasoning required for multi-step manipulation tasks such as peg-transfer. Recent developments in Reasoning Models (RM) demonstrate improved performance on mathematical reasoning benchmarks, however their planning capabilities remain unexplored in robotics.
+            Automating peg-transfer, a fundamental laparoscopic surgery training task, on the da Vinci Research Kit (dVRK) has been limited to single-step maneuvers, far short of the multi-step sequences performed in clinical practice. Successful surgical task automation requires not only precise low-level control but also planning across many dependent subtasks. To study this challenge, we introduce the Multi-Ring Transfer Benchmark, which extends peg-transfer into long-horizon rearrangement tasks with controllable planning complexity. Vision-Language Models (VLMs) have shown promise for multi-step robot manipulation from visual observations and high-level instructions, yet they continue to struggle with state tracking, constraint satisfaction, and recovery in long-horizon tasks. Recent Reasoning Models (RMs) introduce explicit reasoning traces, but whether these traces translate into improved robotic task planning remains an open question.
         </p>
         <p>
-            In this study, we propose HierarchicalRM to tackle long-horizon task planning and execution, which creates higher-level reusable routines to reduce planning depth. To systematically evaluate reasoning capabilities, we introduce a surgical reasoning benchmark, called ring-transfer, which systematically varies planning complexity. The results show that HierarchicalRM significantly increases the planning horizon and successfully completes tasks that are 3X more complex compared to standard VLMs, while reducing replanning by 50%. We investigate the reasoning behaviour using thinking tokens, noting a correlation between task success and thinking tokens. This study provides initial insights how RM can be integrated in surgical planning as we progress towards higher levels of surgical autonomy.
+            To address this, we present HierarchicalRM, which combines RMs with hierarchical task decomposition to reduce planning depth in long-horizon manipulation. In simulation, HierarchicalRM completes tasks up to 3&times; more complex than standard VLMs while reducing replanning by 50%. We further validate end-to-end execution on the dVRK, demonstrating recovery from failed grasps through visual verification and replanning. Analysis of thinking tokens reveals that reasoning depth directly correlates with task success, positioning RMs as a promising framework for advancing autonomous surgical planning.
         </p>
     </div>
 </section>
@@ -54,7 +54,7 @@
         <p class="caption"><strong>Planning and correction:</strong> Example outputs from the Scene/State Descriptors, H1/H2 action schemas, and Decision/Inner Bot planning.</p>
 
         <img class="fig fig-large" src="images/outerbot_flow.png" alt="Outer Bot flow visualization">
-        <p class="caption"><strong>Overview of the outer-bot validation loop:</strong> The Outer Bot compares the actual post-execution state with the expected goal state from the Scene Descriptor. If the current state matches the subtask goal and satisfies all constraints, the subtask is marked successful; otherwise, errors are detected and flagged for replanning.</p>
+        <p class="caption"><strong>Overview of the outer-bot validation loop:</strong> The Outer Bot compares the post-execution state with the expected state. Matching states mark the subtask as successful. Otherwise, errors are flagged for replanning. Highlighted text shows the incorrect state after executing a subtask.</p>
 
         <h3>Real Robot and Simulation Setup</h3>
         <img class="fig fig-medium" src="images/scene_setup.png" alt="Scene setup">
@@ -70,26 +70,32 @@
 
         <p class="video-label">Experiment 1<br>Real Robot Tower Of Hanoi Execution</p>
         <div class="video-wrap">
-            <video controls><source src="videos/real_exp_1.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+            <video controls preload="metadata"><source src="videos/real_exp_1.mp4#t=0" type="video/mp4">Your browser does not support the video tag.</video>
         </div>
         <p class="video-label">Experiment 2<br>Cyclic Movement Of Hoops</p>
         <div class="video-wrap">
-            <video controls><source src="videos/real_exp_2.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+            <video controls preload="metadata"><source src="videos/real_exp_2.mp4#t=0" type="video/mp4">Your browser does not support the video tag.</video>
         </div>
         <p class="video-label">Experiment 3<br>Outer Bot Recoverable Error</p>
         <div class="video-wrap">
-            <video controls><source src="videos/real_exp_3.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+            <video controls preload="metadata"><source src="videos/real_exp_3.mp4#t=0" type="video/mp4">Your browser does not support the video tag.</video>
         </div>
 
         <h3>Simulation Environment Experiments</h3>
 
         <p class="video-label">Experiment 1<br>Planning In Higher Action Hierarchy</p>
         <div class="video-wrap">
-            <video controls><source src="videos/sim_exp_1.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+            <video controls preload="metadata"><source src="videos/sim_exp_1.mp4#t=0" type="video/mp4">Your browser does not support the video tag.</video>
         </div>
         <p class="video-label">Experiment 2<br>Correcting Errors In Task Plan</p>
         <div class="video-wrap">
-            <video controls><source src="videos/sim_exp_2.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+            <video controls preload="metadata"><source src="videos/sim_exp_2.mp4#t=0" type="video/mp4">Your browser does not support the video tag.</video>
+        </div>
+
+        <h3>Simulator Walkthrough</h3>
+
+        <div class="video-wrap">
+            <video controls preload="metadata"><source src="videos/sim_walkthrough.mp4#t=0" type="video/mp4">Your browser does not support the video tag.</video>
         </div>
     </div>
 </section>

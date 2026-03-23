@@ -161,8 +161,6 @@ public class Main : MonoBehaviour
         string argList = expr.Substring(start + 1, end - start - 1);
         args = argList.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                       .Select(s => s.Trim()).ToList();
-
-        Debug.Log($"Parsed function call: {funcName} with args: {string.Join("; ", args)}");
     }
 
     // === Recursive executor that breaks down H2 → H1 → H0 ===
@@ -183,12 +181,20 @@ public class Main : MonoBehaviour
         var paramNames = functionParamSignature[funcName];
         var paramMap = new Dictionary<string, string>();
         for (int i = 0; i < paramNames.Count && i < args.Count; i++)
-            paramMap[paramNames[i]] = args[i];
+        {
+            string key = ParamNameOnly(paramNames[i]);
+            string val = StripQuotes(args[i]);
+            paramMap[key] = val;
+        }
 
         foreach (string callExpr in functionToCallsWithArgs[funcName])
         {
             ParseFunctionCall(callExpr, out string subFunc, out List<string> subArgs);
-            List<string> resolvedArgs = subArgs.Select(arg => paramMap.ContainsKey(arg) ? paramMap[arg] : arg).ToList();
+            List<string> resolvedArgs = subArgs.Select(a =>
+            {
+                string key = CleanPlaceholder(a);
+                return paramMap.TryGetValue(key, out var v) ? v : key;
+            }).ToList();
             yield return StartCoroutine(ExecuteRecursiveCoroutine(subFunc, resolvedArgs));
         }
     }
@@ -362,7 +368,6 @@ public class Main : MonoBehaviour
         foreach (var kv in h2) h2Toh1Mapping[kv.Key] = kv.Value;
         foreach (var kv in sigs) functionParamSignature[kv.Key] = kv.Value;
         foreach (var kv in calls) functionToCallsWithArgs[kv.Key] = kv.Value;
-        Debug.Log($"Function map = {string.Join(", ", functionToCallsWithArgs.Select(kv => $"{kv.Key}: [{string.Join(", ", kv.Value)}]"))}");
     }
 
 
@@ -370,6 +375,36 @@ public class Main : MonoBehaviour
     public bool IsPrimitive(string name)
     {
         return name == "MoveCoroutine" || name == "GrabCoroutine" || name == "DropCoroutine";
+    }
+
+    // --- Arg sanitization helpers ---
+    static string StripQuotes(string s)
+    {
+        if (string.IsNullOrEmpty(s)) return s;
+        s = s.Trim();
+        if (s.Length >= 2 && ((s[0] == '"' && s[^1] == '"') || (s[0] == '\'' && s[^1] == '\'')))
+            s = s.Substring(1, s.Length - 2);
+        return s.Trim();
+    }
+
+    // Converts "string source_peg" -> "source_peg"
+    static string ParamNameOnly(string s)
+    {
+        if (string.IsNullOrEmpty(s)) return s;
+        s = s.Trim();
+        int lastSpace = s.LastIndexOf(' ');
+        if (lastSpace >= 0)
+            s = s.Substring(lastSpace + 1);
+        return s.Trim();
+    }
+
+    // Cleans template args like "source_peg;" -> "source_peg"
+    static string CleanPlaceholder(string s)
+    {
+        if (string.IsNullOrEmpty(s)) return s;
+        s = s.Trim();
+        s = s.TrimEnd(')', ']', '}', ';', ',');
+        return s.Trim();
     }
 
     // Break down any potential H2 actions into seq of H1 actions.
@@ -384,6 +419,7 @@ public class Main : MonoBehaviour
             foreach (string func in functionList)
             {
                 ParseFunctionCall(func, out string funcName, out List<string> args);
+                args = args.Select(StripQuotes).ToList();
 
                 if (h2Toh1Mapping.ContainsKey(funcName))
                 {
@@ -396,12 +432,20 @@ public class Main : MonoBehaviour
                     var paramNames = functionParamSignature[funcName];
                     var paramMap = new Dictionary<string, string>();
                     for (int i = 0; i < paramNames.Count && i < args.Count; i++)
-                        paramMap[paramNames[i]] = args[i];
+                    {
+                        string key = ParamNameOnly(paramNames[i]);
+                        string val = StripQuotes(args[i]);
+                        paramMap[key] = val;
+                    }
 
                     foreach (var h1Call in functionToCallsWithArgs[funcName])
                     {
                         ParseFunctionCall(h1Call, out string h1Func, out List<string> h1Args);
-                        var resolvedArgs = h1Args.Select(arg => paramMap.ContainsKey(arg) ? paramMap[arg] : arg).ToList();
+                        var resolvedArgs = h1Args.Select(a =>
+                        {
+                            string key = CleanPlaceholder(a);
+                            return paramMap.TryGetValue(key, out var v) ? v : key;
+                        }).ToList();
                         expandedFunctions.Add($"{h1Func}({string.Join(", ", resolvedArgs)})");
                     }
                 }

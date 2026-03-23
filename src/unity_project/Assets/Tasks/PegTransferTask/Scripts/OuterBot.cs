@@ -164,8 +164,8 @@ public class OuterBot : MonoBehaviour
         string jsonRequest;
 
         jsonRequest = $@"{{
-                ""model"": ""o4-mini"",
-                ""reasoning"": {{ ""effort"": ""high"" }},
+                ""model"": ""gpt-5.1"",
+                ""reasoning"": {{ ""effort"": ""low"" }},
                 ""input"": [
                     {{
                     ""role"": ""system"",
@@ -186,9 +186,9 @@ public class OuterBot : MonoBehaviour
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Authorization", $"Bearer {APIKey}");
 
-        Debug.Log("[OuterBot] Sending OpenAI Responses API Request...");
+        Debug.Log("[OuterBot] Sending request...");
         yield return request.SendWebRequest();
-        Debug.Log("[OuterBot] Received API Response.");
+        Debug.Log("[OuterBot] Response received.");
 
         if (request.result != UnityWebRequest.Result.Success)
         {
@@ -198,12 +198,10 @@ public class OuterBot : MonoBehaviour
 
         // 5) Deserialize response
         string jsonResponse = request.downloadHandler.text;
-        Debug.Log("[OuterBot] Raw API response:\n" + jsonResponse);
         var response = JsonUtility.FromJson<ResponsesAPIResponse>(jsonResponse);
 
         // 6) Save response ID
         lastResponseId = response.id;
-        Debug.Log("LAST RESPONSE ID = " + lastResponseId);
 
         // 7) Extract assistant’s message text
         var msgBlock = response.output
@@ -224,24 +222,22 @@ public class OuterBot : MonoBehaviour
 
         string content = outputText.Trim();
         output = content;
-        Debug.Log("[OuterBot] OpenAI Output:\n" + content);
 
-        // 8) Parse your error block
+        // 8) Parse error block
         string errorBlock = main.ExtractBetweenFlags(content,
                                                      "```start_error_type",
                                                      "```end_error_type");
-        Debug.Log("EXTRACTED Outer Bot Error Block:\n" + errorBlock);
 
         // 9) Extract the Error type
         int index = errorBlock.IndexOf("Error :");
         if (index != -1)
         {
             feedback = errorBlock.Substring(index + "Error :".Length).Trim();
-            Debug.Log("OUTERBOT VERDICT = " + feedback);
+            Debug.Log("[OuterBot] Verdict: " + feedback);
         }
         else
         {
-            Debug.LogWarning("[OuterBot] Error type string not found in output block.");
+            Debug.LogWarning("[OuterBot] Error type field not found in output block.");
         }
     }
 

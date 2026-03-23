@@ -177,7 +177,7 @@ public class InnerBot : MonoBehaviour
 
         // Build JSON request body
         string jsonRequest = $@"{{
-            ""model"": ""o4-mini"",
+            ""model"": ""gpt-5.1"",
             ""messages"": [
                 {{
                     ""role"": ""system"",
@@ -191,7 +191,7 @@ public class InnerBot : MonoBehaviour
                 }}
             ],
             ""max_completion_tokens"": 20000,
-            ""reasoning_effort"": ""high""
+            ""reasoning_effort"": ""low""
         }}";
 
         UnityWebRequest request = new UnityWebRequest(APIurl, "POST");
@@ -202,9 +202,9 @@ public class InnerBot : MonoBehaviour
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Authorization", $"Bearer {APIKey}");
 
-        Debug.Log("[InnerBot] Sending OpenAI API Request...");
+        Debug.Log("[InnerBot] Sending request...");
         yield return request.SendWebRequest();
-        Debug.Log("[InnerBot] Received API Response.");
+        Debug.Log("[InnerBot] Response received.");
 
         if (request.result != UnityWebRequest.Result.Success)
         {
@@ -216,17 +216,12 @@ public class InnerBot : MonoBehaviour
 
             OpenAIResponse response = JsonUtility.FromJson<OpenAIResponse>(jsonResponse);
 
-            Debug.Log("[InnerBot] Raw API response:\n" + jsonResponse);
-
             if (response.choices != null && response.choices.Length > 0)
             {
                 output = response.choices[0].message.content.Trim();
-                Debug.Log("[InnerBot] OpenAI Output:\n" + output);
-
                 output = main.ExtractBetweenFlags(output, "```start_result", "```end_result");
                 main.innerbot_feedback = output;
-
-                Debug.Log("EXTRACTED Inner Bot result: ");
+                Debug.Log("[InnerBot] Extracted verdict: " + output);
 
                 // Extract substring after "RESULT:" string
                 int index = output.IndexOf("RESULT:");
@@ -235,11 +230,11 @@ public class InnerBot : MonoBehaviour
                     string resultLine = output.Substring(index + "RESULT:".Length).Trim();
                     string[] lines = resultLine.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
                     verdict = lines[0].Trim();
-                    Debug.Log("RESULT = " + verdict);
+                    Debug.Log("[InnerBot] Verdict: " + verdict);
                 }
                 else
                 {
-                    Debug.LogWarning("RESULT string not found in output.");
+                    Debug.LogWarning("[InnerBot] RESULT field not found in output.");
                 }
             }
             else

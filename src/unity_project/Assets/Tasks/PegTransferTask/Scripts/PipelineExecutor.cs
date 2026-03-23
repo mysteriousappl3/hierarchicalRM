@@ -45,117 +45,6 @@ public class PipelineExecutor : MonoBehaviour
         StartCoroutine(APIRunner());
     }
 
-
-    public IEnumerator testMotorFunctions()
-    {
-
-        // MoveHoop(red_peg, blue_peg)
-        yield return StartCoroutine(motor.MoveCoroutine(2));
-        yield return StartCoroutine(motor.GrabCoroutine());
-        yield return StartCoroutine(motor.MoveCoroutine(3));
-        yield return StartCoroutine(motor.DropCoroutine());
-        yield return StartCoroutine(cam.SaveImage());
-        main.imageCounter += 1;
-
-        // MoveHoop(green_peg, red_peg)
-        yield return StartCoroutine(motor.MoveCoroutine(1));
-        yield return StartCoroutine(motor.GrabCoroutine());
-        yield return StartCoroutine(motor.MoveCoroutine(2));
-        yield return StartCoroutine(motor.DropCoroutine());
-        yield return StartCoroutine(cam.SaveImage());
-        main.imageCounter += 1;
-
-        // MoveHoop(red_peg, blue_peg)
-        yield return StartCoroutine(motor.MoveCoroutine(2));
-        yield return StartCoroutine(motor.GrabCoroutine());
-        yield return StartCoroutine(motor.MoveCoroutine(3));
-        yield return StartCoroutine(motor.DropCoroutine());
-        yield return StartCoroutine(cam.SaveImage());
-        main.imageCounter += 1;
-
-        // MoveHoop(green_peg, red_peg)
-        yield return StartCoroutine(motor.MoveCoroutine(1));
-        yield return StartCoroutine(motor.GrabCoroutine());
-        yield return StartCoroutine(motor.MoveCoroutine(2));
-        yield return StartCoroutine(motor.DropCoroutine());
-        yield return StartCoroutine(cam.SaveImage());
-        main.imageCounter += 1;
-
-        // MoveHoop(blue_peg, red_peg)
-        yield return StartCoroutine(motor.MoveCoroutine(3));
-        yield return StartCoroutine(motor.GrabCoroutine());
-        yield return StartCoroutine(motor.MoveCoroutine(2));
-        yield return StartCoroutine(motor.DropCoroutine());
-        yield return StartCoroutine(cam.SaveImage());
-        main.imageCounter += 1;
-
-        // MoveHoop(blue_peg, red_peg)
-        yield return StartCoroutine(motor.MoveCoroutine(3));
-        yield return StartCoroutine(motor.GrabCoroutine());
-        yield return StartCoroutine(motor.MoveCoroutine(2));
-        yield return StartCoroutine(motor.DropCoroutine());
-        yield return StartCoroutine(cam.SaveImage());
-        main.imageCounter += 1;
-
-        // MoveHoop(green_peg, blue_peg)
-        yield return StartCoroutine(motor.MoveCoroutine(1));
-        yield return StartCoroutine(motor.GrabCoroutine());
-        yield return StartCoroutine(motor.MoveCoroutine(3));
-        yield return StartCoroutine(motor.DropCoroutine());
-        yield return StartCoroutine(cam.SaveImage());
-        main.imageCounter += 1;
-
-        // MoveHoop(red_peg, green_peg)
-        yield return StartCoroutine(motor.MoveCoroutine(2));
-        yield return StartCoroutine(motor.GrabCoroutine());
-        yield return StartCoroutine(motor.MoveCoroutine(1));
-        yield return StartCoroutine(motor.DropCoroutine());
-        yield return StartCoroutine(cam.SaveImage());
-        main.imageCounter += 1;
-
-        // MoveHoop(red_peg, green_peg)
-        yield return StartCoroutine(motor.MoveCoroutine(2));
-        yield return StartCoroutine(motor.GrabCoroutine());
-        yield return StartCoroutine(motor.MoveCoroutine(1));
-        yield return StartCoroutine(motor.DropCoroutine());
-        yield return StartCoroutine(cam.SaveImage());
-        main.imageCounter += 1;
-
-        // MoveHoop(red_peg, blue_peg)
-        yield return StartCoroutine(motor.MoveCoroutine(2));
-        yield return StartCoroutine(motor.GrabCoroutine());
-        yield return StartCoroutine(motor.MoveCoroutine(3));
-        yield return StartCoroutine(motor.DropCoroutine());
-        yield return StartCoroutine(cam.SaveImage());
-        main.imageCounter += 1;
-
-        // MoveHoop(green_peg, red_peg)
-        yield return StartCoroutine(motor.MoveCoroutine(1));
-        yield return StartCoroutine(motor.GrabCoroutine());
-        yield return StartCoroutine(motor.MoveCoroutine(2));
-        yield return StartCoroutine(motor.DropCoroutine());
-        yield return StartCoroutine(cam.SaveImage());
-        main.imageCounter += 1;
-
-        // MoveHoop(red_peg, blue_peg)
-        yield return StartCoroutine(motor.MoveCoroutine(2));
-        yield return StartCoroutine(motor.GrabCoroutine());
-        yield return StartCoroutine(motor.MoveCoroutine(3));
-        yield return StartCoroutine(motor.DropCoroutine());
-        yield return StartCoroutine(cam.SaveImage());
-        main.imageCounter += 1;
-
-        // MoveHoop(green_peg, red_peg)
-        yield return StartCoroutine(motor.MoveCoroutine(1));
-        yield return StartCoroutine(motor.GrabCoroutine());
-        yield return StartCoroutine(motor.MoveCoroutine(2));
-        yield return StartCoroutine(motor.DropCoroutine());
-        yield return StartCoroutine(cam.SaveImage());
-        main.imageCounter += 1;
-
-        yield break;
-    }
-
     private void CleanForReplan()
     {
         main.h1Toh0Mapping.Clear();
@@ -215,9 +104,8 @@ public class PipelineExecutor : MonoBehaviour
                 break;
             }
 
-            Debug.Log("PLAN IS VERIFIED AND VALID!");
+            Debug.Log("[PipelineExecutor] Plan verified and valid. Executing functions.");
             innerBot.output = "";
-            Debug.Log("[Robot Controller] -- Executing Functions now");
 
             if (string.IsNullOrEmpty(main.prevState))
             {
@@ -260,20 +148,18 @@ public class PipelineExecutor : MonoBehaviour
 
                 main.prevState = sceneDescriptor.output;
 
-                Debug.Log("Outer Bot Result = " + verdict);
-                Debug.Log($"[OUTERBOT] Cleaned verdict line: '{verdict}'");
+                Debug.Log("[OuterBot] Verdict: " + verdict);
 
                 if (verdict.Contains("SUCCESS"))
                 {
-                    // If we reach here, then that means the task has been executed successfully
-                    Debug.Log("TASK COMPLETED SUCCESSFULLY!");
+                    Debug.Log("[PipelineExecutor] Task completed successfully!");
 #if UNITY_EDITOR
                     UnityEditor.EditorApplication.isPlaying = false;
 #endif
                     yield break;
                 }
 
-                Debug.Log("Replanning task!");
+                Debug.Log("[PipelineExecutor] Replanning task.");
                 main.totalReplanAttempts -= 1;
                 // outerBot.output = "";
                 // outerBot.lastResponseId = null;
@@ -339,13 +225,11 @@ public class PipelineExecutor : MonoBehaviour
 
                 main.prevState = sceneDescriptor.output;
 
-                Debug.Log("Outer Bot Result = " + verdict);
-                Debug.Log($"[OUTERBOT] Raw verdict: '{rawVerdict}'");
-                Debug.Log($"[OUTERBOT] Cleaned verdict line: '{verdict}'");
+                Debug.Log("[OuterBot] Verdict: " + verdict);
 
                 if (verdict.Contains("SUBTASK SUCCESS"))
                 {
-                    Debug.Log("Subtask completed successfully. Onto the next subtask!");
+                    Debug.Log("[PipelineExecutor] Subtask completed successfully.");
 
                     continue;
 
@@ -353,7 +237,7 @@ public class PipelineExecutor : MonoBehaviour
 
                 if (verdict.Contains("TASK SUCCESS"))
                 {
-                    Debug.Log("TASK COMPLETED SUCCESSFULLY!");
+                    Debug.Log("[PipelineExecutor] Task completed successfully!");
 #if UNITY_EDITOR
                     UnityEditor.EditorApplication.isPlaying = false;
 #endif
@@ -362,14 +246,14 @@ public class PipelineExecutor : MonoBehaviour
                 // NON-RECOVERABLE --> Error requiring human intervention. Terminate process
                 else if (verdict.Contains("NON-RECOVERABLE"))
                 {
-                    Debug.Log("[NON-RECOVERABLE ERROR] -- Major error. Requires human intervention. Terminating process!");
+                    Debug.Log("[PipelineExecutor] Non-recoverable error. Requires human intervention. Terminating.");
                     yield break;
 
                 }
                 // RECOVERABLE ERROR --> Replanning required from our definition
                 else if (verdict.Contains("RECOVERABLE"))
                 {
-                    Debug.Log("[RECOVERABLE ERROR] -- Replanning Task!");
+                    Debug.Log("[PipelineExecutor] Recoverable error. Replanning.");
 
                     replan = true;
                     break;
@@ -385,7 +269,7 @@ public class PipelineExecutor : MonoBehaviour
 
         if (main.totalReplanAttempts < 0)
         {
-            Debug.Log("MAXIMUM REPLAN ATTEMPTS EXCEDED! TERMINATING PROGRAM");
+            Debug.Log("[PipelineExecutor] Maximum replan attempts exceeded. Terminating.");
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
 #endif

@@ -55,6 +55,10 @@ public class DecisionBot : MonoBehaviour
 
             Do not output any parameter in the format ""<object_black>"" or similar. Strictly refer to them of the format of ""object_black"".
 
+            CRITICAL: When calling functions, you MUST substitute the actual peg names from the scene description (e.g., ""green_peg"", ""red_peg"", ""blue_peg"") as arguments.
+            Do NOT pass abstract parameter placeholder names from the function signatures.
+            Every argument in every function call must be a concrete object name that exists in the scene.
+
             You MUST follow the above output format and do not put any additional text or explanation in the output.
 
             In the state description, the state objects are ordered bottom-up, left-to-right order.  
@@ -188,8 +192,8 @@ public class DecisionBot : MonoBehaviour
 
         // 3) Build the full JSON body manually
         string jsonRequest = $@"{{
-            ""model"": ""o4-mini"",
-            ""reasoning"": {{ ""effort"": ""high"" }},
+            ""model"": ""gpt-5.1"",
+            ""reasoning"": {{ ""effort"": ""low"" }},
             ""input"": [
                 {{
                     ""role"": ""system"",
@@ -210,9 +214,9 @@ public class DecisionBot : MonoBehaviour
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Authorization", $"Bearer {APIKey}");
 
-        Debug.Log("[DecisionBot] Sending OpenAI Responses API Request...");
+        Debug.Log("[DecisionBot] Sending request...");
         yield return request.SendWebRequest();
-        Debug.Log("[DecisionBot] Received API Response.");
+        Debug.Log("[DecisionBot] Response received.");
 
         if (request.result != UnityWebRequest.Result.Success)
         {
@@ -222,7 +226,6 @@ public class DecisionBot : MonoBehaviour
 
         // 5) Deserialize into the new Responses API schema
         string jsonResponse = request.downloadHandler.text;
-        Debug.Log("[DecisionBot] Raw API response:\n" + jsonResponse);
         var response = JsonUtility.FromJson<ResponsesAPIResponse>(jsonResponse);
 
         // 6) Save the response ID for next call
@@ -260,13 +263,11 @@ public class DecisionBot : MonoBehaviour
         main.subtaskFunctions = main.ExpandToH1Only(main.subtaskFunctions);
         main.index = 0;
 
-        // 10) Your debug logs remain unchanged
-        Debug.Log("EXTRACTED Decision Bot DATA ");
-        Debug.Log(string.Join("\n", main.subtaskDescriptions));
+        // 10) Log parsed plan
+        Debug.Log("[DecisionBot] Subtask descriptions:\n" + string.Join("\n", main.subtaskDescriptions));
         for (int i = 0; i < main.subtaskFunctions.Count; i++)
-            Debug.Log($"Functions for Subtask {i + 1}: {string.Join(", ", main.subtaskFunctions[i])}");
-        Debug.Log(string.Join("\n", main.subtaskGoalstates));
-        Debug.Log($"All function calls: {string.Join(", ", main.allFunctions)}");
+            Debug.Log($"[DecisionBot] Subtask {i + 1} functions: {string.Join(", ", main.subtaskFunctions[i])}");
+        Debug.Log("[DecisionBot] All function calls: " + string.Join(", ", main.allFunctions));
     }
 
     [Serializable]

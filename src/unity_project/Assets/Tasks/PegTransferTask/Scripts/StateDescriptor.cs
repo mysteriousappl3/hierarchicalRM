@@ -111,7 +111,7 @@ public class StateDescriptor : MonoBehaviour
 
         // Build JSON request body
         string jsonRequest = $@"{{
-            ""model"": ""o4-mini"",
+            ""model"": ""gpt-5.1"",
             ""messages"": [
                 {{
                     ""role"": ""system"",
@@ -123,7 +123,7 @@ public class StateDescriptor : MonoBehaviour
                 }}
             ],
             ""max_completion_tokens"": 20000,
-            ""reasoning_effort"": ""high""
+            ""reasoning_effort"": ""low""
         }}";
 
         UnityWebRequest request = new UnityWebRequest(APIurl, "POST");
@@ -134,9 +134,9 @@ public class StateDescriptor : MonoBehaviour
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Authorization", $"Bearer {APIKey}");
 
-        Debug.Log("[StateDescriptor] Sending OpenAI API Request...");
+        Debug.Log("[StateDescriptor] Sending request...");
         yield return request.SendWebRequest();
-        Debug.Log("[StateDescriptor] Received API Response.");
+        Debug.Log("[StateDescriptor] Response received.");
 
         if (request.result != UnityWebRequest.Result.Success)
         {
@@ -147,22 +147,19 @@ public class StateDescriptor : MonoBehaviour
             string jsonResponse = request.downloadHandler.text;
 
             OpenAIResponse response = JsonUtility.FromJson<OpenAIResponse>(jsonResponse);
-            Debug.Log("[StateDescriptor] Raw API response:\n" + jsonResponse);
 
             if (response.choices != null && response.choices.Length > 0)
             {
                 output = response.choices[0].message.content.Trim();
-                Debug.Log("[StateDescriptor] OpenAI Output:\n" + output);
                 output = main.ExtractBetweenFlags(output);
-                Debug.Log("EXTRACTED DATA ");
-                Debug.Log(output);
+                Debug.Log("[StateDescriptor] Extracted state:\n" + output);
 
                 // Store the reference to initial state descriptor to extract env_constraints from for InnerBot usage.
                 main.initialStateDesc = output;
 
                 // Extract env_constraints
                 string extracted_env_constraint = main.ExtractConstraintSpatialRelations(output);
-                Debug.Log("Extracted constraint_spatial_relations JSON:\n" + extracted_env_constraint);
+                Debug.Log("[StateDescriptor] Extracted constraint_spatial_relations:\n" + extracted_env_constraint);
                 main.envConstraint = extracted_env_constraint;
                 main.stateDescription = output;
             }

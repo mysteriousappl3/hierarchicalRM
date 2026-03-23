@@ -96,7 +96,7 @@ public class H2ActionGenerator : MonoBehaviour
 
         // Build JSON request body
         string jsonRequest = $@"{{
-            ""model"": ""o4-mini"",
+            ""model"": ""gpt-5.1"",
             ""messages"": [
                 {{
                     ""role"": ""system"",
@@ -107,7 +107,7 @@ public class H2ActionGenerator : MonoBehaviour
                     ""content"": ""{escapedPrompt}""
                 }}
             ],
-            ""reasoning_effort"": ""high"",
+            ""reasoning_effort"": ""low"",
             ""max_completion_tokens"": 50000
         }}";
 
@@ -119,9 +119,9 @@ public class H2ActionGenerator : MonoBehaviour
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Authorization", $"Bearer {APIKey}");
 
-        Debug.Log("[H2ActionGenerator] Sending OpenAI API Request...");
+        Debug.Log("[H2ActionGenerator] Sending request...");
         yield return request.SendWebRequest();
-        Debug.Log("[H2ActionGenerator] Received API Response.");
+        Debug.Log("[H2ActionGenerator] Response received.");
 
         if (request.result != UnityWebRequest.Result.Success)
         {
@@ -133,48 +133,32 @@ public class H2ActionGenerator : MonoBehaviour
 
             OpenAIResponse response = JsonUtility.FromJson<OpenAIResponse>(jsonResponse);
 
-            Debug.Log("[H2ActionGen] Raw API response:\n" + jsonResponse);
-
             if (response.choices != null && response.choices.Length > 0)
             {
                 string content_output = response.choices[0].message.content.Trim();
-                Debug.Log("[H2ActionGenerator] OpenAI Output:\n" + content_output);
                 output = main.ExtractBetweenFlags(content_output);
-                Debug.Log("EXTRACTED DATA ");
-                Debug.Log(output);
 
                 string functionMappingLine = main.ExtractBetweenFlags(content_output, "```start_mapping", "```end_mapping");
-                // main.h2Toh1Mapping = main.ParseFunctionMappings(functionMappingLine);
-                Debug.Log("H2 FUNC MAPPING LINE - " + functionMappingLine);
                 main.ParseHierarchicalFunctionMappings(functionMappingLine);
 
                 // H1 → H0
-                Debug.Log("======== H1 to H0 Mapping ========");
+                Debug.Log("[H2ActionGenerator] ======== H1 to H0 Mapping ========");
                 foreach (var kv in main.h1Toh0Mapping)
-                {
-                    Debug.Log($"H1: {kv.Key} => H0 Calls: [{string.Join(", ", kv.Value)}]");
-                }
+                    Debug.Log($"[H2ActionGenerator] H1: {kv.Key} => [{string.Join(", ", kv.Value)}]");
 
                 // H2 → H1
-                Debug.Log("======== H2 to H1 Mapping ========");
+                Debug.Log("[H2ActionGenerator] ======== H2 to H1 Mapping ========");
                 foreach (var kv in main.h2Toh1Mapping)
-                {
-                    Debug.Log($"H2: {kv.Key} => H1 Calls: [{string.Join(", ", kv.Value)}]");
-                }
+                    Debug.Log($"[H2ActionGenerator] H2: {kv.Key} => [{string.Join(", ", kv.Value)}]");
 
-                // Function Param Signatures
-                Debug.Log("======== Function Param Signatures ========");
+                // Function signatures and full call expressions
+                Debug.Log("[H2ActionGenerator] ======== Function Param Signatures ========");
                 foreach (var kv in main.functionParamSignature)
-                {
-                    Debug.Log($"{kv.Key} params: ({string.Join(", ", kv.Value)})");
-                }
+                    Debug.Log($"[H2ActionGenerator] {kv.Key} params: ({string.Join(", ", kv.Value)})");
 
-                // Full Calls With Args
-                Debug.Log("======== Calls With Args ========");
+                Debug.Log("[H2ActionGenerator] ======== Calls With Args ========");
                 foreach (var kv in main.functionToCallsWithArgs)
-                {
-                    Debug.Log($"{kv.Key} => [{string.Join(", ", kv.Value)}]");
-                }
+                    Debug.Log($"[H2ActionGenerator] {kv.Key} => [{string.Join(", ", kv.Value)}]");
             }
             else
             {

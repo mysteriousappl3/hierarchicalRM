@@ -12903,7 +12903,7 @@ MonoBehaviour:
   subtaskGoalstates: []
   allFunctions: []
   stateDescriptor: {fileID: 7162553294186825898}
-  totalReplanAttempts: 3
+  totalReplanAttempts: 15
   index: 0
   imageCounter: 1
   prevState: 

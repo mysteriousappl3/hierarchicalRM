@@ -75,7 +75,6 @@ public class SceneDescriptor : MonoBehaviour
             Texture2D texture = new Texture2D(2, 2);
             if (texture.LoadImage(imageData))
             {
-                Debug.Log("Successfully loaded image into Texture2D");
                 sceneImage = texture;
             }
             else
@@ -163,7 +162,8 @@ public class SceneDescriptor : MonoBehaviour
 
         // Final JSON
         string jsonRequest = $@"{{
-        ""model"": ""o1"",
+        ""model"": ""gpt-5.1"",
+        ""reasoning"": {{ ""effort"": ""low"" }},
         ""input"": [
             {inputBlock}
         ]{prevIdPart}
@@ -178,18 +178,17 @@ public class SceneDescriptor : MonoBehaviour
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Authorization", $"Bearer {APIKey}");
 
-        Debug.Log("[SceneAnalyzerVLM] Sending OpenAI Responses API Request...");
+        Debug.Log("[SceneDescriptor] Sending request...");
         yield return request.SendWebRequest();
-        Debug.Log("[SceneAnalyzerVLM] Received API Response.");
+        Debug.Log("[SceneDescriptor] Response received.");
 
         if (request.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError($"[SceneAnalyzerVLM] API Request Failed: {request.error}\n{request.downloadHandler.text}");
+            Debug.LogError($"[SceneDescriptor] API request failed: {request.error}\n{request.downloadHandler.text}");
             yield break;
         }
 
         string jsonResponse = request.downloadHandler.text;
-        Debug.Log("[SceneAnalyzerVLM] Raw API response:\n" + jsonResponse);
 
         // Parse using your defined classes
         ResponsesAPIResponse response = JsonUtility.FromJson<ResponsesAPIResponse>(jsonResponse);
@@ -207,7 +206,7 @@ public class SceneDescriptor : MonoBehaviour
 
         if (messageBlock == null || messageBlock.content == null || messageBlock.content.Length == 0)
         {
-            Debug.LogError("[SceneAnalyzerVLM] No valid message block in response.");
+            Debug.LogError("[SceneDescriptor] No valid message block in response.");
             yield break;
         }
 
@@ -223,7 +222,7 @@ public class SceneDescriptor : MonoBehaviour
 
         if (string.IsNullOrEmpty(outputText))
         {
-            Debug.LogError("[SceneAnalyzerVLM] No output_text found!");
+            Debug.LogError("[SceneDescriptor] No output_text found in response.");
             yield break;
         }
 
@@ -234,10 +233,8 @@ public class SceneDescriptor : MonoBehaviour
             yield break;
         }
 
-        string sceneValidityResponse = main.ExtractBetweenFlags(output);
-
-        Debug.Log("SCENE VALIDITY = " + sceneValidityResponse);
         output = main.ExtractBetweenFlags(output);
+        Debug.Log("[SceneDescriptor] Scene description extracted: " + output);
 
         if (string.IsNullOrEmpty(main.initialSceneDesc))
         {
