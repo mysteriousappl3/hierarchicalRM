@@ -101,7 +101,7 @@ public class H1ActionGenerator : MonoBehaviour
 
         // Build JSON request body
         string jsonRequest = $@"{{
-            ""model"": ""o4-mini"",
+            ""model"": ""gpt-5.1"",
             ""messages"": [
                 {{
                     ""role"": ""system"",
@@ -112,7 +112,8 @@ public class H1ActionGenerator : MonoBehaviour
                     ""content"": ""{escapedPrompt}""
                 }}
             ],
-            ""max_completion_tokens"": 3000
+            ""reasoning_effort"": ""low"",
+            ""max_completion_tokens"": 5000
         }}";
 
         UnityWebRequest request = new UnityWebRequest(APIurl, "POST");
@@ -123,9 +124,9 @@ public class H1ActionGenerator : MonoBehaviour
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Authorization", $"Bearer {APIKey}");
 
-        Debug.Log("[H1ActionGenerator] Sending OpenAI API Request...");
+        Debug.Log("[H1ActionGenerator] Sending request...");
         yield return request.SendWebRequest();
-        Debug.Log("[H1ActionGenerator] Received API Response.");
+        Debug.Log("[H1ActionGenerator] Response received.");
 
         if (request.result != UnityWebRequest.Result.Success)
         {
@@ -137,54 +138,17 @@ public class H1ActionGenerator : MonoBehaviour
 
             OpenAIResponse response = JsonUtility.FromJson<OpenAIResponse>(jsonResponse);
 
-            Debug.Log("[H1ActionGen] Raw API response:\n" + jsonResponse);
-
             if (response.choices != null && response.choices.Length > 0)
             {
                 string content_output = response.choices[0].message.content.Trim();
-                Debug.Log("[H1ActionGenerator] OpenAI Output:\n" + content_output);
-
                 output = main.ExtractBetweenFlags(content_output);
 
                 string functionMappingLine = main.ExtractBetweenFlags(content_output, "```start_mapping", "```end_mapping");
                 main.ParseHierarchicalFunctionMappings(functionMappingLine);
-
-                Debug.Log("EXTRACTED DATA ");
-                Debug.Log(output);
-
-                // H1 → H0
-                Debug.Log("======== H1 to H0 Mapping ========");
-                foreach (var kv in main.h1Toh0Mapping)
-                {
-                    Debug.Log($"H1: {kv.Key} => H0 Calls: [{string.Join(", ", kv.Value)}]");
-                }
-
-                // H2 → H1
-                Debug.Log("======== H2 to H1 Mapping ========");
-                foreach (var kv in main.h2Toh1Mapping)
-                {
-                    Debug.Log($"H2: {kv.Key} => H1 Calls: [{string.Join(", ", kv.Value)}]");
-                }
-
-                // Function Param Signatures
-                Debug.Log("======== Function Param Signatures ========");
-                foreach (var kv in main.functionParamSignature)
-                {
-                    Debug.Log($"{kv.Key} params: ({string.Join(", ", kv.Value)})");
-                }
-
-                // Full Calls With Args
-                Debug.Log("======== Calls With Args ========");
-                foreach (var kv in main.functionToCallsWithArgs)
-                {
-                    Debug.Log($"{kv.Key} => [{string.Join(", ", kv.Value)}]");
-                }
-
-
             }
             else
             {
-                Debug.LogError("[H1ActionGen] OpenAI API returned empty choices or malformed response.");
+                Debug.LogError("[H1ActionGenerator] OpenAI API returned empty choices or malformed response.");
             }
         }
     }

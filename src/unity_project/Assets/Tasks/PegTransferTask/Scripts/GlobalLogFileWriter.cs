@@ -16,14 +16,13 @@ public class GlobalLogFileWriter : MonoBehaviour
         {
             string fileName = $"unity_full_{idx}.log";
             path = Path.Combine(dir, fileName);
-            Debug.Log(path);
             idx++;
         }
         while (File.Exists(path));
 
         writer = new StreamWriter(path, true) { AutoFlush = true };
         Application.logMessageReceived += HandleLog;
-    
+        Debug.Log("[Logger] Writing logs to: " + path);
     }
 
     void HandleLog(string msg, string stack, LogType type)

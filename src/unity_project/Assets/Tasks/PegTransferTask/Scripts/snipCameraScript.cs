@@ -43,7 +43,6 @@ public class SnipCameraScript : MonoBehaviour
                 try
                 {
                     Directory.Delete(subdirectory, true); // Delete the subdirectory and its contents
-                    UnityEngine.Debug.Log($"Deleted subdirectory: {subdirectory}");
                 }
                 catch (IOException e)
                 {
@@ -51,7 +50,7 @@ public class SnipCameraScript : MonoBehaviour
                 }
             }
 
-            UnityEngine.Debug.Log($"Directory contents cleared: {folderPath}");
+            UnityEngine.Debug.Log("[SnipCamera] Task image directory cleared: " + folderPath);
         }
         else
         {
@@ -118,13 +117,9 @@ public class SnipCameraScript : MonoBehaviour
         else
         {
             filePath = Path.Combine(folderPath, $"SceneImage_{imageCounter}.png");
-            UnityEngine.Debug.Log("save image with name = " + $"SceneImage_{imageCounter}.png");
         }
 
         File.WriteAllBytes(filePath, bytes);
-
-        // Log the save location
-        UnityEngine.Debug.Log($"Render Texture saved as image to: {filePath}");
         yield break;
     }
 }
