@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- ======================================================================= -->
-<!-- Copyright 2024 MedCVR Lab                                               -->
-<!-- ======================================================================= -->
+<!-- =======================================================================
+
 <!-- This file contains the description of the Franka robot with LND tool.   -->
 <!-- Adapted from the publicly available Franka URDF.                        -->
 <!-- Franka + LND400006 Tool -->

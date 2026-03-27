@@ -83,7 +83,7 @@ public class PSMKinematics : Kinematics
     }
 
     // Obtained from:
-    // https://github.com/collaborative-robotics/surgical_robotics_challenge/tree/master/scripts/surgical_robotics_challenge/kinematics
+    // https://github.com/collaborative-robotics/surgical_robotics_challenge
     public override float[] ComputeIK(Matrix4x4 T70)
     {
         Matrix4x4 T_PinchJoint_7 = Matrix4x4.identity;
