@@ -1,0 +1,24 @@
+{
+  "id": "hanoi_3",
+  "name": "Tower of Hanoi - 3 rings",
+  "pegs": ["peg_a", "peg_b", "peg_c"],
+  "source_peg": "peg_a",
+  "auxiliary_peg": "peg_b",
+  "target_peg": "peg_c",
+  "rings": [
+    {"name": "ring_1", "size": 1, "label": "smallest"},
+    {"name": "ring_2", "size": 2, "label": "middle"},
+    {"name": "ring_3", "size": 3, "label": "largest"}
+  ],
+  "initial": {
+    "peg_a": ["ring_3", "ring_2", "ring_1"],
+    "peg_b": [],
+    "peg_c": []
+  },
+  "goal": {
+    "peg_a": [],
+    "peg_b": [],
+    "peg_c": ["ring_3", "ring_2", "ring_1"]
+  },
+  "instruction": "Move all rings from peg_a to peg_c using peg_b as the auxiliary peg. Move one ring at a time, only move the top ring of a peg, and never place a larger ring on top of a smaller ring."
+}
