@@ -1,16 +1,32 @@
-# Hanoi Benchmark Harness
+# Symbolic Planning Benchmark Harness
 
-This folder is a standalone text-only benchmark for the planning part of the Unity project. It does not run Unity, render images, or move the robot. It tests whether a model can generate H1/H2 action abstractions and a valid Tower of Hanoi plan from JSON state.
+This folder is a standalone text-only benchmark for the planning part of the Unity project. It does not run Unity, render images, or move the robot. It includes Tower of Hanoi, Blocks World, and Checker Jumping domains for testing direct planning, LLM verification, and hierarchical action generation from symbolic state.
 
 ## Files
 
 - `hanoi_benchmark.py` - CLI runner.
+- `dynamic_hierarchy_benchmark.py` - dynamic H1-through-Hn Tower of Hanoi runner.
+- [`details_hanoi.md`](details_hanoi.md) - complete Hanoi setup, prompts, JSON state, verifiers, actions, and comparison conditions.
 - `models.py` - model adapters for OpenAI, Anthropic, Gemini, OpenAI-compatible local servers, and a local mock model.
 - `prompts.py` - Unity-derived prompt templates plus explicitly marked JSON-equivalent benchmark notes.
 - `scoring.py` - deterministic parser, H2/H1 expansion, H0 move extraction, and Hanoi scorer.
 - `task_loader.py` - loads `tasks/hanoi_3.json` through `tasks/hanoi_12.json`.
 - `tasks/` - JSON benchmark cases.
+- `blocks_world_benchmark.py` - four-condition Blocks World CLI runner.
+- `blocks_world_task.py` - paper-style Blocks World task generator and small-instance shortest-path oracle.
+- `blocks_world_prompts.py` - direct, InnerBot/OuterBot, H1/H2, and dynamic hierarchy prompts.
+- `blocks_world_scoring.py` - deterministic Blocks World simulator and hierarchy expansion.
+- `blocks_world_structured.py` - JSON contracts and the static compiler for DecisionBot and dynamic H1-through-Hn output.
+- [`details_blocksworld.md`](details_blocksworld.md) - complete Blocks World setup, prompts, JSON state, verifiers, actions, and comparison conditions.
+- `checker_jumping_benchmark.py` - four-condition Checker Jumping CLI runner.
+- `checker_jumping_task.py` - paper-style Checker Jumping task generator.
+- `checker_jumping_prompts.py` - direct and framework prompts without a supplied solution algorithm.
+- `checker_jumping_scoring.py` - deterministic move simulator, parser, hierarchy expansion, and scorer.
+- `checker_jumping_structured.py` - structured DecisionBot contracts and dynamic hierarchy compiler.
+- `checker_jumping_sweep.py` - resumable multi-trial sweeps, aggregate CSV output, and plots.
 - `.env.example` - copy to `.env` for API keys. Do not commit `.env`.
+- `opensource_models/` - registry and VM scripts for serving the Qwen3.5 and
+  Ministral 3 Reasoning benchmark checkpoints through vLLM.
 
 ## Quick Smoke Test
 
@@ -27,6 +43,161 @@ python benchmarking\hanoi_benchmark.py --task all --provider mock
 ```
 
 The mock provider is deterministic and should solve every fixture optimally. Use it to verify the harness before using real APIs.
+
+## Task Setup
+
+### Tower of Hanoi
+
+Tower of Hanoi tasks are stored as `tasks/hanoi_3.json` through `tasks/hanoi_12.json`. Complexity is the number of rings and the optimal solution length is `2^N - 1`. Peg arrays are bottom-to-top:
+
+```json
+{
+  "initial": {
+    "peg_a": ["ring_3", "ring_2", "ring_1"],
+    "peg_b": [],
+    "peg_c": []
+  },
+  "goal": {
+    "peg_a": [],
+    "peg_b": [],
+    "peg_c": ["ring_3", "ring_2", "ring_1"]
+  }
+}
+```
+
+The direct conditions plan with `MoveHoop(source_peg, target_peg)`. Hierarchy conditions use `MoveSingleRing(source_peg, target_peg)` as H1, expanded into `MoveCoroutine`, `GrabCoroutine`, `MoveCoroutine`, and `DropCoroutine` H0 calls.
+
+| Condition | Command |
+|---|---|
+| Base model | `python benchmarking\hanoi_benchmark.py --task hanoi_5 --provider openai --model MODEL --reasoning low --no-framework` |
+| Base + Inner/Outer | `python benchmarking\hanoi_benchmark.py --task hanoi_5 --provider openai --model MODEL --reasoning low --no-framework --inner-outer` |
+| H1/H2 + Inner/Outer | `python benchmarking\hanoi_benchmark.py --task hanoi_5 --provider openai --model MODEL --reasoning low` |
+| N-level + Inner/Outer | `python benchmarking\dynamic_hierarchy_benchmark.py --task hanoi_5 --provider openai --model MODEL --reasoning low` |
+
+See **[Tower of Hanoi benchmark details](details_hanoi.md)** for the prompt contracts, complete JSON representations, InnerBot/OuterBot behavior, H0/H1/H2 examples, N-level composition, scoring, and result layout.
+
+### Blocks World
+
+See **[Blocks World benchmark details](details_blocksworld.md)** for the prompt contracts, JSON state, InnerBot/OuterBot behavior, H0/H1/H2 examples, dynamic N-level compiler, all four conditions, and result metrics.
+
+The Blocks World runner follows the configurations described in *The Illusion of Thinking*. Complexity is the number of blocks. The initial state divides alphabetically ordered blocks across two stacks and leaves the third empty. The goal interleaves the two groups onto stack 0. Arrays are always bottom-to-top, so the last item is movable.
+
+For example, `blocks_world_4` is:
+
+```json
+{
+  "initial": {"0": ["A", "B"], "1": ["C", "D"], "2": []},
+  "goal": {"0": ["D", "B", "C", "A"], "1": [], "2": []}
+}
+```
+
+All conditions use the same symbolic H0 primitive:
+
+```text
+MoveBlock(block, source_stack, target_stack)
+```
+
+The deterministic simulator requires the named block to be the current top block, applies every move, and defines success only as a legal sequence whose final state exactly equals the goal. Optimality is reported separately and is not required for success. An exact BFS optimum is computed for N <= 8; larger tasks report `optimal_move_count: null`.
+
+Run all four conditions on a single task:
+
+```powershell
+python benchmarking\blocks_world_benchmark.py --task blocks_world_4 --mode all --provider openai --model gpt-5.6-luna --reasoning medium
+```
+
+The explicit conditions are:
+
+| Mode | Model-facing pipeline |
+|---|---|
+| `no-framework` | Paper-style direct `moves = [[block, from, to], ...]` plan; no model verifier or hierarchy |
+| `inner-outer` | Same direct planner plus LLM InnerBot validation, LLM OuterBot state checking, and feedback replans |
+| `h1-h2` | StateDescriptor, LLM state check, model-generated H1 and H2, DecisionBot, LLM plan check, symbolic expansion/execution, and OuterBot |
+| `complete-framework` | StateDescriptor, structured plan-only DecisionBot, structured model-selected H1-through-Hn hierarchy, static compilation, selective InnerBot routing, symbolic expansion/execution, and OuterBot |
+
+The fixed H1 contract is:
+
+```text
+MoveTopBlock(block, source_stack, target_stack) = [
+  MoveBlock(block, source_stack, target_stack)
+]
+```
+
+Available paper-style sizes are N = 2, 4, 6, 8, 10, 12, 16, 20, 24, 30, 36, and 40. Every run writes `metrics.json`, `steps.json`, and `raw_log.jsonl` under `results/<model>/<mode>/...`. The selected model is used for the planner, hierarchy generators, InnerBot, router, and OuterBot; verifier models are not silently fixed to another model.
+
+### Complete-framework validation and replanning
+
+DecisionBot returns JSON subtasks with consecutive IDs, natural-language objectives, and complete expected states. HierarchyPlanner returns JSON function definitions with declared levels plus one dispatch call per subtask. OpenAI, supported Claude models, and Gemini enforce these shapes with native JSON Schema output. OpenAI-compatible local servers use the same JSON instructions and deterministic parser by default, and can opt into native schemas with `LOCAL_STRUCTURED_OUTPUTS=true` when the endpoint supports that feature.
+
+Before any move executes, the static compiler checks exact H1, inferred versus declared levels, cycles, unknown functions, arity, parameter binding, concrete dispatch arguments, subtask coverage, hierarchy expansion, and whether higher levels provide reuse or compression. The simulator then independently checks primitive move legality and exact intermediate/final states.
+
+Retries preserve valid upstream artifacts:
+
+- StateDescriptor failure regenerates the state description and all downstream artifacts.
+- Decision format or semantic failure regenerates DecisionBot and HierarchyPlanner.
+- Hierarchy graph, binding, dispatch, usefulness, expansion, or primitive-plan failure regenerates only HierarchyPlanner and reuses DecisionBot.
+- An ambiguous LLM router rejection follows its `DecisionBot`, `HierarchyPlanner`, or `both` ownership field.
+
+`metrics.json` separates `format_valid`, `decision_semantic_valid`, `hierarchy_graph_valid`, `parameter_binding_valid`, `dispatch_valid`, `hierarchy_useful`, `primitive_plan_legal`, and `goal_reached`. It also records per-stage replan counts, router attribution counts, artifact reuse, failure-category counts, function reuse, mappings by level, and the primitive-to-dispatch compression ratio. This avoids counting a formatting or compiler failure as a model execution failure.
+
+## Checker Jumping
+
+The Checker Jumping runner implements Appendix A.2.2 of *The Illusion of Thinking*. For complexity `N`, the board contains `N` red checkers, one empty position, and `N` blue checkers:
+
+```text
+initial: R ... R _ B ... B
+goal:    B ... B _ R ... R
+```
+
+`N` always means **checkers per color**. The board length is `2N + 1`, the total number of checkers is `2N`, and the optimal solution length is `(N + 1)^2 - 1`.
+
+All four conditions use the same H0 primitive:
+
+```text
+MoveChecker(color, source_position, target_position)
+```
+
+The deterministic simulator enforces all of the following:
+
+- `R` moves only right and `B` moves only left.
+- A slide moves forward one position into the empty position.
+- A jump moves forward two positions into the empty position and crosses exactly one opposite-colored checker.
+- The source must contain the named color, the target must be empty, and both positions must be in range.
+- Success requires a completely legal sequence whose final board exactly equals the goal.
+
+Optimality is recorded separately and is not required for success, matching the paper. The first illegal move and its reason are preserved.
+
+The fixed H1 contract is:
+
+```text
+MoveCheckerForward(color, source_position, target_position) = [
+  MoveChecker(color, source_position, target_position)
+]
+```
+
+Run all four conditions on one size:
+
+```powershell
+python benchmarking\checker_jumping_benchmark.py --task checker_jumping_4 --mode all --provider openai --model gpt-5.6-luna --reasoning medium
+```
+
+The conditions are:
+
+| Mode | Model-facing pipeline |
+|---|---|
+| `no-framework` | Paper-style direct `moves = [[color, from, to], ...]` response and deterministic scoring |
+| `inner-outer` | The identical first direct prompt plus LLM InnerBot/OuterBot checks and feedback replanning |
+| `h1-h2` | StateDescriptor, LLM state check, exact H1, model-generated H2, DecisionBot, expansion, InnerBot, and OuterBot |
+| `complete-framework` | StateDescriptor, structured plan-only DecisionBot, model-generated useful H1-through-Hn hierarchy, static compiler, selective router replanning, symbolic execution, and OuterBot |
+
+The direct prompt describes only the state, goal, legal movement rules, and output format. It does not provide the Checker Jumping solution algorithm. All modes are scored by the same deterministic simulator; an LLM verifier cannot turn an illegal or incomplete plan into a success.
+
+Run a paper-scale 25-trial sweep from `N=1` through `N=15`:
+
+```powershell
+python benchmarking\checker_jumping_sweep.py --min-checkers 1 --max-checkers 15 --trials 25 --provider openai --model gpt-5.6-luna --reasoning medium
+```
+
+Each individual run writes `metrics.json`, `steps.json`, and `raw_log.jsonl`. The sweep also writes resumable `summary.json`, raw `summary.csv`, aggregated `aggregate.csv`, and a six-panel PNG. Aggregate success uses the proportion of independent trials that are legal and reach the exact goal, with a 95% Wilson confidence interval. The remaining panels report legal-plan rate, mean first-failure move, calls, tokens, and maximum hierarchy depth.
 
 ## Framework vs Direct Agent Mode
 
@@ -208,6 +379,9 @@ OpenAI-compatible local server:
 ```powershell
 python benchmarking\hanoi_benchmark.py --task hanoi_4 --provider local --model Qwen/Qwen2.5-7B-Instruct
 ```
+
+The configured open-source benchmark models and Linux GPU VM workflow are
+documented in [`opensource_models/README.md`](opensource_models/README.md).
 
 ## Benchmark Contract
 

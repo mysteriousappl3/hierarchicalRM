@@ -37,6 +37,9 @@ class ModelCall:
     reasoning_effort: Optional[str]
     prompt_char_count: int
     output_char_count: int
+    reasoning_char_count: int
+    reasoning_content: Optional[str]
+    response_schema_name: Optional[str]
     usage: Dict[str, object]
     raw_usage: Dict[str, object]
 
@@ -49,7 +52,14 @@ class ModelClient:
         self.reasoning_effort = reasoning_effort
         self.call_history: List[ModelCall] = []
 
-    def generate(self, system: str, prompt: str, max_tokens: int = 4096) -> str:
+    def generate(
+        self,
+        system: str,
+        prompt: str,
+        max_tokens: int = 4096,
+        response_schema: Optional[Dict[str, object]] = None,
+        schema_name: Optional[str] = None,
+    ) -> str:
         raise NotImplementedError
 
     def call_records_since(self, start_index: int) -> List[Dict[str, object]]:
@@ -61,6 +71,8 @@ class ModelClient:
         prompt: str,
         max_tokens: int,
         output: str,
+        reasoning_content: Optional[str] = None,
+        response_schema_name: Optional[str] = None,
         usage: Optional[Dict[str, object]] = None,
         raw_usage: Optional[Dict[str, object]] = None,
     ) -> str:
@@ -74,6 +86,9 @@ class ModelClient:
                 reasoning_effort=self.reasoning_effort,
                 prompt_char_count=len(prompt),
                 output_char_count=len(output),
+                reasoning_char_count=len(reasoning_content or ""),
+                reasoning_content=reasoning_content,
+                response_schema_name=response_schema_name,
                 usage=usage or empty_usage("missing"),
                 raw_usage=raw_usage or {},
             )
@@ -84,10 +99,26 @@ class ModelClient:
 class MockHanoiClient(ModelClient):
     provider = "mock"
 
-    def generate(self, system: str, prompt: str, max_tokens: int = 4096) -> str:
+    def generate(
+        self,
+        system: str,
+        prompt: str,
+        max_tokens: int = 4096,
+        response_schema: Optional[Dict[str, object]] = None,
+        schema_name: Optional[str] = None,
+    ) -> str:
         stage = system.lower()
         if "outerbot" in stage:
             output = self._outerbot_response()
+        # Dynamic (n-level) pipeline stages. Checked before the two-level stages
+        # because their system strings also contain "innerbot", "h2", and
+        # "planner".
+        elif "router" in stage:
+            output = self._router_response()
+        elif "hierarchyplanner" in stage:
+            output = self._dynamic_hierarchy_response(prompt)
+        elif "plan only" in stage:
+            output = self._plan_only_response(prompt)
         elif "innerbot" in stage:
             output = self._innerbot_response()
         elif "direct" in stage:
@@ -107,6 +138,7 @@ class MockHanoiClient(ModelClient):
             prompt=prompt,
             max_tokens=max_tokens,
             output=output,
+            response_schema_name=schema_name if response_schema else None,
             usage=estimated_usage(system, prompt, output),
         )
 
@@ -182,6 +214,48 @@ REASON: N/A
 Error : TASK SUCCESS
 Reason : N/A
 ```end_error_type"""
+
+    def _router_response(self) -> str:
+        return """```start_result
+RESULT: YES
+OWNER: NA
+REASON: N/A
+```end_result"""
+
+    def _plan_only_response(self, prompt: str) -> str:
+        task = self._task_from_prompt(prompt)
+        return f"""```start_subtask_1
+Move every ring from {task["source_peg"]} to {task["target_peg"]} using {task["auxiliary_peg"]} as the auxiliary peg.
+```end_subtask_1
+```start_subtask_goalstate_1
+{json.dumps(task["goal"], indent=2, sort_keys=True)}
+```end_subtask_goalstate_1"""
+
+    def _dynamic_hierarchy_response(self, prompt: str) -> str:
+        """Unrolled tower hierarchy: MoveTowerK is written in terms of MoveTower(K-1)."""
+        task = self._task_from_prompt(prompt)
+        level = len(task["rings"])
+        lines = ["MoveTower1(src, aux, dst) = [MoveSingleRing(src, dst)]"]
+        for current in range(2, level + 1):
+            below = current - 1
+            lines.append(
+                f"MoveTower{current}(src, aux, dst) = ["
+                f"MoveTower{below}(src, dst, aux), "
+                f"MoveSingleRing(src, dst), "
+                f"MoveTower{below}(aux, src, dst)]"
+            )
+        mapping_block = ",\n".join(lines)
+        call = (
+            f"MoveTower{level}({task['source_peg']}, "
+            f"{task['auxiliary_peg']}, {task['target_peg']})"
+        )
+        return f"""```start_mapping
+{mapping_block}
+```end_mapping
+
+```start_subtask_funcs_1
+{call}
+```end_subtask_funcs_1"""
 
     def _decision_response(self, prompt: str) -> str:
         task = self._task_from_prompt(prompt)
@@ -273,6 +347,7 @@ class OpenAICompatibleClient(ModelClient):
         include_temperature: bool = True,
         reasoning_effort: Optional[str] = None,
         include_reasoning_effort: bool = False,
+        include_response_schema: bool = False,
     ):
         super().__init__(model, reasoning_effort=reasoning_effort)
         self.base_url = base_url
@@ -280,8 +355,16 @@ class OpenAICompatibleClient(ModelClient):
         self.token_limit_field = token_limit_field
         self.include_temperature = include_temperature
         self.include_reasoning_effort = include_reasoning_effort
+        self.include_response_schema = include_response_schema
 
-    def generate(self, system: str, prompt: str, max_tokens: int = 4096) -> str:
+    def generate(
+        self,
+        system: str,
+        prompt: str,
+        max_tokens: int = 4096,
+        response_schema: Optional[Dict[str, object]] = None,
+        schema_name: Optional[str] = None,
+    ) -> str:
         payload = {
             "model": self.model,
             "messages": [
@@ -294,13 +377,28 @@ class OpenAICompatibleClient(ModelClient):
             payload["temperature"] = 0
         if self.reasoning_effort and self.include_reasoning_effort:
             payload["reasoning_effort"] = self.reasoning_effort
+        if response_schema is not None and self.include_response_schema:
+            payload["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": schema_name or "benchmark_output",
+                    "strict": True,
+                    "schema": response_schema,
+                },
+            }
         response = post_json(self.base_url, payload, self._headers())
-        output = response["choices"][0]["message"]["content"]
+        message = response["choices"][0]["message"]
+        output = message.get("content") or ""
+        reasoning_content = message.get("reasoning_content")
         return self._record_call(
             system=system,
             prompt=prompt,
             max_tokens=max_tokens,
             output=output,
+            reasoning_content=reasoning_content if isinstance(reasoning_content, str) else None,
+            response_schema_name=(schema_name or "benchmark_output")
+            if response_schema is not None and self.include_response_schema
+            else None,
             usage=normalize_openai_usage(response),
             raw_usage=response.get("usage", {}),
         )
@@ -320,13 +418,27 @@ class AnthropicClient(ModelClient):
         self.api_key = api_key
         self.base_url = base_url
 
-    def generate(self, system: str, prompt: str, max_tokens: int = 4096) -> str:
+    def generate(
+        self,
+        system: str,
+        prompt: str,
+        max_tokens: int = 4096,
+        response_schema: Optional[Dict[str, object]] = None,
+        schema_name: Optional[str] = None,
+    ) -> str:
         payload = {
             "model": self.model,
             "max_tokens": max_tokens,
             "system": system,
             "messages": [{"role": "user", "content": prompt}],
         }
+        if response_schema is not None:
+            payload["output_config"] = {
+                "format": {
+                    "type": "json_schema",
+                    "schema": response_schema,
+                }
+            }
         headers = {
             "Content-Type": "application/json",
             "x-api-key": self.api_key,
@@ -340,6 +452,9 @@ class AnthropicClient(ModelClient):
             prompt=prompt,
             max_tokens=max_tokens,
             output=output,
+            response_schema_name=(schema_name or "benchmark_output")
+            if response_schema is not None
+            else None,
             usage=normalize_anthropic_usage(response),
             raw_usage=response.get("usage", {}),
         )
@@ -353,7 +468,14 @@ class GeminiClient(ModelClient):
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
 
-    def generate(self, system: str, prompt: str, max_tokens: int = 4096) -> str:
+    def generate(
+        self,
+        system: str,
+        prompt: str,
+        max_tokens: int = 4096,
+        response_schema: Optional[Dict[str, object]] = None,
+        schema_name: Optional[str] = None,
+    ) -> str:
         url = f"{self.base_url}/models/{self.model}:generateContent?key={self.api_key}"
         payload = {
             "systemInstruction": {"parts": [{"text": system}]},
@@ -363,6 +485,19 @@ class GeminiClient(ModelClient):
                 "maxOutputTokens": max_tokens,
             },
         }
+        if response_schema is not None:
+            generation_config = payload["generationConfig"]
+            assert isinstance(generation_config, dict)
+            if self.model.lower().startswith("gemini-3"):
+                generation_config["responseFormat"] = {
+                    "text": {
+                        "mimeType": "application/json",
+                        "schema": response_schema,
+                    }
+                }
+            else:
+                generation_config["responseMimeType"] = "application/json"
+                generation_config["responseSchema"] = response_schema
         response = post_json(url, payload, {"Content-Type": "application/json"})
         candidates = response.get("candidates", [])
         if not candidates:
@@ -375,6 +510,9 @@ class GeminiClient(ModelClient):
             prompt=prompt,
             max_tokens=max_tokens,
             output=output,
+            response_schema_name=(schema_name or "benchmark_output")
+            if response_schema is not None
+            else None,
             usage=normalize_gemini_usage(response),
             raw_usage=response.get("usageMetadata", {}),
         )
@@ -382,6 +520,12 @@ class GeminiClient(ModelClient):
 
 def infer_stage(system: str) -> str:
     value = system.lower()
+    if "router" in value:
+        return "innerbot_router"
+    if "hierarchyplanner" in value:
+        return "hierarchy_planner"
+    if "statedescriptor" in value:
+        return "state_descriptor"
     if "innerbot" in value and "state" in value:
         return "innerbot_state"
     if "innerbot" in value and "plan" in value:
@@ -524,7 +668,8 @@ def post_json(url: str, payload: Dict[str, object], headers: Dict[str, str]) -> 
     data = json.dumps(payload).encode("utf-8")
     request = urllib.request.Request(url, data=data, headers=headers, method="POST")
     try:
-        with urllib.request.urlopen(request, timeout=DEFAULT_TIMEOUT_SECONDS) as response:
+        timeout = int(os.environ.get("MODEL_REQUEST_TIMEOUT_SECONDS", DEFAULT_TIMEOUT_SECONDS))
+        with urllib.request.urlopen(request, timeout=timeout) as response:
             return json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")
@@ -553,6 +698,7 @@ def create_client(
             include_temperature=False,
             reasoning_effort=reasoning_effort,
             include_reasoning_effort=bool(reasoning_effort),
+            include_response_schema=True,
         )
 
     if provider in {"local", "openai-compatible"}:
@@ -563,6 +709,8 @@ def create_client(
             api_key=os.environ.get("LOCAL_OPENAI_API_KEY", ""),
             reasoning_effort=reasoning_effort,
             include_reasoning_effort=False,
+            include_response_schema=os.environ.get("LOCAL_STRUCTURED_OUTPUTS", "").lower()
+            in {"1", "true", "yes", "on"},
         )
 
     if provider == "anthropic":

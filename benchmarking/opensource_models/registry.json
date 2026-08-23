@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "models": {
+    "qwen35-2b": {
+      "display_name": "Qwen3.5 2B",
+      "family": "qwen3.5",
+      "capacity_tier": "low",
+      "parameter_tier": "2B",
+      "model_id": "Qwen/Qwen3.5-2B",
+      "served_model_name": "qwen35-2b",
+      "revision": null,
+      "backend": "vllm",
+      "port": 8000,
+      "dtype": "auto",
+      "tensor_parallel_size": 1,
+      "max_model_len": 32768,
+      "gpu_memory_utilization": 0.9,
+      "vllm_args": ["--reasoning-parser", "qwen3", "--language-model-only"]
+    },
+    "qwen35-4b": {
+      "display_name": "Qwen3.5 4B",
+      "family": "qwen3.5",
+      "capacity_tier": "medium",
+      "parameter_tier": "4B",
+      "model_id": "Qwen/Qwen3.5-4B",
+      "served_model_name": "qwen35-4b",
+      "revision": null,
+      "backend": "vllm",
+      "port": 8000,
+      "dtype": "auto",
+      "tensor_parallel_size": 1,
+      "max_model_len": 32768,
+      "gpu_memory_utilization": 0.9,
+      "vllm_args": ["--reasoning-parser", "qwen3", "--language-model-only"]
+    },
+    "qwen35-9b": {
+      "display_name": "Qwen3.5 9B",
+      "family": "qwen3.5",
+      "capacity_tier": "high",
+      "parameter_tier": "9B",
+      "model_id": "Qwen/Qwen3.5-9B",
+      "served_model_name": "qwen35-9b",
+      "revision": null,
+      "backend": "vllm",
+      "port": 8000,
+      "dtype": "auto",
+      "tensor_parallel_size": 1,
+      "max_model_len": 32768,
+      "gpu_memory_utilization": 0.9,
+      "vllm_args": ["--reasoning-parser", "qwen3", "--language-model-only"]
+    },
+    "ministral3-reasoning-3b": {
+      "display_name": "Ministral 3 Reasoning 3B",
+      "family": "ministral-3-reasoning",
+      "capacity_tier": "low",
+      "parameter_tier": "3B",
+      "model_id": "mistralai/Ministral-3-3B-Reasoning-2512",
+      "served_model_name": "ministral3-reasoning-3b",
+      "revision": null,
+      "backend": "vllm",
+      "port": 8000,
+      "dtype": "auto",
+      "tensor_parallel_size": 1,
+      "max_model_len": 32768,
+      "gpu_memory_utilization": 0.9,
+      "vllm_args": [
+        "--tokenizer-mode", "mistral",
+        "--config-format", "mistral",
+        "--load-format", "mistral",
+        "--reasoning-parser", "mistral"
+      ]
+    },
+    "ministral3-reasoning-8b": {
+      "display_name": "Ministral 3 Reasoning 8B",
+      "family": "ministral-3-reasoning",
+      "capacity_tier": "medium",
+      "parameter_tier": "8B",
+      "model_id": "mistralai/Ministral-3-8B-Reasoning-2512",
+      "served_model_name": "ministral3-reasoning-8b",
+      "revision": null,
+      "backend": "vllm",
+      "port": 8000,
+      "dtype": "auto",
+      "tensor_parallel_size": 1,
+      "max_model_len": 32768,
+      "gpu_memory_utilization": 0.9,
+      "vllm_args": [
+        "--tokenizer-mode", "mistral",
+        "--config-format", "mistral",
+        "--load-format", "mistral",
+        "--reasoning-parser", "mistral"
+      ]
+    },
+    "ministral3-reasoning-14b": {
+      "display_name": "Ministral 3 Reasoning 14B",
+      "family": "ministral-3-reasoning",
+      "capacity_tier": "high",
+      "parameter_tier": "14B",
+      "model_id": "mistralai/Ministral-3-14B-Reasoning-2512",
+      "served_model_name": "ministral3-reasoning-14b",
+      "revision": null,
+      "backend": "vllm",
+      "port": 8000,
+      "dtype": "auto",
+      "tensor_parallel_size": 1,
+      "max_model_len": 32768,
+      "gpu_memory_utilization": 0.9,
+      "vllm_args": [
+        "--tokenizer-mode", "mistral",
+        "--config-format", "mistral",
+        "--load-format", "mistral",
+        "--reasoning-parser", "mistral"
+      ]
+    }
+  }
+}

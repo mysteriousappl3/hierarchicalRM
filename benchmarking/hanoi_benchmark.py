@@ -1072,7 +1072,9 @@ def finalize_row(
     elapsed_seconds = round(time.perf_counter() - timer_start, 3)
     row["model_call_records"] = model_call_records
     row["token_usage"] = aggregate_token_usage(model_call_records)
-    row["metrics"] = build_metrics(row, model_call_count, started_at, elapsed_seconds)
+    row["metrics"] = build_metrics_with_extras(
+        row, build_metrics(row, model_call_count, started_at, elapsed_seconds)
+    )
     row["steps"] = build_steps(row)
     result_dir = structured_result_dir(row)
     row["structured_result_dir"] = str(result_dir)
@@ -1127,6 +1129,7 @@ def build_metrics(
         "parse_errors": score["parse_errors"],
         "illegal_reason": score["illegal_reason"],
         "stage_counts": stage_counts,
+        "extra_metrics_keys": sorted(row.get("extra_metrics", {})) if isinstance(row.get("extra_metrics"), dict) else [],
         "scene_descriptor_count": stage_counts.get("scene_descriptor_count", 0),
         "state_descriptor_count": stage_counts.get("state_descriptor_count", 0),
         "h1_generation_count": stage_counts.get("h1_generation_count", 0),
@@ -1143,7 +1146,17 @@ def build_metrics(
     }
 
 
+def build_metrics_with_extras(row: Dict[str, object], metrics: Dict[str, object]) -> Dict[str, object]:
+    """Merge a mode's own metric keys, if it supplied any, into the payload."""
+    extra = row.get("extra_metrics")
+    if isinstance(extra, dict):
+        metrics.update(extra)
+    return metrics
+
+
 def benchmark_mode_notes(mode: str) -> str:
+    if mode == "dynamic-hierarchy":
+        return "Dynamic-hierarchy mode separates planning from hierarchy composition: the DecisionBot emits subtasks and goal states only, a HierarchyPlanner composes H2 through Hn from that plan, and an InnerBot router attributes any mistake to the planner, the hierarchy planner, or both. It reuses the StateDescriptor, H1 generation, symbolic H0 execution, and OuterBot checks from hierarchy mode. Unity camera/robot execution is not used."
     if mode == "hierarchy":
         return "Hierarchy mode uses JSON scene/state, LLM InnerBot/OuterBot verifier calls based on the Unity prompts, H1/H2 expansion, symbolic H0 execution, and replanning over Hanoi states. Unity camera/robot execution is not used."
     if mode == "inner-outer":
@@ -1180,6 +1193,16 @@ def build_steps(row: Dict[str, object]) -> Dict[str, object]:
                 "h1_output": outputs.get("h1_output"),
                 "h2_output": outputs.get("h2_output"),
                 "decision_output": outputs.get("decision_output"),
+            }
+        )
+    elif row["mode"] == "dynamic-hierarchy":
+        steps.update(
+            {
+                "state_output": outputs.get("state_output"),
+                "h1_output": outputs.get("h1_output"),
+                "plan_output": outputs.get("plan_output"),
+                "hierarchy_output": outputs.get("hierarchy_output"),
+                "router_output": outputs.get("router_output"),
             }
         )
     else:
@@ -1224,7 +1247,7 @@ def print_summary(rows: List[Dict[str, object]], output_path: Optional[Path]) ->
     print("--------  -------------  ------  -----  -------  -----  ------------  -------  --  --")
     for row in rows:
         score = row["score"]
-        framework_mode = row.get("mode", "hierarchy") == "hierarchy"
+        framework_mode = row.get("mode", "hierarchy") in {"hierarchy", "dynamic-hierarchy"}
         print(
             f"{row['task']:<8}  "
             f"{row.get('mode', 'hierarchy'):<13}  "

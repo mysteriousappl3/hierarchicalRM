@@ -1,0 +1,3 @@
+# Ministral 3 requires vLLM >= 0.12.0. Qwen3.5 may require a newer/nightly
+# build, so scripts/setup_vm.sh installs the selected stable or nightly channel.
+vllm>=0.12.0
