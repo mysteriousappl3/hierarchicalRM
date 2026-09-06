@@ -154,6 +154,12 @@ def parse_args() -> argparse.Namespace:
         default=2,
         help="Additional attempts after the first rejected plan.",
     )
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=None,
+        help="Sampling temperature for local/openai-compatible providers. Defaults to 0 (or LOCAL_TEMPERATURE from .env).",
+    )
     return parser.parse_args()
 
 
@@ -163,7 +169,7 @@ def main() -> int:
     provider = args.provider or os.environ.get("DEFAULT_PROVIDER") or "openai"
     model = args.model or os.environ.get("DEFAULT_MODEL") or "gpt-5.6-luna"
     reasoning = args.reasoning or os.environ.get("DEFAULT_REASONING_EFFORT")
-    client = create_client(provider, model, args.base_url, reasoning)
+    client = create_client(provider, model, args.base_url, reasoning, temperature=args.temperature)
 
     task_ids = available_tasks() if args.task == "all" else [args.task]
     modes = list(MODES) if args.mode == "all" else [args.mode]

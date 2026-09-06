@@ -72,6 +72,12 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--temperature",
+        type=float,
+        default=None,
+        help="Sampling temperature for local/openai-compatible providers. Defaults to 0 (or LOCAL_TEMPERATURE from .env).",
+    )
+    parser.add_argument(
         "--fixed-goal",
         action="store_true",
         help="Use deterministic goal JSON instead of asking the model to generate the StateDescriptor output.",
@@ -119,6 +125,7 @@ def main() -> int:
         model=model,
         base_url=args.base_url,
         reasoning_effort=reasoning_effort,
+        temperature=args.temperature,
     )
 
     task_ids = available_tasks() if args.task == "all" else [args.task]

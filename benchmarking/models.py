@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import json
 import os
 import re
@@ -11,6 +12,43 @@ from typing import Dict, List, Optional
 
 
 DEFAULT_TIMEOUT_SECONDS = 120
+BENCHMARK_DIR = Path(__file__).resolve().parent
+
+
+class TruncatedResponseError(RuntimeError):
+    """Raised when a model call's response was cut off before completion.
+
+    finish_reason == "length" (or the provider's equivalent) means the model
+    hit max_tokens/context budget mid-response. The output is unusable for
+    parsing, so callers should treat this as a distinct failure mode rather
+    than feeding a truncated response into a parser and getting a misleading
+    generic parse error.
+    """
+
+
+def live_log_path() -> Optional[Path]:
+    """Opt-in live logging of each completed model call, as it happens.
+
+    Set LIVE_LOG=true (or LIVE_LOG_PATH=<file>) in .env to append one JSON
+    line per finished stage to a file you can `tail -f` during a long local
+    run, instead of waiting for the run to finish and write steps.json.
+    """
+    explicit = os.environ.get("LIVE_LOG_PATH", "").strip()
+    if explicit:
+        return Path(explicit)
+    if os.environ.get("LIVE_LOG", "").strip().lower() in {"1", "true", "yes", "on"}:
+        return BENCHMARK_DIR / "results" / "live_log.jsonl"
+    return None
+
+
+def append_live_log(record: Dict[str, object]) -> None:
+    path = live_log_path()
+    if path is None:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    line = {"logged_at": datetime.datetime.now().isoformat(timespec="seconds"), **record}
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(line) + "\n")
 
 
 def load_env_file(path: Path) -> None:
@@ -42,6 +80,7 @@ class ModelCall:
     response_schema_name: Optional[str]
     usage: Dict[str, object]
     raw_usage: Dict[str, object]
+    truncated: bool = False
 
 
 class ModelClient:
@@ -59,6 +98,7 @@ class ModelClient:
         max_tokens: int = 4096,
         response_schema: Optional[Dict[str, object]] = None,
         schema_name: Optional[str] = None,
+        reasoning_effort: Optional[str] = None,
     ) -> str:
         raise NotImplementedError
 
@@ -75,23 +115,39 @@ class ModelClient:
         response_schema_name: Optional[str] = None,
         usage: Optional[Dict[str, object]] = None,
         raw_usage: Optional[Dict[str, object]] = None,
+        reasoning_effort: Optional[str] = None,
+        truncated: bool = False,
     ) -> str:
-        self.call_history.append(
-            ModelCall(
-                provider=self.provider,
-                model=self.model,
-                stage=infer_stage(system),
-                system=system,
-                max_tokens=max_tokens,
-                reasoning_effort=self.reasoning_effort,
-                prompt_char_count=len(prompt),
-                output_char_count=len(output),
-                reasoning_char_count=len(reasoning_content or ""),
-                reasoning_content=reasoning_content,
-                response_schema_name=response_schema_name,
-                usage=usage or empty_usage("missing"),
-                raw_usage=raw_usage or {},
-            )
+        call = ModelCall(
+            provider=self.provider,
+            model=self.model,
+            stage=infer_stage(system),
+            system=system,
+            max_tokens=max_tokens,
+            reasoning_effort=reasoning_effort if reasoning_effort is not None else self.reasoning_effort,
+            prompt_char_count=len(prompt),
+            output_char_count=len(output),
+            reasoning_char_count=len(reasoning_content or ""),
+            reasoning_content=reasoning_content,
+            response_schema_name=response_schema_name,
+            usage=usage or empty_usage("missing"),
+            raw_usage=raw_usage or {},
+            truncated=truncated,
+        )
+        self.call_history.append(call)
+        append_live_log(
+            {
+                "call_index": len(self.call_history) - 1,
+                "provider": call.provider,
+                "model": call.model,
+                "stage": call.stage,
+                "prompt_char_count": call.prompt_char_count,
+                "output_char_count": call.output_char_count,
+                "reasoning_char_count": call.reasoning_char_count,
+                "usage": call.usage,
+                "truncated": call.truncated,
+                "output_preview": output[:500],
+            }
         )
         return output
 
@@ -106,6 +162,7 @@ class MockHanoiClient(ModelClient):
         max_tokens: int = 4096,
         response_schema: Optional[Dict[str, object]] = None,
         schema_name: Optional[str] = None,
+        reasoning_effort: Optional[str] = None,
     ) -> str:
         stage = system.lower()
         if "outerbot" in stage:
@@ -140,6 +197,7 @@ class MockHanoiClient(ModelClient):
             output=output,
             response_schema_name=schema_name if response_schema else None,
             usage=estimated_usage(system, prompt, output),
+            reasoning_effort=reasoning_effort if reasoning_effort is not None else self.reasoning_effort,
         )
 
     def _task_from_prompt(self, prompt: str) -> Dict[str, object]:
@@ -152,6 +210,30 @@ class MockHanoiClient(ModelClient):
         decoder = json.JSONDecoder()
         task, _ = decoder.raw_decode(payload)
         return task
+
+    def _is_flat_task(self, task: Dict[str, object]) -> bool:
+        """A flat (flat-to-flat) task has no privileged source/auxiliary/target
+        peg -- flat_prompts.py omits those keys entirely from TASK_SPEC_JSON so
+        that tower framing cannot leak into a flat prompt. Their absence is
+        therefore the detection signal here.
+        """
+        return "source_peg" not in task
+
+    def _solve_flat_hanoi(self, task: Dict[str, object]) -> List[tuple[str, str]]:
+        """BFS-based legal move sequence for a flat (arbitrary endpoint) task.
+
+        _solve_hanoi below assumes a single source/auxiliary/target peg and
+        would emit illegal moves against a flat task's scattered initial and
+        goal states, so flat tasks are routed through hanoi_solver's BFS
+        instead, which works against any pair of legal states.
+        """
+        from hanoi_solver import shortest_hanoi_path
+
+        ring_sizes = {ring["name"]: ring["size"] for ring in task["rings"]}
+        path = shortest_hanoi_path(task["initial"], task["goal"], ring_sizes)
+        if path is None:
+            raise ValueError(f"Mock flat solver found no path for task {task.get('id')}")
+        return path
 
     def _state_response(self, prompt: str) -> str:
         task = self._task_from_prompt(prompt)
@@ -224,16 +306,42 @@ REASON: N/A
 
     def _plan_only_response(self, prompt: str) -> str:
         task = self._task_from_prompt(prompt)
+        if self._is_flat_task(task):
+            description = "Rearrange the rings so the scene matches the goal configuration."
+        else:
+            description = (
+                f'Move every ring from {task["source_peg"]} to {task["target_peg"]} '
+                f'using {task["auxiliary_peg"]} as the auxiliary peg.'
+            )
         return f"""```start_subtask_1
-Move every ring from {task["source_peg"]} to {task["target_peg"]} using {task["auxiliary_peg"]} as the auxiliary peg.
+{description}
 ```end_subtask_1
 ```start_subtask_goalstate_1
 {json.dumps(task["goal"], indent=2, sort_keys=True)}
 ```end_subtask_goalstate_1"""
 
     def _dynamic_hierarchy_response(self, prompt: str) -> str:
-        """Unrolled tower hierarchy: MoveTowerK is written in terms of MoveTower(K-1)."""
+        """Unrolled tower hierarchy: MoveTowerK is written in terms of MoveTower(K-1).
+
+        Flat tasks have no privileged source/auxiliary/target peg, so there is
+        no MoveTowerK template to unroll -- the memorized tower-to-tower
+        recursion simply does not apply to an arbitrary (initial, goal) pair.
+        The mock instead emits one flat mapping enumerating the BFS-found
+        moves directly, mirroring what a model without a memorized template
+        would have to produce.
+        """
         task = self._task_from_prompt(prompt)
+        if self._is_flat_task(task):
+            moves = self._solve_flat_hanoi(task)
+            calls = ", ".join(f"MoveSingleRing({source}, {target})" for source, target in moves)
+            return f"""```start_mapping
+SolveFlatHanoi() = [{calls}]
+```end_mapping
+
+```start_subtask_funcs_1
+SolveFlatHanoi()
+```end_subtask_funcs_1"""
+
         level = len(task["rings"])
         lines = ["MoveTower1(src, aux, dst) = [MoveSingleRing(src, dst)]"]
         for current in range(2, level + 1):
@@ -259,17 +367,22 @@ Move every ring from {task["source_peg"]} to {task["target_peg"]} using {task["a
 
     def _decision_response(self, prompt: str) -> str:
         task = self._task_from_prompt(prompt)
-        moves: List[str] = []
-        self._solve_hanoi(
-            n=len(task["rings"]),
-            source=task["source_peg"],
-            auxiliary=task["auxiliary_peg"],
-            target=task["target_peg"],
-            moves=moves,
-        )
+        if self._is_flat_task(task):
+            moves = self._solve_flat_hanoi(task)
+            description = "Rearrange the rings so the scene matches the goal configuration."
+        else:
+            moves = []
+            self._solve_hanoi(
+                n=len(task["rings"]),
+                source=task["source_peg"],
+                auxiliary=task["auxiliary_peg"],
+                target=task["target_peg"],
+                moves=moves,
+            )
+            description = f'Move all rings from {task["source_peg"]} to {task["target_peg"]}.'
         function_block = "\n".join(self._hierarchy_calls_from_moves(moves))
         return f"""```start_subtask_1
-Move all rings from {task["source_peg"]} to {task["target_peg"]}.
+{description}
 ```start_subtask_goalstate_1
 {json.dumps(task["goal"], indent=2)}
 ```end_subtask_goalstate_1
@@ -284,6 +397,12 @@ Move all rings from {task["source_peg"]} to {task["target_peg"]}.
 
     def _direct_response(self, prompt: str) -> str:
         task = self._task_from_prompt(prompt)
+        if self._is_flat_task(task):
+            moves = self._solve_flat_hanoi(task)
+            function_block = "\n".join(f"MoveHoop({source}, {target})" for source, target in moves)
+            return f"""```start_all_functions
+{function_block}
+```end_all_functions"""
         moves: List[str] = []
         self._solve_hanoi(
             n=len(task["rings"]),
@@ -348,6 +467,8 @@ class OpenAICompatibleClient(ModelClient):
         reasoning_effort: Optional[str] = None,
         include_reasoning_effort: bool = False,
         include_response_schema: bool = False,
+        extra_options: Optional[Dict[str, object]] = None,
+        temperature: Optional[float] = None,
     ):
         super().__init__(model, reasoning_effort=reasoning_effort)
         self.base_url = base_url
@@ -356,6 +477,8 @@ class OpenAICompatibleClient(ModelClient):
         self.include_temperature = include_temperature
         self.include_reasoning_effort = include_reasoning_effort
         self.include_response_schema = include_response_schema
+        self.extra_options = extra_options
+        self.temperature = temperature
 
     def generate(
         self,
@@ -364,7 +487,11 @@ class OpenAICompatibleClient(ModelClient):
         max_tokens: int = 4096,
         response_schema: Optional[Dict[str, object]] = None,
         schema_name: Optional[str] = None,
+        reasoning_effort: Optional[str] = None,
     ) -> str:
+        effective_reasoning_effort = (
+            reasoning_effort if reasoning_effort is not None else self.reasoning_effort
+        )
         payload = {
             "model": self.model,
             "messages": [
@@ -374,9 +501,9 @@ class OpenAICompatibleClient(ModelClient):
             self.token_limit_field: max_tokens,
         }
         if self.include_temperature:
-            payload["temperature"] = 0
-        if self.reasoning_effort and self.include_reasoning_effort:
-            payload["reasoning_effort"] = self.reasoning_effort
+            payload["temperature"] = self.temperature if self.temperature is not None else 0
+        if effective_reasoning_effort and (self.include_reasoning_effort or reasoning_effort is not None):
+            payload["reasoning_effort"] = effective_reasoning_effort
         if response_schema is not None and self.include_response_schema:
             payload["response_format"] = {
                 "type": "json_schema",
@@ -386,11 +513,17 @@ class OpenAICompatibleClient(ModelClient):
                     "schema": response_schema,
                 },
             }
+        if self.extra_options:
+            payload["options"] = self.extra_options
         response = post_json(self.base_url, payload, self._headers())
-        message = response["choices"][0]["message"]
+        choice = response["choices"][0]
+        message = choice["message"]
         output = message.get("content") or ""
-        reasoning_content = message.get("reasoning_content")
-        return self._record_call(
+        # OpenAI-style servers use "reasoning_content"; Ollama uses "reasoning".
+        reasoning_content = message.get("reasoning_content") or message.get("reasoning")
+        finish_reason = choice.get("finish_reason")
+        truncated = finish_reason in {"length", "max_tokens"}
+        self._record_call(
             system=system,
             prompt=prompt,
             max_tokens=max_tokens,
@@ -401,7 +534,15 @@ class OpenAICompatibleClient(ModelClient):
             else None,
             usage=normalize_openai_usage(response),
             raw_usage=response.get("usage", {}),
+            reasoning_effort=effective_reasoning_effort,
+            truncated=truncated,
         )
+        if truncated:
+            raise TruncatedResponseError(
+                f"Response truncated (finish_reason={finish_reason!r}) at stage "
+                f"{infer_stage(system)!r} — output is incomplete and unusable for parsing."
+            )
+        return output
 
     def _headers(self) -> Dict[str, str]:
         headers = {"Content-Type": "application/json"}
@@ -425,6 +566,7 @@ class AnthropicClient(ModelClient):
         max_tokens: int = 4096,
         response_schema: Optional[Dict[str, object]] = None,
         schema_name: Optional[str] = None,
+        reasoning_effort: Optional[str] = None,
     ) -> str:
         payload = {
             "model": self.model,
@@ -447,7 +589,9 @@ class AnthropicClient(ModelClient):
         response = post_json(self.base_url, payload, headers)
         parts = response.get("content", [])
         output = "".join(part.get("text", "") for part in parts if part.get("type") == "text")
-        return self._record_call(
+        stop_reason = response.get("stop_reason")
+        truncated = stop_reason == "max_tokens"
+        self._record_call(
             system=system,
             prompt=prompt,
             max_tokens=max_tokens,
@@ -457,7 +601,14 @@ class AnthropicClient(ModelClient):
             else None,
             usage=normalize_anthropic_usage(response),
             raw_usage=response.get("usage", {}),
+            truncated=truncated,
         )
+        if truncated:
+            raise TruncatedResponseError(
+                f"Response truncated (stop_reason={stop_reason!r}) at stage "
+                f"{infer_stage(system)!r} — output is incomplete and unusable for parsing."
+            )
+        return output
 
 
 class GeminiClient(ModelClient):
@@ -475,6 +626,7 @@ class GeminiClient(ModelClient):
         max_tokens: int = 4096,
         response_schema: Optional[Dict[str, object]] = None,
         schema_name: Optional[str] = None,
+        reasoning_effort: Optional[str] = None,
     ) -> str:
         url = f"{self.base_url}/models/{self.model}:generateContent?key={self.api_key}"
         payload = {
@@ -500,12 +652,15 @@ class GeminiClient(ModelClient):
                 generation_config["responseSchema"] = response_schema
         response = post_json(url, payload, {"Content-Type": "application/json"})
         candidates = response.get("candidates", [])
+        finish_reason = None
         if not candidates:
             output = ""
         else:
             parts = candidates[0].get("content", {}).get("parts", [])
             output = "".join(part.get("text", "") for part in parts)
-        return self._record_call(
+            finish_reason = candidates[0].get("finishReason")
+        truncated = finish_reason == "MAX_TOKENS"
+        self._record_call(
             system=system,
             prompt=prompt,
             max_tokens=max_tokens,
@@ -515,7 +670,14 @@ class GeminiClient(ModelClient):
             else None,
             usage=normalize_gemini_usage(response),
             raw_usage=response.get("usageMetadata", {}),
+            truncated=truncated,
         )
+        if truncated:
+            raise TruncatedResponseError(
+                f"Response truncated (finishReason={finish_reason!r}) at stage "
+                f"{infer_stage(system)!r} — output is incomplete and unusable for parsing."
+            )
+        return output
 
 
 def infer_stage(system: str) -> str:
@@ -678,11 +840,39 @@ def post_json(url: str, payload: Dict[str, object], headers: Dict[str, str]) -> 
         raise RuntimeError(f"Request failed for {url}: {exc}") from exc
 
 
+def build_local_extra_options() -> Optional[Dict[str, object]]:
+    """Merge LOCAL_NUM_CTX, LOCAL_THINK, and LOCAL_MODEL_OPTIONS into one Ollama
+    `options` dict. LOCAL_MODEL_OPTIONS takes precedence on overlapping keys."""
+    options: Dict[str, object] = {}
+
+    num_ctx = os.environ.get("LOCAL_NUM_CTX", "").strip()
+    if num_ctx:
+        options["num_ctx"] = int(num_ctx)
+
+    think = os.environ.get("LOCAL_THINK", "").strip()
+    if think:
+        lowered = think.lower()
+        if lowered in {"true", "false"}:
+            options["think"] = lowered == "true"
+        else:
+            options["think"] = think
+
+    raw_options = os.environ.get("LOCAL_MODEL_OPTIONS", "").strip()
+    if raw_options:
+        parsed = json.loads(raw_options)
+        if not isinstance(parsed, dict):
+            raise ValueError("LOCAL_MODEL_OPTIONS must be a JSON object")
+        options.update(parsed)
+
+    return options or None
+
+
 def create_client(
     provider: str,
     model: Optional[str] = None,
     base_url: Optional[str] = None,
     reasoning_effort: Optional[str] = None,
+    temperature: Optional[float] = None,
 ) -> ModelClient:
     provider = provider.lower()
     if provider == "mock":
@@ -703,14 +893,21 @@ def create_client(
 
     if provider in {"local", "openai-compatible"}:
         model = model or os.environ.get("DEFAULT_MODEL") or "local-model"
+        local_temperature = temperature
+        if local_temperature is None:
+            env_temperature = os.environ.get("LOCAL_TEMPERATURE", "").strip()
+            if env_temperature:
+                local_temperature = float(env_temperature)
         return OpenAICompatibleClient(
             model=model,
             base_url=base_url or os.environ.get("LOCAL_OPENAI_BASE_URL", "http://localhost:8000/v1/chat/completions"),
             api_key=os.environ.get("LOCAL_OPENAI_API_KEY", ""),
             reasoning_effort=reasoning_effort,
-            include_reasoning_effort=False,
+            include_reasoning_effort=bool(reasoning_effort),
             include_response_schema=os.environ.get("LOCAL_STRUCTURED_OUTPUTS", "").lower()
             in {"1", "true", "yes", "on"},
+            extra_options=build_local_extra_options(),
+            temperature=local_temperature,
         )
 
     if provider == "anthropic":

@@ -51,7 +51,7 @@ from hanoi_benchmark import (
     parse_outerbot_verdict,
     print_summary,
 )
-from models import create_client, load_env_file
+from models import TruncatedResponseError, create_client, load_env_file
 from prompts import (
     as_json,
     build_goal_description,
@@ -93,6 +93,18 @@ SYSTEM_OUTERBOT = (
     "classify task completion or recoverable errors."
 )
 
+# Per-stage reasoning effort overrides. The plan and hierarchy composition
+# stages, plus the InnerBot checks, get the base --reasoning value (medium);
+# everything else drops to low since those stages are comparatively simple
+# and the pipeline is sequential, so per-call latency there directly adds up.
+REASONING_MEDIUM_STAGES = {SYSTEM_PLAN, SYSTEM_HIERARCHY, SYSTEM_INNERBOT_STATE, SYSTEM_ROUTER}
+
+
+def stage_reasoning_effort(system: str, base_effort: Optional[str]) -> Optional[str]:
+    if base_effort is None:
+        return None
+    return base_effort if system in REASONING_MEDIUM_STAGES else "low"
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -113,6 +125,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--base-url", default=None, help="Override provider base URL.")
     parser.add_argument("--env-file", default=str(DEFAULT_ENV_FILE), help="Path to .env file.")
     parser.add_argument("--reasoning", choices=["low", "medium", "high"], default=None)
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=None,
+        help="Sampling temperature for local/openai-compatible providers. Defaults to 0 (or LOCAL_TEMPERATURE from .env).",
+    )
     parser.add_argument(
         "--fixed-goal",
         action="store_true",
@@ -157,6 +175,7 @@ def main() -> int:
         model=model,
         base_url=args.base_url,
         reasoning_effort=reasoning_effort,
+        temperature=args.temperature,
     )
 
     task_ids = available_tasks() if args.task == "all" else [args.task]
@@ -213,6 +232,7 @@ def run_task(
         max_replans=max_replans,
         reuse_h1=reuse_h1,
         include_code_block=include_code_block,
+        reasoning_effort=reasoning_effort,
     )
     row = {
         "task": task.id,
@@ -247,6 +267,7 @@ def run_dynamic_hierarchy_loop(
     max_replans: int,
     reuse_h1: bool,
     include_code_block: bool,
+    reasoning_effort: Optional[str] = None,
 ) -> Dict[str, object]:
     current_state = {peg: list(stack) for peg, stack in task.initial.items()}
     executed_moves: List[Tuple[str, str]] = []
@@ -283,364 +304,386 @@ def run_dynamic_hierarchy_loop(
         regenerate_plan = owner != OWNER_HIERARCHY
 
     for attempt_index in range(max_replans + 1):
-        feedback_in = feedback
-        scene_json = build_scene_description(task, current_state)
-        stage_counts["scene_descriptor_count"] += 1
+        try:
+            feedback_in = feedback
+            scene_json = build_scene_description(task, current_state)
+            stage_counts["scene_descriptor_count"] += 1
 
-        if fixed_goal:
-            state_output = "```start_flag\n" + as_json(build_goal_description(task)) + "\n```end_flag"
-            stage_counts["state_descriptor_count"] += 1
-        else:
+            if fixed_goal:
+                state_output = "```start_flag\n" + as_json(build_goal_description(task)) + "\n```end_flag"
+                stage_counts["state_descriptor_count"] += 1
+            else:
+                model_call_count += 1
+                stage_counts["state_descriptor_count"] += 1
+                state_output = client.generate(
+                    system=SYSTEM_STATE,
+                    prompt=build_state_prompt(
+                        task,
+                        scene_json,
+                        previous_state_output=previous_state_output,
+                        feedback=feedback or "N/A",
+                    ),
+                    max_tokens=max_tokens,
+                    reasoning_effort=stage_reasoning_effort(SYSTEM_STATE, reasoning_effort),
+                )
+                previous_state_output = state_output
+
+            stage_counts["innerbot_state_check_count"] += 1
             model_call_count += 1
-            stage_counts["state_descriptor_count"] += 1
-            state_output = client.generate(
-                system=SYSTEM_STATE,
-                prompt=build_state_prompt(
-                    task,
-                    scene_json,
-                    previous_state_output=previous_state_output,
-                    feedback=feedback or "N/A",
+            stage_counts["innerbot_state_llm_call_count"] += 1
+            innerbot_state_output = client.generate(
+                system=SYSTEM_INNERBOT_STATE,
+                prompt=build_innerbot_state_prompt(task, scene_json, state_output),
+                max_tokens=max_tokens,
+                reasoning_effort=stage_reasoning_effort(SYSTEM_INNERBOT_STATE, reasoning_effort),
+            )
+            state_valid, state_reason = parse_innerbot_verdict(innerbot_state_output)
+            if not state_valid:
+                feedback = f"InnerBot state verifier rejected the state descriptor: {state_reason}"
+                parse_errors.append(f"InnerBotState: {state_reason}")
+                regenerate_plan = True
+                attempts.append(
+                    {
+                        "attempt_index": attempt_index,
+                        "input_state": {peg: list(stack) for peg, stack in current_state.items()},
+                        "feedback_in": feedback_in,
+                        "innerbot_state_check": {"result": "NO", "reason": state_reason},
+                        "stage_outputs": {
+                            "scene_json": scene_json,
+                            "state_output": state_output,
+                            "innerbot_state_output": innerbot_state_output,
+                        },
+                        "events": [],
+                        "verdict": "REPLAN",
+                        "feedback_out": feedback,
+                    }
+                )
+                continue
+
+            if h1_output is None or not reuse_h1:
+                model_call_count += 1
+                stage_counts["h1_generation_count"] += 1
+                h1_output = client.generate(
+                    system=SYSTEM_H1,
+                    prompt=build_h1_prompt(scene_json),
+                    max_tokens=max_tokens,
+                    reasoning_effort=stage_reasoning_effort(SYSTEM_H1, reasoning_effort),
+                )
+
+            if regenerate_plan or plan_output is None:
+                model_call_count += 1
+                stage_counts["plan_generation_count"] += 1
+                plan_output = client.generate(
+                    system=SYSTEM_PLAN,
+                    prompt=build_plan_prompt(task, scene_json, state_output, h1_output, feedback=feedback),
+                    max_tokens=max_tokens,
+                    reasoning_effort=stage_reasoning_effort(SYSTEM_PLAN, reasoning_effort),
+                )
+            plan_subtasks, plan_parse_errors = parse_plan_subtasks(plan_output)
+
+            model_call_count += 1
+            stage_counts["hierarchy_generation_count"] += 1
+            hierarchy_output = client.generate(
+                system=SYSTEM_HIERARCHY,
+                prompt=build_hierarchy_planner_prompt(
+                    task=task,
+                    scene_json=scene_json,
+                    state_output=state_output,
+                    h1_output=h1_output,
+                    plan_output=plan_output,
+                    feedback=feedback,
+                    include_code_block=include_code_block,
                 ),
                 max_tokens=max_tokens,
+                reasoning_effort=stage_reasoning_effort(SYSTEM_HIERARCHY, reasoning_effort),
             )
-            previous_state_output = state_output
 
-        stage_counts["innerbot_state_check_count"] += 1
-        model_call_count += 1
-        stage_counts["innerbot_state_llm_call_count"] += 1
-        innerbot_state_output = client.generate(
-            system=SYSTEM_INNERBOT_STATE,
-            prompt=build_innerbot_state_prompt(task, scene_json, state_output),
-            max_tokens=max_tokens,
-        )
-        state_valid, state_reason = parse_innerbot_verdict(innerbot_state_output)
-        if not state_valid:
-            feedback = f"InnerBot state verifier rejected the state descriptor: {state_reason}"
-            parse_errors.append(f"InnerBotState: {state_reason}")
-            regenerate_plan = True
+            last_outputs = {
+                "scene_json": scene_json,
+                "state_output": state_output,
+                "innerbot_state_output": innerbot_state_output,
+                "h1_output": h1_output,
+                "plan_output": plan_output,
+                "hierarchy_output": hierarchy_output,
+            }
+            attempt: Dict[str, object] = {
+                "attempt_index": attempt_index,
+                "input_state": {peg: list(stack) for peg, stack in current_state.items()},
+                "feedback_in": feedback_in,
+                "plan_regenerated": regenerate_plan or attempt_index == 0,
+                "innerbot_state_check": {"result": "YES", "reason": state_reason},
+                "events": [],
+                "stage_outputs": dict(last_outputs),
+            }
+
+            h1_mappings, h1_errors = parse_mappings(h1_output)
+            composed_mappings, composed_errors = parse_mappings(hierarchy_output)
+            mappings = {**h1_mappings, **composed_mappings}
+            analysis = analyze_hierarchy(mappings)
+            subtasks, subtask_errors = parse_subtask_plans(hierarchy_output)
+
+            attempt_errors = [f"H1: {err}" for err in h1_errors]
+            attempt_errors += [f"Hierarchy: {err}" for err in composed_errors]
+            attempt_errors += [f"Hierarchy: {err}" for err in analysis.errors]
+            attempt_errors += [f"Calls: {err}" for err in subtask_errors]
+            plan_errors = [f"Plan: {err}" for err in plan_parse_errors]
+
+            base_valid_any = base_valid_any or analysis.base_pattern_valid
+            hierarchy_valid_any = hierarchy_valid_any or (analysis.valid and analysis.max_level >= 2)
+            max_level_seen = max(max_level_seen, analysis.max_level)
+            last_mapping_count_by_level = dict(analysis.mapping_count_by_level)
+            for err in analysis.errors:
+                if err not in hierarchy_errors_seen:
+                    hierarchy_errors_seen.append(err)
+            parse_errors.extend(attempt_errors + plan_errors)
+
+            if attempt_errors or plan_errors or not subtasks:
+                combined = attempt_errors + plan_errors
+                feedback = "Hierarchy or plan could not be parsed: " + "; ".join(combined)
+                # The plan carries no function calls, so a parsing failure in the
+                # hierarchy is the hierarchy planner's. Only a malformed plan is the
+                # planner's.
+                owner = OWNER_DECISION if plan_errors else OWNER_HIERARCHY
+                route(owner)
+                stage_counts["router_check_count"] += 1
+                attempt["router_check"] = {"result": "NO", "owner": owner, "reason": feedback}
+                attempt["verdict"] = "REPLAN"
+                attempt["feedback_out"] = feedback
+                attempts.append(attempt)
+                continue
+
+            plan_valid, plan_reason, validated_subtasks = validate_dynamic_plan(
+                task=task,
+                current_state=current_state,
+                subtasks=subtasks,
+                mappings=mappings,
+                levels=analysis.levels,
+            )
+
+            stage_counts["router_check_count"] += 1
+            if not plan_valid:
+                # Deterministic failure. By construction the plan contains no calls,
+                # so no model call is needed to attribute this one.
+                feedback = f"Symbolic validation rejected the hierarchy: {plan_reason}"
+                parse_errors.append(f"Symbolic: {plan_reason}")
+                route(OWNER_HIERARCHY)
+                attempt["router_check"] = {
+                    "result": "NO",
+                    "owner": OWNER_HIERARCHY,
+                    "reason": plan_reason,
+                    "source": "symbolic",
+                }
+                attempt["verdict"] = "REPLAN"
+                attempt["feedback_out"] = feedback
+                attempts.append(attempt)
+                continue
+
+            model_call_count += 1
+            stage_counts["router_llm_call_count"] += 1
+            router_output = client.generate(
+                system=SYSTEM_ROUTER,
+                prompt=build_router_prompt(
+                    task=task,
+                    scene_json=scene_json,
+                    state_output=state_output,
+                    plan_output=plan_output,
+                    hierarchy_output=hierarchy_output,
+                    symbolic_reason=plan_reason,
+                ),
+                max_tokens=max_tokens,
+                reasoning_effort=stage_reasoning_effort(SYSTEM_ROUTER, reasoning_effort),
+            )
+            last_outputs["router_output"] = router_output
+            attempt["stage_outputs"]["router_output"] = router_output
+            no_mistake, owner, router_reason = parse_router_verdict(router_output)
+            if not no_mistake:
+                feedback = f"InnerBot router assigned the mistake to {owner}: {router_reason}"
+                parse_errors.append(f"Router: {router_reason}")
+                route(owner)
+                attempt["router_check"] = {
+                    "result": "NO",
+                    "owner": owner,
+                    "reason": router_reason,
+                    "source": "llm",
+                }
+                attempt["verdict"] = "REPLAN"
+                attempt["feedback_out"] = feedback
+                attempts.append(attempt)
+                continue
+
+            attempt["router_check"] = {"result": "YES", "owner": "NA", "reason": router_reason}
+            descriptions = {
+                int(item["subtask_index"]): str(item["description"]) for item in plan_subtasks
+            }
+            replan_required = False
+            solved = False
+
+            for validated in validated_subtasks:
+                subtask_index = validated["subtask_index"]
+                subtask_calls = validated["calls"]
+                h0_calls = validated["h0_calls"]
+                moves = validated["moves"]
+                prev_state_for_outer = build_scene_description(task, current_state)
+
+                total_top_level_count += len(subtask_calls)
+                total_h0_count += len(h0_calls)
+                for level, count in validated["level_counts"].items():
+                    level_totals[level] = level_totals.get(level, 0) + count
+                high_level_plan.extend(str(call) for call in subtask_calls)
+                expanded_h0_plan.extend(str(call) for call in h0_calls)
+
+                executed_this_subtask: List[Tuple[str, str]] = []
+                for source, target in moves:
+                    move_number = len(executed_moves) + 1
+                    ok, reason = apply_hanoi_move(task, current_state, source, target, move_number)
+                    if not ok:
+                        last_illegal_reason = reason
+                        feedback = (
+                            f"Recoverable execution error at move {move_number}: {reason}. "
+                            f"Current state is {current_state}. Rebuild the hierarchy from this state."
+                        )
+                        attempt["events"].append(
+                            {
+                                "subtask_index": subtask_index,
+                                "verdict": "RECOVERABLE",
+                                "reason": reason,
+                                "failed_move": [source, target],
+                                "state": {peg: list(stack) for peg, stack in current_state.items()},
+                            }
+                        )
+                        route(OWNER_HIERARCHY)
+                        replan_required = True
+                        break
+                    executed_moves.append((source, target))
+                    executed_this_subtask.append((source, target))
+
+                if replan_required:
+                    break
+
+                stage_counts["executed_subtask_count"] += 1
+                stage_counts["scene_descriptor_count"] += 1
+                stage_counts["outerbot_check_count"] += 1
+                model_call_count += 1
+                stage_counts["outerbot_llm_call_count"] += 1
+                subtask_goal_state = (
+                    build_scene_description(task, task.goal)
+                    if subtask_index == len(validated_subtasks)
+                    else build_scene_description(task, validated["projected_state"])
+                )
+                # The planner now produces a real description per subtask, so the
+                # OuterBot no longer has to be handed a synthesised call list.
+                subtask_nl = descriptions.get(
+                    subtask_index,
+                    f"Execute subtask {subtask_index} with calls: "
+                    + ", ".join(str(call) for call in subtask_calls),
+                )
+                outerbot_output = client.generate(
+                    system=SYSTEM_OUTERBOT,
+                    prompt=build_outerbot_prompt(
+                        task=task,
+                        env_constraint=build_goal_description(task)["constraint_spatial_relations"],
+                        subtask_nl=subtask_nl,
+                        prev_state=prev_state_for_outer,
+                        curr_state=build_scene_description(task, current_state),
+                        subtask_goal_state=subtask_goal_state,
+                        final_goal_state=build_scene_description(task, task.goal),
+                    ),
+                    max_tokens=max_tokens,
+                    reasoning_effort=stage_reasoning_effort(SYSTEM_OUTERBOT, reasoning_effort),
+                )
+                last_outputs["outerbot_output"] = outerbot_output
+                outer_verdict, outer_reason = parse_outerbot_verdict(outerbot_output)
+                attempt["events"].append(
+                    {
+                        "subtask_index": subtask_index,
+                        "verdict": outer_verdict,
+                        "outerbot_reason": outer_reason,
+                        "outerbot_output": outerbot_output,
+                        "high_level_calls": [str(call) for call in subtask_calls],
+                        "expanded_h0_calls": [str(call) for call in h0_calls],
+                        "executed_moves": executed_this_subtask,
+                        "state": {peg: list(stack) for peg, stack in current_state.items()},
+                    }
+                )
+
+                if outer_verdict == "TASK SUCCESS":
+                    feedback = ""
+                    solved = True
+                    break
+                if outer_verdict in {"SUBTASK SUCCESS", "EXECUTE REMAINING ACTIONS"}:
+                    continue
+                if outer_verdict in {"RECOVERABLE", "NON-RECOVERABLE"}:
+                    # The OuterBot's finding goes to the router, not straight back to
+                    # a planner. Same code path as the pre-execution check.
+                    execution_feedback = (
+                        f"OuterBot reported {outer_verdict} after subtask {subtask_index}: "
+                        f"{outer_reason}. Current state is {current_state}."
+                    )
+                    model_call_count += 1
+                    stage_counts["router_check_count"] += 1
+                    stage_counts["router_llm_call_count"] += 1
+                    recheck_output = client.generate(
+                        system=SYSTEM_ROUTER,
+                        prompt=build_router_prompt(
+                            task=task,
+                            scene_json=build_scene_description(task, current_state),
+                            state_output=state_output,
+                            plan_output=plan_output,
+                            hierarchy_output=hierarchy_output,
+                            execution_feedback=execution_feedback,
+                        ),
+                        max_tokens=max_tokens,
+                        reasoning_effort=stage_reasoning_effort(SYSTEM_ROUTER, reasoning_effort),
+                    )
+                    last_outputs["router_output"] = recheck_output
+                    _, recheck_owner, recheck_reason = parse_router_verdict(recheck_output)
+                    route(recheck_owner)
+                    attempt["events"][-1]["router_owner"] = recheck_owner
+                    attempt["events"][-1]["router_reason"] = recheck_reason
+                    feedback = f"{execution_feedback} Router assigned this to {recheck_owner}: {recheck_reason}"
+                    replan_required = True
+                    if outer_verdict == "NON-RECOVERABLE":
+                        last_illegal_reason = outer_reason
+                        termination_reason = "non_recoverable"
+                    break
+
+            attempt["output_state"] = {peg: list(stack) for peg, stack in current_state.items()}
+            if solved:
+                attempt["verdict"] = "TASK SUCCESS"
+                attempt["feedback_out"] = ""
+                attempts.append(attempt)
+                termination_reason = "task_success"
+                break
+
+            if replan_required:
+                attempt["verdict"] = "REPLAN"
+                attempt["feedback_out"] = feedback
+                attempts.append(attempt)
+                if termination_reason == "non_recoverable":
+                    break
+                continue
+
+            feedback = (
+                f"Plan finished without reaching the final goal. Current state is {current_state}. "
+                "Generate a corrected plan from this state."
+            )
+            route(OWNER_BOTH)
+            attempt["verdict"] = "REPLAN"
+            attempt["feedback_out"] = feedback
+            attempts.append(attempt)
+        except TruncatedResponseError as exc:
             attempts.append(
                 {
                     "attempt_index": attempt_index,
                     "input_state": {peg: list(stack) for peg, stack in current_state.items()},
-                    "feedback_in": feedback_in,
-                    "innerbot_state_check": {"result": "NO", "reason": state_reason},
-                    "stage_outputs": {
-                        "scene_json": scene_json,
-                        "state_output": state_output,
-                        "innerbot_state_output": innerbot_state_output,
-                    },
+                    "feedback_in": feedback,
                     "events": [],
                     "verdict": "REPLAN",
-                    "feedback_out": feedback,
+                    "feedback_out": f"Truncated: {exc}",
                 }
             )
+            feedback = f"Truncated: {exc} Retry with a more concise response."
             continue
-
-        if h1_output is None or not reuse_h1:
-            model_call_count += 1
-            stage_counts["h1_generation_count"] += 1
-            h1_output = client.generate(
-                system=SYSTEM_H1,
-                prompt=build_h1_prompt(scene_json),
-                max_tokens=max_tokens,
-            )
-
-        if regenerate_plan or plan_output is None:
-            model_call_count += 1
-            stage_counts["plan_generation_count"] += 1
-            plan_output = client.generate(
-                system=SYSTEM_PLAN,
-                prompt=build_plan_prompt(task, scene_json, state_output, h1_output, feedback=feedback),
-                max_tokens=max_tokens,
-            )
-        plan_subtasks, plan_parse_errors = parse_plan_subtasks(plan_output)
-
-        model_call_count += 1
-        stage_counts["hierarchy_generation_count"] += 1
-        hierarchy_output = client.generate(
-            system=SYSTEM_HIERARCHY,
-            prompt=build_hierarchy_planner_prompt(
-                task=task,
-                scene_json=scene_json,
-                state_output=state_output,
-                h1_output=h1_output,
-                plan_output=plan_output,
-                feedback=feedback,
-                include_code_block=include_code_block,
-            ),
-            max_tokens=max_tokens,
-        )
-
-        last_outputs = {
-            "scene_json": scene_json,
-            "state_output": state_output,
-            "innerbot_state_output": innerbot_state_output,
-            "h1_output": h1_output,
-            "plan_output": plan_output,
-            "hierarchy_output": hierarchy_output,
-        }
-        attempt: Dict[str, object] = {
-            "attempt_index": attempt_index,
-            "input_state": {peg: list(stack) for peg, stack in current_state.items()},
-            "feedback_in": feedback_in,
-            "plan_regenerated": regenerate_plan or attempt_index == 0,
-            "innerbot_state_check": {"result": "YES", "reason": state_reason},
-            "events": [],
-            "stage_outputs": dict(last_outputs),
-        }
-
-        h1_mappings, h1_errors = parse_mappings(h1_output)
-        composed_mappings, composed_errors = parse_mappings(hierarchy_output)
-        mappings = {**h1_mappings, **composed_mappings}
-        analysis = analyze_hierarchy(mappings)
-        subtasks, subtask_errors = parse_subtask_plans(hierarchy_output)
-
-        attempt_errors = [f"H1: {err}" for err in h1_errors]
-        attempt_errors += [f"Hierarchy: {err}" for err in composed_errors]
-        attempt_errors += [f"Hierarchy: {err}" for err in analysis.errors]
-        attempt_errors += [f"Calls: {err}" for err in subtask_errors]
-        plan_errors = [f"Plan: {err}" for err in plan_parse_errors]
-
-        base_valid_any = base_valid_any or analysis.base_pattern_valid
-        hierarchy_valid_any = hierarchy_valid_any or (analysis.valid and analysis.max_level >= 2)
-        max_level_seen = max(max_level_seen, analysis.max_level)
-        last_mapping_count_by_level = dict(analysis.mapping_count_by_level)
-        for err in analysis.errors:
-            if err not in hierarchy_errors_seen:
-                hierarchy_errors_seen.append(err)
-        parse_errors.extend(attempt_errors + plan_errors)
-
-        if attempt_errors or plan_errors or not subtasks:
-            combined = attempt_errors + plan_errors
-            feedback = "Hierarchy or plan could not be parsed: " + "; ".join(combined)
-            # The plan carries no function calls, so a parsing failure in the
-            # hierarchy is the hierarchy planner's. Only a malformed plan is the
-            # planner's.
-            owner = OWNER_DECISION if plan_errors else OWNER_HIERARCHY
-            route(owner)
-            stage_counts["router_check_count"] += 1
-            attempt["router_check"] = {"result": "NO", "owner": owner, "reason": feedback}
-            attempt["verdict"] = "REPLAN"
-            attempt["feedback_out"] = feedback
-            attempts.append(attempt)
-            continue
-
-        plan_valid, plan_reason, validated_subtasks = validate_dynamic_plan(
-            task=task,
-            current_state=current_state,
-            subtasks=subtasks,
-            mappings=mappings,
-            levels=analysis.levels,
-        )
-
-        stage_counts["router_check_count"] += 1
-        if not plan_valid:
-            # Deterministic failure. By construction the plan contains no calls,
-            # so no model call is needed to attribute this one.
-            feedback = f"Symbolic validation rejected the hierarchy: {plan_reason}"
-            parse_errors.append(f"Symbolic: {plan_reason}")
-            route(OWNER_HIERARCHY)
-            attempt["router_check"] = {
-                "result": "NO",
-                "owner": OWNER_HIERARCHY,
-                "reason": plan_reason,
-                "source": "symbolic",
-            }
-            attempt["verdict"] = "REPLAN"
-            attempt["feedback_out"] = feedback
-            attempts.append(attempt)
-            continue
-
-        model_call_count += 1
-        stage_counts["router_llm_call_count"] += 1
-        router_output = client.generate(
-            system=SYSTEM_ROUTER,
-            prompt=build_router_prompt(
-                task=task,
-                scene_json=scene_json,
-                state_output=state_output,
-                plan_output=plan_output,
-                hierarchy_output=hierarchy_output,
-                symbolic_reason=plan_reason,
-            ),
-            max_tokens=max_tokens,
-        )
-        last_outputs["router_output"] = router_output
-        attempt["stage_outputs"]["router_output"] = router_output
-        no_mistake, owner, router_reason = parse_router_verdict(router_output)
-        if not no_mistake:
-            feedback = f"InnerBot router assigned the mistake to {owner}: {router_reason}"
-            parse_errors.append(f"Router: {router_reason}")
-            route(owner)
-            attempt["router_check"] = {
-                "result": "NO",
-                "owner": owner,
-                "reason": router_reason,
-                "source": "llm",
-            }
-            attempt["verdict"] = "REPLAN"
-            attempt["feedback_out"] = feedback
-            attempts.append(attempt)
-            continue
-
-        attempt["router_check"] = {"result": "YES", "owner": "NA", "reason": router_reason}
-        descriptions = {
-            int(item["subtask_index"]): str(item["description"]) for item in plan_subtasks
-        }
-        replan_required = False
-        solved = False
-
-        for validated in validated_subtasks:
-            subtask_index = validated["subtask_index"]
-            subtask_calls = validated["calls"]
-            h0_calls = validated["h0_calls"]
-            moves = validated["moves"]
-            prev_state_for_outer = build_scene_description(task, current_state)
-
-            total_top_level_count += len(subtask_calls)
-            total_h0_count += len(h0_calls)
-            for level, count in validated["level_counts"].items():
-                level_totals[level] = level_totals.get(level, 0) + count
-            high_level_plan.extend(str(call) for call in subtask_calls)
-            expanded_h0_plan.extend(str(call) for call in h0_calls)
-
-            executed_this_subtask: List[Tuple[str, str]] = []
-            for source, target in moves:
-                move_number = len(executed_moves) + 1
-                ok, reason = apply_hanoi_move(task, current_state, source, target, move_number)
-                if not ok:
-                    last_illegal_reason = reason
-                    feedback = (
-                        f"Recoverable execution error at move {move_number}: {reason}. "
-                        f"Current state is {current_state}. Rebuild the hierarchy from this state."
-                    )
-                    attempt["events"].append(
-                        {
-                            "subtask_index": subtask_index,
-                            "verdict": "RECOVERABLE",
-                            "reason": reason,
-                            "failed_move": [source, target],
-                            "state": {peg: list(stack) for peg, stack in current_state.items()},
-                        }
-                    )
-                    route(OWNER_HIERARCHY)
-                    replan_required = True
-                    break
-                executed_moves.append((source, target))
-                executed_this_subtask.append((source, target))
-
-            if replan_required:
-                break
-
-            stage_counts["executed_subtask_count"] += 1
-            stage_counts["scene_descriptor_count"] += 1
-            stage_counts["outerbot_check_count"] += 1
-            model_call_count += 1
-            stage_counts["outerbot_llm_call_count"] += 1
-            subtask_goal_state = (
-                build_scene_description(task, task.goal)
-                if subtask_index == len(validated_subtasks)
-                else build_scene_description(task, validated["projected_state"])
-            )
-            # The planner now produces a real description per subtask, so the
-            # OuterBot no longer has to be handed a synthesised call list.
-            subtask_nl = descriptions.get(
-                subtask_index,
-                f"Execute subtask {subtask_index} with calls: "
-                + ", ".join(str(call) for call in subtask_calls),
-            )
-            outerbot_output = client.generate(
-                system=SYSTEM_OUTERBOT,
-                prompt=build_outerbot_prompt(
-                    task=task,
-                    env_constraint=build_goal_description(task)["constraint_spatial_relations"],
-                    subtask_nl=subtask_nl,
-                    prev_state=prev_state_for_outer,
-                    curr_state=build_scene_description(task, current_state),
-                    subtask_goal_state=subtask_goal_state,
-                    final_goal_state=build_scene_description(task, task.goal),
-                ),
-                max_tokens=max_tokens,
-            )
-            last_outputs["outerbot_output"] = outerbot_output
-            outer_verdict, outer_reason = parse_outerbot_verdict(outerbot_output)
-            attempt["events"].append(
-                {
-                    "subtask_index": subtask_index,
-                    "verdict": outer_verdict,
-                    "outerbot_reason": outer_reason,
-                    "outerbot_output": outerbot_output,
-                    "high_level_calls": [str(call) for call in subtask_calls],
-                    "expanded_h0_calls": [str(call) for call in h0_calls],
-                    "executed_moves": executed_this_subtask,
-                    "state": {peg: list(stack) for peg, stack in current_state.items()},
-                }
-            )
-
-            if outer_verdict == "TASK SUCCESS":
-                feedback = ""
-                solved = True
-                break
-            if outer_verdict in {"SUBTASK SUCCESS", "EXECUTE REMAINING ACTIONS"}:
-                continue
-            if outer_verdict in {"RECOVERABLE", "NON-RECOVERABLE"}:
-                # The OuterBot's finding goes to the router, not straight back to
-                # a planner. Same code path as the pre-execution check.
-                execution_feedback = (
-                    f"OuterBot reported {outer_verdict} after subtask {subtask_index}: "
-                    f"{outer_reason}. Current state is {current_state}."
-                )
-                model_call_count += 1
-                stage_counts["router_check_count"] += 1
-                stage_counts["router_llm_call_count"] += 1
-                recheck_output = client.generate(
-                    system=SYSTEM_ROUTER,
-                    prompt=build_router_prompt(
-                        task=task,
-                        scene_json=build_scene_description(task, current_state),
-                        state_output=state_output,
-                        plan_output=plan_output,
-                        hierarchy_output=hierarchy_output,
-                        execution_feedback=execution_feedback,
-                    ),
-                    max_tokens=max_tokens,
-                )
-                last_outputs["router_output"] = recheck_output
-                _, recheck_owner, recheck_reason = parse_router_verdict(recheck_output)
-                route(recheck_owner)
-                attempt["events"][-1]["router_owner"] = recheck_owner
-                attempt["events"][-1]["router_reason"] = recheck_reason
-                feedback = f"{execution_feedback} Router assigned this to {recheck_owner}: {recheck_reason}"
-                replan_required = True
-                if outer_verdict == "NON-RECOVERABLE":
-                    last_illegal_reason = outer_reason
-                    termination_reason = "non_recoverable"
-                break
-
-        attempt["output_state"] = {peg: list(stack) for peg, stack in current_state.items()}
-        if solved:
-            attempt["verdict"] = "TASK SUCCESS"
-            attempt["feedback_out"] = ""
-            attempts.append(attempt)
-            termination_reason = "task_success"
-            break
-
-        if replan_required:
-            attempt["verdict"] = "REPLAN"
-            attempt["feedback_out"] = feedback
-            attempts.append(attempt)
-            if termination_reason == "non_recoverable":
-                break
-            continue
-
-        feedback = (
-            f"Plan finished without reaching the final goal. Current state is {current_state}. "
-            "Generate a corrected plan from this state."
-        )
-        route(OWNER_BOTH)
-        attempt["verdict"] = "REPLAN"
-        attempt["feedback_out"] = feedback
-        attempts.append(attempt)
 
     replan_count = sum(1 for attempt in attempts[:-1] if attempt.get("verdict") == "REPLAN")
     if current_state == task.goal:

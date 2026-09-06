@@ -1,0 +1,62 @@
+{
+  "goal": {
+    "peg_a": [],
+    "peg_b": [
+      "ring_4",
+      "ring_1"
+    ],
+    "peg_c": [
+      "ring_5",
+      "ring_3",
+      "ring_2"
+    ]
+  },
+  "id": "hanoi_flat_5_19",
+  "initial": {
+    "peg_a": [
+      "ring_3",
+      "ring_2"
+    ],
+    "peg_b": [],
+    "peg_c": [
+      "ring_5",
+      "ring_4",
+      "ring_1"
+    ]
+  },
+  "instruction": "Rearrange the rings so the scene matches the goal configuration. Move one ring at a time, only move the top ring of a peg, and never place a larger ring on top of a smaller ring.",
+  "name": "Tower of Hanoi (flat-to-flat) - 5 rings",
+  "optimal_move_count": 9,
+  "pegs": [
+    "peg_a",
+    "peg_b",
+    "peg_c"
+  ],
+  "rings": [
+    {
+      "label": "smallest",
+      "name": "ring_1",
+      "size": 1
+    },
+    {
+      "label": "very small",
+      "name": "ring_2",
+      "size": 2
+    },
+    {
+      "label": "small",
+      "name": "ring_3",
+      "size": 3
+    },
+    {
+      "label": "medium small",
+      "name": "ring_4",
+      "size": 4
+    },
+    {
+      "label": "largest",
+      "name": "ring_5",
+      "size": 5
+    }
+  ]
+}

@@ -268,7 +268,7 @@ python benchmarking\hanoi_benchmark.py --task hanoi_7 --provider openai --model 
 python benchmarking\hanoi_benchmark.py --task hanoi_7 --provider openai --model gpt-5.5 --reasoning high
 ```
 
-For OpenAI, this is sent as `reasoning_effort`. The selected value is also recorded in `metrics.json`, `steps.json`, and each raw model-call record. For local/OpenAI-compatible, Anthropic, and Gemini providers, the value is currently recorded for bookkeeping but not sent as a provider-specific thinking parameter.
+For OpenAI, this is sent as `reasoning_effort`. For local/OpenAI-compatible providers (including Ollama, confirmed empirically), the same `reasoning_effort` field is sent whenever `--reasoning` is set, and Ollama's own server honors it — lower effort measurably shortens the hidden `reasoning` trace. The selected value is also recorded in `metrics.json`, `steps.json`, and each raw model-call record. For Anthropic and Gemini providers, the value is currently recorded for bookkeeping but not sent as a provider-specific thinking parameter.
 
 ## Result Layout
 
@@ -382,6 +382,98 @@ python benchmarking\hanoi_benchmark.py --task hanoi_4 --provider local --model Q
 
 The configured open-source benchmark models and Linux GPU VM workflow are
 documented in [`opensource_models/README.md`](opensource_models/README.md).
+
+### Ollama (fully local, no API cost)
+
+Ollama exposes an OpenAI-compatible endpoint, so it runs through the same
+`--provider local` path as any other OpenAI-compatible server — no separate
+client code is needed.
+
+1. Make sure the model is pulled and Ollama is serving (`ollama serve`, or the
+   background app/service on Windows):
+   ```powershell
+   ollama pull qwen38
+   curl http://localhost:11434/v1/models
+   ```
+2. Run a benchmark against it:
+   ```powershell
+   python benchmarking\hanoi_benchmark.py --task hanoi_3 --provider local --model qwen38 --base-url http://localhost:11434/v1/chat/completions --max-tokens 4096
+   ```
+   Or configure `.env` once (`Copy-Item benchmarking\.env.example benchmarking\.env`, then edit):
+   ```text
+   DEFAULT_PROVIDER=local
+   DEFAULT_MODEL=qwen38
+   LOCAL_OPENAI_BASE_URL=http://localhost:11434/v1/chat/completions
+   LOCAL_NUM_CTX=16384
+   LOCAL_TEMPERATURE=0.6
+   MODEL_REQUEST_TIMEOUT_SECONDS=1800
+   ```
+
+Ollama-specific behavior the harness accounts for:
+
+- **Context window.** Some Ollama models/versions default to a small context
+  window unless a request-level `num_ctx` is sent; others (including
+  `PARAMETER num_ctx` set in the model's own Modelfile) already default higher
+  — check with `curl http://localhost:11434/api/show -d '{"model":"<name>"}'`
+  before assuming. Set `LOCAL_NUM_CTX` in `.env` to override it explicitly;
+  `create_client()` wires it through automatically when set. Hierarchy mode's
+  replan feedback accumulates across calls, so bump this for larger tasks
+  (`hanoi_8`+, larger blocks-world/checker-jumping `N`).
+- **Temperature.** `OpenAICompatibleClient` sends `temperature: 0` by default
+  (matching the deterministic behavior used for API providers). Local models
+  are often tuned for a different default in their own Modelfile — set
+  `LOCAL_TEMPERATURE` in `.env` or pass `--temperature` on any benchmark CLI to
+  override it. `--temperature` takes precedence over `LOCAL_TEMPERATURE` when
+  both are set.
+- **Controlling reasoning verbosity: prefer `--reasoning` over clipping `--max-tokens`.**
+  `--reasoning low|medium|high` sends `reasoning_effort` to the local provider
+  and is confirmed to work against Ollama (verified empirically: reasoning
+  trace length drops monotonically from high to low for the same prompt).
+  This is the right lever for controlling how much a thinking model "thinks"
+  — don't rely on a small `--max-tokens` to cut reasoning short, since a
+  thinking model can burn its entire generation budget on the hidden
+  `reasoning` field and return empty `content` before ever answering.
+  `LOCAL_THINK=true`/`false`/`low`/`medium`/`high` in `.env` sends Ollama's
+  native `think` field as a secondary, best-effort lever — support is less
+  consistently verified than `reasoning_effort` across Ollama/model versions.
+- **Other sampling params.** `LOCAL_MODEL_OPTIONS` accepts a JSON object of
+  any additional Ollama `options` fields (`top_p`, `top_k`, `repeat_penalty`,
+  etc.), merged with `LOCAL_NUM_CTX`/`LOCAL_THINK` — keys in
+  `LOCAL_MODEL_OPTIONS` win on conflict.
+- **Thinking models.** Reasoning/"thinking" Ollama models (e.g. Qwen3-family
+  checkpoints) return their chain-of-thought in a `reasoning` field and the
+  final answer in `content`. If `--max-tokens` is too low, the model can spend
+  its entire budget on `reasoning` and return empty `content`, which the
+  scorer will treat as a parse failure. Raise `--max-tokens` (e.g. 4096-8192)
+  when benchmarking a thinking model.
+- Leave `LOCAL_STRUCTURED_OUTPUTS=false` unless your Ollama version is
+  confirmed to support strict `json_schema` responses; otherwise the
+  complete-framework stages fall back to prompt-only JSON instructions, which
+  Ollama models handle fine.
+- **Timeouts.** Hierarchy mode makes several sequential model calls per task
+  (state, H1, H2, decision, InnerBot, OuterBot), and a 27B model on local
+  hardware is much slower than a hosted API. Make sure
+  `MODEL_REQUEST_TIMEOUT_SECONDS` is set generously (the `.env.example`
+  default of `1800` seconds is a reasonable starting point) — the default
+  when unset is only 120 seconds and will time out mid-run.
+- **Keep-alive and GPU placement are not benchmark settings.** They're
+  controlled by the Ollama server process itself, not by anything sent from
+  `models.py` — the OpenAI-compatible endpoint ignores a `keep_alive` field in
+  the request body. Check current state with:
+  ```powershell
+  curl http://localhost:11434/api/ps
+  ```
+  This reports `expires_at` (when the model unloads after being idle,
+  defaulting to ~5 minutes) and `size_vram` (bytes currently resident on
+  GPU). To keep a model loaded longer between runs, set the `OLLAMA_KEEP_ALIVE`
+  environment variable (e.g. `30m`, or `-1` to never unload) before starting
+  the Ollama service, then restart it. GPU layer placement is decided
+  automatically from free VRAM at load time — on a 16GB GPU, a ~18GB Q4_K_M
+  27B model will partially spill to system RAM (observed: ~11.5GB on GPU /
+  ~18GB total), which is expected and still functional, just slower than a
+  model that fits fully in VRAM. A smaller quantization (e.g. Q4_K_S) or a
+  smaller parameter count would fit entirely in 16GB if maximum throughput
+  matters more than quality.
 
 ## Benchmark Contract
 

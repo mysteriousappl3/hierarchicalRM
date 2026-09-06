@@ -1,8 +1,21 @@
 .env
+.env.local_test
 __pycache__/
 *.pyc
 results/*
 !results/.gitkeep
+results_flat/*
+!results_flat/.gitkeep
 opensource_models/.venv/
 opensource_models/.cache/
 opensource_models/logs/
+
+*venv
+
+# Local Ollama Modelfiles (see .env.example's LOCAL_NUM_CTX note) -- these
+# encode a specific local model tag/context-window setup and are not part of
+# the benchmark itself, so they stay untracked like the .env files.
+Modelfile.*
+
+# PDDL/mystery-blocksworld experimentation and any generated instances.
+mystery_blocksworld/
