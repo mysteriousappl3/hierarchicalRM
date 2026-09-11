@@ -1,0 +1,37 @@
+# Root-level ignores for the hierarchicalRM repo.
+# benchmarking/ has its own more specific .gitignore (venv, results/,
+# __pycache__, local Modelfiles, etc.) - see that file for the pipeline
+# code's ignore rules.
+
+# ---------------------------------------------------------------------
+# Unity (src/unity_project/)
+# ---------------------------------------------------------------------
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+[Uu]serSettings/
+.vs/
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+sysinfo.txt
+*.apk
+*.aab
+*.unitypackage
+
+# ---------------------------------------------------------------------
+# Editor / OS
+# ---------------------------------------------------------------------
+*.bak
+*.orig
+*~
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/settings.json
