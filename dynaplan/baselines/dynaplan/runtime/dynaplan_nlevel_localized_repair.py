@@ -1,9 +1,8 @@
-"""Small, syntax-safe repair helpers for DynaPlan v1.1.
+"""Small, syntax-safe Decision repair helpers for DynaPlan v1.2.
 
-The shared v5 controller already knows how to merge a hierarchy suffix.  This
-module supplies the corresponding DecisionBot block transaction and converts
-the existing InnerBot audit record into an explicitly *unverified*
-localization certificate.  It never evaluates action semantics.
+This module supplies a DecisionBot block transaction localized only by the
+existing deterministic Decision artifact validator.  InnerBot audit outputs
+do not enter this repair path.  The helper never evaluates action semantics.
 """
 
 from __future__ import annotations
@@ -16,7 +15,7 @@ from typing import Mapping, Optional, Sequence, Tuple
 from shared_nlevel_pipeline import ArtifactCheck, StageRequest
 
 
-LOCALIZED_REPAIR_REVISION = "dynaplan_audit_guided_suffix_repair_v1"
+LOCALIZED_REPAIR_REVISION = "dynaplan_deterministic_decision_suffix_repair_v1"
 
 _DESCRIPTION_RE = re.compile(
     r"(?<![A-Za-z0-9_\x60])(?P<fence>```)?start_subtask_"
@@ -198,47 +197,9 @@ def decision_suffix_request(
     )
 
 
-def audit_localization(
-    record: Mapping[str, object], owner: str
-) -> Optional[dict[str, object]]:
-    """Return only a well-formed, evidence-complete LLM audit localization."""
-
-    if (
-        record.get("raw_verdict") != "INVALID"
-        or record.get("effective_verdict") != "INVALID"
-        or record.get("parse_valid") is not True
-        or record.get("coverage_guard_passed") is not True
-        or record.get("requirement_evidence_guard_passed") is False
-    ):
-        return None
-    try:
-        subtask = int(record["first_bad_subtask"])
-        action = int(record["first_bad_action_in_subtask"])
-    except (KeyError, TypeError, ValueError):
-        return None
-    if subtask <= 0 or action < 0 or owner not in {
-        "decision",
-        "hierarchy",
-        "both",
-    }:
-        return None
-    return {
-        "certificate_source": "llm_execution_audit",
-        "semantic_verification": "WITHHELD",
-        "first_bad_subtask": subtask,
-        "first_bad_action_in_subtask": action,
-        "owner": owner,
-        "reason": str(record.get("reason") or "N/A"),
-        "prefix_status": "audit-cleared-but-unverified",
-        "mandatory_full_candidate_recheck": True,
-        "localized_repair_revision": LOCALIZED_REPAIR_REVISION,
-    }
-
-
 __all__ = [
     "DecisionSuffixSpec",
     "LOCALIZED_REPAIR_REVISION",
-    "audit_localization",
     "decision_suffix_request",
     "decision_suffix_spec",
     "merge_decision_suffix",

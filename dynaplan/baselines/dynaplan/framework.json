@@ -1,13 +1,15 @@
 {
   "name": "DynaPlan",
-  "status": "v1.1-offline-tested-awaiting-live-smoke",
-  "framework_version": "dynaplan_final_nlevel_hierarchy_v1_1",
-  "benchmark_version": 59,
+  "status": "v1.3-live-smoke-ready",
+  "framework_version": "dynaplan_v1_3_compact_fallback",
+  "benchmark_version": 61,
   "parent_framework": "shared_nlevel_v5_llm_only_execution_audit_v3_3_success_first",
   "entrypoint": "dynaplan/baselines/dynaplan/benchmark.py",
   "runtime_root": "dynaplan/baselines/dynaplan/runtime",
   "primary_architecture_files": [
     "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_checkpoint_normalization.py",
+    "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_compact_contracts.py",
+    "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_exhaustion_fallback.py",
     "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_localized_repair.py",
     "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_adapter.py",
     "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_pipeline.py",
@@ -23,6 +25,8 @@
   "implementation_files": [
     "dynaplan/baselines/dynaplan/benchmark.py",
     "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_checkpoint_normalization.py",
+    "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_compact_contracts.py",
+    "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_exhaustion_fallback.py",
     "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_localized_repair.py",
     "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_adapter.py",
     "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_pipeline.py",
@@ -37,7 +41,11 @@
   ],
   "test_files": [
     "dynaplan/baselines/dynaplan/test_integration.py",
-    "dynaplan/baselines/dynaplan/test_localized_repair.py"
+    "dynaplan/baselines/dynaplan/test_localized_repair.py",
+    "dynaplan/baselines/dynaplan/test_compact_contracts.py",
+    "dynaplan/baselines/dynaplan/test_exhaustion_fallback.py",
+    "dynaplan/baselines/dynaplan/test_v13_evidence_leniency.py",
+    "dynaplan/baselines/dynaplan/test_v13_pipeline_integration.py"
   ],
   "domain_adapters": {
     "logistics": "DynaPlanLexiconAdapter",
@@ -64,14 +72,45 @@
     "additional_evaluator_calls": 0
   },
   "localized_suffix_repair": {
-    "revision": "dynaplan_audit_guided_suffix_repair_v1",
-    "innerbot_localization_authority": "unverified-advisory",
-    "decision_validation_localization": "deterministic-existing-validator",
-    "maximum_repeated_local_patches": 2,
+    "revision": "dynaplan_deterministic_decision_suffix_repair_v1",
+    "innerbot_localization_authority": "disabled-full-regeneration",
+    "decision_validation_localization": "available-only-when-compact-generation-contracts-is-off",
+    "maximum_repeated_local_patches": 1,
+    "hierarchy_suffix_repair_from_llm_audit": false,
+    "failed_patch_feedback_cleared_before_full_regeneration": true,
     "full_candidate_recheck_from_frozen_start": true,
     "additional_innerbots": 0,
     "additional_evaluator_calls": 0,
     "online_pddl_feedback": false
+  },
+  "v1_3_feature_flags": {
+    "compact_generation_contracts": true,
+    "exhaustion_candidate_fallback": true,
+    "lenient_irrelevant_evidence_fields": true,
+    "independently_switchable": true,
+    "feature_flags_off_behavior": "v1.2-compatible"
+  },
+  "compact_generation_contracts": {
+    "revision": "dynaplan_compact_generation_contracts_v1",
+    "stages": ["decision", "hierarchy_planner"],
+    "canonical_internal_format": "existing-tagged-hierarchy",
+    "unknown_actions_and_arguments_fail_closed": true,
+    "semantic_verifier": false
+  },
+  "exhaustion_candidate_fallback": {
+    "revision": "dynaplan_exhaustion_candidate_fallback_v1",
+    "activation": "attempt-budget-exhaustion-only",
+    "candidate_requirement": "structurally-valid-and-fully-expanded",
+    "accepted_plan_replacement": false,
+    "status": "UNCERTIFIED_FALLBACK",
+    "semantic_authority": false,
+    "additional_evaluator_calls": 0
+  },
+  "lenient_irrelevant_evidence_fields": {
+    "applies_to": "non-sometime-after latest_* fields only",
+    "raw_certificate_preserved": true,
+    "remaining_witness_validation_required": true,
+    "sometime_after_validation_unchanged": true
   },
   "comparison_protocol": {
     "version": "shared-public-semantics-v3",
@@ -88,11 +127,15 @@
     "copied_runtime_snapshotted_per_campaign": true
   },
   "evaluation_status": {
-    "v1_1_offline_regression_tests_passed": "13/13",
-    "v1_1_unified_preflight_passed": "3/3",
-    "v1_1_live_model_smoke_completed": false,
-    "v1_1_full_official_sweep_completed": false,
-    "v1_1_full_official_sweep_started": false,
+    "v1_3_offline_regression_tests_passed": "48/48 DynaPlan tests plus 124/124 unified-runner and benchmark tests",
+    "v1_3_six_condition_live_smoke_completed": false,
+    "v1_3_smoke_gate_passed": false,
+    "v1_3_full_dynaplan_only_sweep_registered": false,
+    "v1_2_offline_regression_tests_passed": "13/13",
+    "v1_2_unified_preflight_passed": "6/6 provider-domain configurations",
+    "v1_2_live_model_smoke_completed": false,
+    "v1_2_full_official_sweep_completed": false,
+    "v1_2_full_official_sweep_started": false,
     "prior_v1_official_results_preserved": true,
     "official_condition_count": 720,
     "frozen_instances_per_difficulty_stratum": 3,

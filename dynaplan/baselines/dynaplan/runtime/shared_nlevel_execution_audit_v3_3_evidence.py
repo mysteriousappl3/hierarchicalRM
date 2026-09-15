@@ -12,7 +12,7 @@ from copy import deepcopy
 from dataclasses import replace
 import json
 import re
-from typing import Dict, Mapping, Optional
+from typing import Dict, List, Mapping, Optional
 
 from shared_nlevel_execution_audit_v3_adapter import SINGLE_INNERBOT_AUDIT_SCHEMA
 from shared_nlevel_pipeline import RouterVerdict, StageRequest
@@ -135,6 +135,10 @@ class StructuredRequirementEvidenceMixin:
     """Opt-in response-schema extension; mix before the v3.1 domain adapter."""
 
     requirement_evidence_revision = "compact_requirement_evidence_v1"
+    # Keep the historical v3.3 guard strict unless a registered successor
+    # explicitly enables this compatibility policy.  The policy never applies
+    # to sometime_after, whose latest_* values carry temporal meaning.
+    lenient_irrelevant_evidence_fields = False
 
     def router_request(
         self,
@@ -170,7 +174,9 @@ class StructuredRequirementEvidenceMixin:
             schema_name="n_hierarchy_single_innerbot_requirement_evidence_v3_3",
         )
 
-    def _validate_requirement_evidence(self, payload: Mapping[str, object]) -> None:
+    def _validate_requirement_evidence(
+        self, payload: Mapping[str, object]
+    ) -> List[Dict[str, object]]:
         if set(payload) != set(REQUIREMENT_EVIDENCE_AUDIT_SCHEMA["required"]):
             raise ValueError("requirement-evidence audit has incorrect fields")
         manifest = getattr(self, "_pending_evidence_manifest", None)
@@ -182,6 +188,7 @@ class StructuredRequirementEvidenceMixin:
         terminal = self._pending_audit_manifest["expected_actions"]
         accepting = payload.get("verdict") == "VALID"
         seen = set()
+        ignored_irrelevant_fields: List[Dict[str, object]] = []
         for index, row in enumerate(rows):
             label = f"requirement_evidence[{index}]"
             if not isinstance(row, dict) or set(row) != set(_EVIDENCE_FIELDS):
@@ -229,10 +236,10 @@ class StructuredRequirementEvidenceMixin:
                         f"{identity} latest response must be included in witness_states"
                     )
             else:
-                if trigger is not None or response is not None:
-                    raise _RequirementEvidenceGuardError(
-                        f"{identity} latest_* fields are reserved for sometime_after"
-                    )
+                # Validate evidence that is meaningful for this obligation
+                # before considering the opt-in compatibility tolerance.  The
+                # raw row is never rewritten; ignored fields are recorded
+                # separately for auditability.
                 if kind == "final_goal" and (terminal not in witnesses or row["vacuous"]):
                     raise _RequirementEvidenceGuardError(
                         f"{identity} requires a non-vacuous terminal-state witness"
@@ -241,11 +248,37 @@ class StructuredRequirementEvidenceMixin:
                     raise _RequirementEvidenceGuardError(
                         f"{identity} requires a non-vacuous witness"
                     )
+                if kind == "sometime_before" and not row["vacuous"]:
+                    if len(set(witnesses)) < 2 or min(witnesses) >= max(witnesses):
+                        raise _RequirementEvidenceGuardError(
+                            f"{identity} requires distinct strict-prior witness states"
+                        )
+                irrelevant = [
+                    field
+                    for field, value in (
+                        ("latest_trigger_state", trigger),
+                        ("latest_response_state", response),
+                    )
+                    if value is not None
+                ]
+                if irrelevant:
+                    if not self.lenient_irrelevant_evidence_fields:
+                        raise _RequirementEvidenceGuardError(
+                            f"{identity} latest_* fields are reserved for sometime_after"
+                        )
+                    ignored_irrelevant_fields.append(
+                        {
+                            "requirement_id": identity,
+                            "obligation_type": kind,
+                            "fields": irrelevant,
+                        }
+                    )
         if accepting and seen != set(manifest):
             missing = sorted(set(manifest) - seen)
             raise _RequirementEvidenceGuardError(
                 f"VALID requires exactly one evidence row per requirement; missing {missing}"
             )
+        return ignored_irrelevant_fields
 
     def parse_router(self, output: str) -> RouterVerdict:
         try:
@@ -259,13 +292,22 @@ class StructuredRequirementEvidenceMixin:
         verdict = super().parse_router(json.dumps(stripped) if isinstance(payload, dict) else output)
         record: Dict[str, object] = self.single_innerbot_audit_records[-1]
         if isinstance(payload, dict):
-            record["requirement_evidence"] = payload.get("requirement_evidence")
+            # Preserve exactly what the model supplied.  The leniency policy
+            # affects only guard interpretation and never mutates the audit
+            # certificate used for telemetry or later diagnosis.
+            record["raw_audit_certificate"] = deepcopy(payload)
+            raw_evidence = deepcopy(payload.get("requirement_evidence"))
+            record["requirement_evidence"] = raw_evidence
+            record["requirement_evidence_raw"] = deepcopy(raw_evidence)
         record["requirement_evidence_revision"] = self.requirement_evidence_revision
+        record["lenient_irrelevant_evidence_fields"] = bool(
+            self.lenient_irrelevant_evidence_fields
+        )
         if record.get("parse_valid") is not True:
             record["requirement_evidence_guard_passed"] = False
             return verdict
         try:
-            self._validate_requirement_evidence(payload)
+            ignored = self._validate_requirement_evidence(payload)
         except (TypeError, ValueError) as error:
             record.update({
                 "effective_verdict": "INVALID",
@@ -279,6 +321,7 @@ class StructuredRequirementEvidenceMixin:
                 record["coverage_guard_passed"] = False
             return RouterVerdict(False, "both", f"Requirement evidence guard rejected audit: {error}")
         record["requirement_evidence_guard_passed"] = True
+        record["ignored_irrelevant_evidence_fields"] = ignored
         return verdict
 
 

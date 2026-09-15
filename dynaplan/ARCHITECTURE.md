@@ -1,7 +1,13 @@
 # DynaPlan architecture and design
 
-This document is the implementation-grounded architecture reference for
-`dynaplan_final_nlevel_hierarchy_v1_1` (benchmark integration version `59`).
+This document describes the core architecture introduced by
+`dynaplan_final_nlevel_hierarchy_v1_1`. The active implementation is now
+`dynaplan_v1_3_compact_fallback` (benchmark integration version `61`). It
+retains that architecture and adds independently flagged compact generation
+contracts, exhaustion-candidate fallback, and lenient handling of irrelevant
+certificate evidence fields. The current executable contract and limitations
+are documented in [`baselines/dynaplan/README.md`](./baselines/dynaplan/README.md).
+
 DynaPlan is a success-first, transactional N-level planning framework. It
 separates task decomposition from hierarchical action composition, exposes the
 fully expanded action trace to two LLM review stages, and withholds the official

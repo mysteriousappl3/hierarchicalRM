@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -31,12 +32,39 @@ from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Seque
 SCRIPT_PATH = Path(__file__).resolve()
 BENCHMARKS_ROOT = SCRIPT_PATH.parent
 DYNAPLAN_ROOT = BENCHMARKS_ROOT.parent
+_VENDORED_LEXICON_ROOT = BENCHMARKS_ROOT / "LexiCon"
+_WORKSPACE_LEXICON_ROOT = (
+    DYNAPLAN_ROOT.parents[1] / "dynaplan" / "benchmarks" / "LexiCon"
+)
 LEXICON_ROOT = Path(
-    os.environ.get("DYNAPLAN_LEXICON_ROOT", str(BENCHMARKS_ROOT / "LexiCon"))
+    os.environ.get(
+        "DYNAPLAN_LEXICON_ROOT",
+        str(
+            _VENDORED_LEXICON_ROOT
+            if (_VENDORED_LEXICON_ROOT / ".git").exists()
+            else _WORKSPACE_LEXICON_ROOT
+        ),
+    )
 ).resolve()
 FLAT_HANOI_ROOT = BENCHMARKS_ROOT / "Flat-Hanoi"
 BASELINE_CLONES_ROOT = DYNAPLAN_ROOT / "baselines"
-SHARED_ADAPTER_ROOT = DYNAPLAN_ROOT.parent / "simmer-style-libero" / "benchmarking"
+_WORKSPACE_REFERENCE_CLONES_ROOT = DYNAPLAN_ROOT.parents[1] / "dynaplan" / "baselines"
+_DEFAULT_SHARED_ADAPTER_ROOT = (
+    DYNAPLAN_ROOT.parent / "simmer-style-libero" / "benchmarking"
+)
+_WORKSPACE_SHARED_ADAPTER_ROOT = (
+    DYNAPLAN_ROOT.parents[1] / "simmer-style-libero" / "benchmarking"
+)
+SHARED_ADAPTER_ROOT = Path(
+    os.environ.get(
+        "DYNAPLAN_SHARED_ADAPTER_ROOT",
+        str(
+            _DEFAULT_SHARED_ADAPTER_ROOT
+            if _DEFAULT_SHARED_ADAPTER_ROOT.is_dir()
+            else _WORKSPACE_SHARED_ADAPTER_ROOT
+        ),
+    )
+).resolve()
 DEFAULT_ENV_FILE = DYNAPLAN_ROOT / ".env"
 DEFAULT_RESULTS_ROOT = BENCHMARKS_ROOT / "results"
 
@@ -140,6 +168,27 @@ BASELINE_CLONE_SPECS: Dict[str, Optional[Dict[str, str]]] = {
         "commit": "f5f897ccabfb19d5158e5a7ac4cb36517cd4c2e0",
     },
 }
+
+
+def _reference_clones_root() -> Path:
+    """Resolve provenance-only upstream clones independently of this checkout."""
+
+    override = os.environ.get("DYNAPLAN_REFERENCE_CLONES_ROOT", "").strip()
+    if override:
+        return Path(override).resolve()
+    required = tuple(
+        str(spec["directory"])
+        for spec in BASELINE_CLONE_SPECS.values()
+        if spec is not None
+    )
+    if all((BASELINE_CLONES_ROOT / name / ".git").is_dir() for name in required):
+        return BASELINE_CLONES_ROOT
+    if all(
+        (_WORKSPACE_REFERENCE_CLONES_ROOT / name / ".git").is_dir()
+        for name in required
+    ):
+        return _WORKSPACE_REFERENCE_CLONES_ROOT
+    return BASELINE_CLONES_ROOT
 BENCHMARKS = ("logistics", "blocksworld", "flat-hanoi")
 LEXICON_DOMAINS = ("logistics", "blocksworld")
 LEXICON_CONSTRAINT_LEVELS = (1, 3, 5, 7, 10)
@@ -424,6 +473,90 @@ def call_openai(
     )
 
 
+def call_openrouter(
+    *,
+    system_prompt: str,
+    user_prompt: str,
+    max_output_tokens: int,
+    timeout_seconds: int,
+) -> ModelResponse:
+    """Call OpenRouter through its OpenAI-compatible Chat Completions API."""
+
+    api_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
+    if not api_key:
+        raise RunnerError("OPENROUTER_API_KEY is missing or empty")
+    endpoint = _chat_completions_endpoint(
+        BASE_URL_OVERRIDE
+        or os.environ.get(
+            "OPENROUTER_BASE_URL",
+            "https://openrouter.ai/api/v1/chat/completions",
+        )
+    )
+    payload = {
+        "model": MODEL,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        "max_tokens": max_output_tokens,
+        "reasoning": {"effort": REASONING_EFFORT},
+        "include_reasoning": True,
+    }
+    request = urllib.request.Request(
+        endpoint,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "User-Agent": "dynaplan-benchmark/1.0",
+        },
+        method="POST",
+    )
+    started = time.perf_counter()
+    try:
+        with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
+            response_body = response.read().decode("utf-8")
+            request_id = response.headers.get("x-request-id")
+    except urllib.error.HTTPError as error:
+        body = error.read().decode("utf-8", errors="replace")[:4000]
+        body = body.replace(api_key, "[REDACTED]")
+        raise RunnerError(f"OpenRouter HTTP {error.code}: {body}") from error
+    except urllib.error.URLError as error:
+        raise RunnerError(f"OpenRouter request failed: {error.reason}") from error
+    except TimeoutError as error:
+        raise RunnerError(
+            f"OpenRouter request timed out after {timeout_seconds}s"
+        ) from error
+    runtime_seconds = time.perf_counter() - started
+    try:
+        decoded = json.loads(response_body)
+        choice = decoded["choices"][0]
+        message = choice["message"]
+    except (KeyError, IndexError, TypeError, json.JSONDecodeError) as error:
+        raise RunnerError(
+            "OpenRouter returned a malformed Chat Completions response"
+        ) from error
+    usage, raw_usage = _normalize_usage(decoded.get("usage"))
+    reasoning_content = message.get("reasoning_content") or message.get("reasoning")
+    return ModelResponse(
+        text=_message_text(message.get("content")),
+        finish_reason=(
+            str(choice.get("finish_reason"))
+            if choice.get("finish_reason") is not None
+            else None
+        ),
+        response_id=(str(decoded.get("id")) if decoded.get("id") else None),
+        request_id=request_id,
+        returned_model=(str(decoded.get("model")) if decoded.get("model") else None),
+        usage=usage,
+        raw_usage=raw_usage,
+        reasoning_char_count=(
+            len(reasoning_content) if isinstance(reasoning_content, str) else 0
+        ),
+        runtime_seconds=runtime_seconds,
+    )
+
+
 def _anthropic_messages_endpoint(raw_url: str) -> str:
     """Validate an Anthropic Messages endpoint without logging credentials."""
 
@@ -483,8 +616,13 @@ def _estimated_cost_usd(
     Extended-thinking tokens are already included in Anthropic output tokens.
     """
 
-    if provider == "local-transformers":
+    if provider in {"local-transformers", "local-vllm"}:
         return 0.0
+    if provider == "openrouter":
+        try:
+            return round(float(raw_usage["cost"]), 8)
+        except (KeyError, TypeError, ValueError):
+            return None
     if provider != "anthropic" or not model.startswith("claude-haiku-4-5"):
         return None
     ordinary_input = _int_value(raw_usage.get("input_tokens"))
@@ -601,6 +739,13 @@ def call_model(
             max_output_tokens=max_output_tokens,
             timeout_seconds=timeout_seconds,
         )
+    if PROVIDER == "openrouter":
+        return call_openrouter(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            max_output_tokens=max_output_tokens,
+            timeout_seconds=timeout_seconds,
+        )
     if PROVIDER == "anthropic":
         return call_anthropic(
             system_prompt=system_prompt,
@@ -608,7 +753,7 @@ def call_model(
             max_output_tokens=max_output_tokens,
             timeout_seconds=timeout_seconds,
         )
-    if PROVIDER == "local-transformers":
+    if PROVIDER in {"local-transformers", "local-vllm"}:
         client = _shared_model_client()
         started = time.perf_counter()
         truncated = False
@@ -1467,7 +1612,7 @@ def _baseline_source_status(
             except json.JSONDecodeError as error:
                 errors.append(f"invalid framework.json: {error}")
         if framework.get("framework_version") != (
-            "dynaplan_final_nlevel_hierarchy_v1_1"
+            "dynaplan_v1_3_compact_fallback"
         ):
             errors.append("framework version mismatch")
         return {
@@ -1506,7 +1651,7 @@ def _baseline_source_status(
                 "task-domain adapter; no official TDP code repository is public"
             ),
         }
-    checkout = BASELINE_CLONES_ROOT / spec["directory"]
+    checkout = _reference_clones_root() / spec["directory"]
     if not (checkout / ".git").is_dir():
         return {
             "baseline": baseline,
@@ -2057,10 +2202,27 @@ def _local_transformers_config() -> Dict[str, Any]:
 
 def _shared_model_client() -> Any:
     _ensure_shared_adapter_root()
-    try:
-        from models import create_client
-    except ImportError as error:  # pragma: no cover - guarded by preflight.
-        raise RunnerError(f"Could not import shared model client: {error}") from error
+    if PROVIDER == "openrouter":
+        module_name = "_dynaplan_openrouter_models"
+        module = sys.modules.get(module_name)
+        if module is None:
+            module_path = (
+                BASELINE_CLONES_ROOT / "dynaplan" / "runtime" / "models.py"
+            )
+            spec = importlib.util.spec_from_file_location(module_name, module_path)
+            if spec is None or spec.loader is None:
+                raise RunnerError(
+                    f"Could not load OpenRouter model client from {module_path}"
+                )
+            module = importlib.util.module_from_spec(spec)
+            sys.modules[module_name] = module
+            spec.loader.exec_module(module)
+        create_client = module.create_client
+    else:
+        try:
+            from models import create_client
+        except ImportError as error:  # pragma: no cover - guarded by preflight.
+            raise RunnerError(f"Could not import shared model client: {error}") from error
     if PROVIDER == "openai":
         endpoint = _chat_completions_endpoint(
             BASE_URL_OVERRIDE or os.environ.get("OPENAI_BASE_URL", "")
@@ -2070,6 +2232,34 @@ def _shared_model_client() -> Any:
             model=MODEL,
             base_url=endpoint,
             reasoning_effort=REASONING_EFFORT,
+        )
+    elif PROVIDER == "openrouter":
+        endpoint = _chat_completions_endpoint(
+            BASE_URL_OVERRIDE
+            or os.environ.get(
+                "OPENROUTER_BASE_URL",
+                "https://openrouter.ai/api/v1/chat/completions",
+            )
+        )
+        client = create_client(
+            provider=PROVIDER,
+            model=MODEL,
+            base_url=endpoint,
+            reasoning_effort=REASONING_EFFORT,
+        )
+    elif PROVIDER == "local-vllm":
+        endpoint = _chat_completions_endpoint(BASE_URL_OVERRIDE or "")
+        # The literature adapters use JSON schemas for stages that have a
+        # structured contract. vLLM supports the same Chat Completions schema
+        # envelope, while Qwen's thinking text is separated by the server's
+        # reasoning parser before the schema is applied to message.content.
+        os.environ["LOCAL_STRUCTURED_OUTPUTS"] = "true"
+        client = create_client(
+            provider="local",
+            model=MODEL,
+            base_url=endpoint,
+            reasoning_effort=None,
+            temperature=1.0,
         )
     elif PROVIDER == "anthropic":
         if ANTHROPIC_THINKING_BUDGET_TOKENS is None:
@@ -3184,7 +3374,7 @@ def _run_dynaplan_case(
     source_status = _baseline_source_status(baseline)
     invocation_agreement = bool(
         native_metrics.get("architecture_version")
-        == "dynaplan_final_nlevel_hierarchy_v1_1"
+        == "dynaplan_v1_3_compact_fallback"
         and native_metrics.get("provider") == PROVIDER
         and native_metrics.get("model") == MODEL
         and native_metrics.get("reasoning_effort") == REASONING_EFFORT
@@ -3516,7 +3706,9 @@ def execute(args: argparse.Namespace, cases: Sequence[PreparedCase]) -> Tuple[Pa
     load_env_file(args.env_file)
     credential_name = {
         "openai": "OPENAI_API_KEY",
+        "openrouter": "OPENROUTER_API_KEY",
         "anthropic": "ANTHROPIC_API_KEY",
+        "local-vllm": None,
         "local-transformers": None,
     }[PROVIDER]
     if credential_name and not os.environ.get(credential_name, "").strip():
@@ -3548,6 +3740,26 @@ def execute(args: argparse.Namespace, cases: Sequence[PreparedCase]) -> Tuple[Pa
         "anthropic_thinking_budget_tokens": ANTHROPIC_THINKING_BUDGET_TOKENS,
         "local_transformers": (
             _local_transformers_config() if PROVIDER == "local-transformers" else None
+        ),
+        "local_vllm": (
+            {
+                "base_url": BASE_URL_OVERRIDE,
+                "api_cost_usd": 0.0,
+                "thinking": "server chat-template default",
+            }
+            if PROVIDER == "local-vllm"
+            else None
+        ),
+        "openrouter": (
+            {
+                "base_url": BASE_URL_OVERRIDE
+                or os.environ.get(
+                    "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1"
+                ),
+                "reasoning": {"effort": REASONING_EFFORT},
+            }
+            if PROVIDER == "openrouter"
+            else None
         ),
         "max_completion_tokens": args.max_output_tokens,
         "baseline_selection": args.baseline,
@@ -3742,11 +3954,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--provider",
-        choices=("openai", "anthropic", "local-transformers"),
+        choices=(
+            "openai",
+            "openrouter",
+            "anthropic",
+            "local-vllm",
+            "local-transformers",
+        ),
         default="openai",
         help=(
-            "Model provider: hosted OpenAI/Anthropic or the in-process local "
-            "Transformers backend (default: openai)"
+            "Model provider: hosted OpenAI/OpenRouter/Anthropic, a local vLLM Chat "
+            "Completions endpoint, or the in-process local Transformers "
+            "backend (default: openai)"
         ),
     )
     parser.add_argument(
@@ -3859,7 +4078,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help=(
             "Run model inference (paid for hosted providers, local for "
-            "local-transformers); omitted means validation-only dry run"
+            "local-vllm/local-transformers); omitted means validation-only dry run"
         ),
     )
     parser.add_argument(
@@ -3879,6 +4098,8 @@ def _configure_runtime(args: argparse.Namespace, parser: argparse.ArgumentParser
     MODEL = args.model or (
         "claude-haiku-4-5-20251001"
         if PROVIDER == "anthropic"
+        else "qwen/qwen3.5-9b"
+        if PROVIDER == "openrouter"
         else QWEN_MODEL_ID
         if PROVIDER == "local-transformers"
         else "gpt-5.6-luna"
@@ -3905,6 +4126,12 @@ def _configure_runtime(args: argparse.Namespace, parser: argparse.ArgumentParser
             )
         if BASE_URL_OVERRIDE is not None:
             parser.error("--base-url is not used by local-transformers")
+    if PROVIDER == "local-vllm":
+        if not args.model:
+            parser.error("local-vllm requires an explicit --model served name")
+        if BASE_URL_OVERRIDE is None:
+            parser.error("local-vllm requires --base-url ending in /v1")
+        _chat_completions_endpoint(BASE_URL_OVERRIDE)
     if PROVIDER == "anthropic":
         if ANTHROPIC_THINKING_BUDGET_TOKENS is None:
             parser.error(

@@ -1,4 +1,4 @@
-"""DynaPlan v1.1 telemetry over the frozen v3.3 parent architecture."""
+"""DynaPlan v1.3 telemetry over the frozen v3.3 parent architecture."""
 
 from __future__ import annotations
 
@@ -11,6 +11,8 @@ from dynaplan_nlevel_adapter import (
     DynaPlanLexiconAdapter,
 )
 from dynaplan_nlevel_checkpoint_normalization import NORMALIZATION_REVISION
+from dynaplan_nlevel_compact_contracts import COMPACT_CONTRACT_REVISION
+from dynaplan_nlevel_exhaustion_fallback import EXHAUSTION_FALLBACK_REVISION
 from dynaplan_nlevel_localized_repair import LOCALIZED_REPAIR_REVISION
 from shared_nlevel_execution_audit_v3_3_pipeline import (
     run_shared_nlevel_loop as run_v33,
@@ -59,6 +61,31 @@ def run_shared_nlevel_loop(*args, **kwargs):
             "shared_pipeline_version": PIPELINE_VERSION,
             "execution_audit_implementation_revision": PIPELINE_VERSION,
             "framework_name": "DynaPlan",
+            "compact_generation_contracts": bool(
+                adapter.compact_generation_contracts
+            ),
+            "compact_generation_contract_revision": COMPACT_CONTRACT_REVISION,
+            "exhaustion_candidate_fallback": bool(
+                adapter.exhaustion_candidate_fallback
+            ),
+            "exhaustion_candidate_fallback_revision": (
+                EXHAUSTION_FALLBACK_REVISION
+            ),
+            "lenient_irrelevant_evidence_fields": bool(
+                adapter.lenient_irrelevant_evidence_fields
+            ),
+            "compact_decision_raw_output_count": sum(
+                "decision_raw_output" in attempt.get("stage_outputs", {})
+                for attempt in result.attempts
+            ),
+            "compact_hierarchy_raw_output_count": sum(
+                "hierarchy_raw_output" in attempt.get("stage_outputs", {})
+                for attempt in result.attempts
+            ),
+            "ignored_irrelevant_evidence_field_record_count": sum(
+                bool(record.get("ignored_irrelevant_evidence_fields"))
+                for record in adapter.single_innerbot_audit_records
+            ),
             "decision_checkpoint_tag_normalization": True,
             "decision_checkpoint_tag_normalization_revision": (
                 NORMALIZATION_REVISION
@@ -73,14 +100,26 @@ def run_shared_nlevel_loop(*args, **kwargs):
                 normalization_records
             ),
             "decision_checkpoint_body_semantics_changed": False,
-            "audit_guided_suffix_repair": True,
-            "decision_guided_suffix_repair": True,
+            "audit_guided_suffix_repair": False,
+            "innerbot_rejection_policy": "full_candidate_regeneration",
+            "decision_guided_suffix_repair": bool(
+                adapter.decision_localized_suffix_repair
+            ),
+            "decision_suffix_repair_authority": (
+                "deterministic_decision_artifact_validation_only"
+            ),
+            "decision_suffix_repair_limit": (
+                1 if adapter.decision_localized_suffix_repair else 0
+            ),
             "localized_repair_revision": LOCALIZED_REPAIR_REVISION,
             "localized_prefix_semantic_authority": (
-                "deterministic-artifact-validation-or-unverified-llm-audit"
+                "deterministic-decision-artifact-validation-only"
             ),
             "localized_repair_full_candidate_recheck_required": True,
-            "localized_repair_full_regeneration_after_repeats": 2,
+            "localized_repair_full_regeneration_after_repeats": 1,
+            "failed_suffix_patch_feedback_policy": (
+                "clear_before_full_regeneration"
+            ),
         }
     )
     return replace(result, extra_metrics=extra)

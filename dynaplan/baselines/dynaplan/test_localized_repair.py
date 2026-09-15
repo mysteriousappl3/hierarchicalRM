@@ -1,4 +1,4 @@
-"""Offline regressions for DynaPlan v1.1 localized repair.
+"""Offline regressions for DynaPlan v1.2 success-first repair policy.
 
 These tests use only the copied official runtime and make no model calls.
 """
@@ -17,10 +17,8 @@ if str(RUNTIME_ROOT) not in sys.path:
 
 from dynaplan_nlevel_adapter import DynaPlanBlocksworldAdapter  # noqa: E402
 from dynaplan_nlevel_adapter import DynaPlanFlatHanoiAdapter  # noqa: E402
-from comparison_protocol import common_semantics_contract  # noqa: E402
 from dynaplan_nlevel_localized_repair import (  # noqa: E402
     LOCALIZED_REPAIR_REVISION,
-    audit_localization,
     decision_suffix_spec,
     merge_decision_suffix,
 )
@@ -31,6 +29,18 @@ from dynaplan_nlevel_pipeline import run_shared_nlevel_loop  # noqa: E402
 from flat_hanoi_task_loader import FlatHanoiTask, public_task_view  # noqa: E402
 from models import MockHanoiClient  # noqa: E402
 from task_loader import Ring  # noqa: E402
+
+
+class _V12CompatibleBlocksworldAdapter(DynaPlanBlocksworldAdapter):
+    compact_generation_contracts = False
+    exhaustion_candidate_fallback = False
+    lenient_irrelevant_evidence_fields = False
+
+
+class _V12CompatibleFlatHanoiAdapter(DynaPlanFlatHanoiAdapter):
+    compact_generation_contracts = False
+    exhaustion_candidate_fallback = False
+    lenient_irrelevant_evidence_fields = False
 
 
 def _decision_block(index: int, description: str, checkpoint: str = "{}") -> str:
@@ -129,76 +139,18 @@ def test_decision_suffix_rejects_unsafe_or_global_repairs() -> None:
     assert "exactly [2]" in wrong_ids.reason
 
 
-def test_only_well_formed_invalid_audits_can_localize() -> None:
-    record = {
-        "raw_verdict": "INVALID",
-        "effective_verdict": "INVALID",
-        "parse_valid": True,
-        "coverage_guard_passed": True,
-        "requirement_evidence_guard_passed": True,
-        "first_bad_subtask": 2,
-        "first_bad_action_in_subtask": 4,
-        "reason": "The fourth action lacks a precondition.",
-    }
-    localized = audit_localization(record, "hierarchy")
-    assert localized is not None
-    assert localized["certificate_source"] == "llm_execution_audit"
-    assert localized["semantic_verification"] == "WITHHELD"
-    assert localized["prefix_status"] == "audit-cleared-but-unverified"
-    assert localized["first_bad_subtask"] == 2
-    assert localized["localized_repair_revision"] == LOCALIZED_REPAIR_REVISION
-
-    assert audit_localization({**record, "parse_valid": False}, "hierarchy") is None
-    assert (
-        audit_localization(
-            {**record, "coverage_guard_passed": False}, "hierarchy"
-        )
-        is None
-    )
-    assert (
-        audit_localization(
-            {**record, "requirement_evidence_guard_passed": False},
-            "hierarchy",
-        )
-        is None
-    )
-    assert audit_localization(record, "unknown-owner") is None
-
-
-class _PromptTask:
-    def prompt_text(self) -> str:
-        return "Public Blocksworld task."
-
-
-def test_audit_repair_prompt_does_not_claim_deterministic_authority() -> None:
+def test_registered_policy_disables_audit_localization() -> None:
     adapter = DynaPlanBlocksworldAdapter()
-    request = adapter.hierarchy_repair_request(
-        _PromptTask(),
-        None,
-        None,
-        None,
-        "H1",
-        "Decision",
-        "Candidate",
-        {
-            "certificate_source": "llm_execution_audit",
-            "semantic_verification": "WITHHELD",
-            "first_bad_subtask": 2,
-        },
-        (1,),
-        (2,),
-        "Audit rejected the suffix.",
-        False,
+    assert adapter.audit_localized_suffix_repair is False
+    assert adapter.audit_localized_suffix_repair_limit == 0
+    assert adapter.compact_generation_contracts is True
+    assert adapter.decision_localized_suffix_repair is False
+    assert adapter.decision_localized_suffix_repair_limit == 1
+    compatibility = _V12CompatibleBlocksworldAdapter()
+    assert compatibility.decision_localized_suffix_repair is True
+    assert LOCALIZED_REPAIR_REVISION == (
+        "dynaplan_deterministic_decision_suffix_repair_v1"
     )
-
-    assert "audit-localized" in request.system
-    assert "semantic verification is withheld" in request.system
-    assert "LLM AUDIT LOCALIZATION CERTIFICATE" in request.prompt
-    assert "DETERMINISTIC FAILURE CERTIFICATE" not in request.prompt
-    assert "PROMPT-INDUCED JSON-RULE FAILURE CERTIFICATE" not in request.prompt
-    assert "preserved prefix is not semantically certified" in request.prompt
-    assert "re-audit the complete merged candidate" in request.prompt
-    assert request.prompt.count(common_semantics_contract("blocksworld")) == 1
 
 
 class _AuditThenAcceptHanoiClient:
@@ -218,6 +170,7 @@ class _AuditThenAcceptHanoiClient:
         self.audit_count = 0
         self.outer_count = 0
         self.repair_prompts: list[str] = []
+        self.hierarchy_prompts: list[str] = []
         self.initial_hierarchy = ""
 
     def _audit_response(self) -> str:
@@ -317,6 +270,7 @@ Reason : Forced OuterBot rejection for rollback regression.
 ```end_error_type"""
         output = self.delegate.generate(system, prompt, **kwargs)
         if "hierarchyplanner" in system.lower():
+            self.hierarchy_prompts.append(prompt)
             self.initial_hierarchy = output
         return output
 
@@ -345,9 +299,71 @@ def _three_ring_task() -> FlatHanoiTask:
     )
 
 
-def test_audit_localization_repairs_suffix_then_reaudits_full_candidate() -> None:
+class _MalformedDecisionPatchClient:
+    """Reject one Decision structurally, then return a malformed patch."""
+
+    def __init__(self) -> None:
+        self.delegate = MockHanoiClient("mock-hanoi")
+        self.full_decision_prompts: list[str] = []
+        self.patch_prompts: list[str] = []
+
+    def generate(self, system: str, prompt: str, **kwargs: object) -> str:
+        if "DYNAPLAN LOCALIZED DECISION SUFFIX REPAIR" in prompt:
+            self.patch_prompts.append(prompt)
+            return "I could not produce the requested numbered block."
+
+        output = self.delegate.generate(system, prompt, **kwargs)
+        if "decisionbot" not in system.lower():
+            return output
+
+        self.full_decision_prompts.append(prompt)
+        if len(self.full_decision_prompts) != 1:
+            return output
+
+        # Preserve a complete, localizable Decision artifact while making its
+        # sole checkpoint deterministically invalid by reversing stack order.
+        invalid = output.replace(
+            '"ring_3",\n    "ring_2",\n    "ring_1"',
+            '"ring_1",\n    "ring_2",\n    "ring_3"',
+        )
+        assert invalid != output
+        return invalid
+
+
+def test_failed_decision_patch_clears_suffix_feedback_before_full_generation() -> None:
     private_task = _three_ring_task()
-    adapter = DynaPlanFlatHanoiAdapter()
+    client = _MalformedDecisionPatchClient()
+
+    result = run_shared_nlevel_loop(
+        public_task_view(private_task),
+        client,
+        _V12CompatibleFlatHanoiAdapter(),
+        final_score_task=private_task,
+        fixed_goal=False,
+        max_tokens=8192,
+        max_replans=2,
+        reuse_h1=True,
+        include_code_block=True,
+        reasoning_effort="medium",
+    )
+
+    assert len(client.patch_prompts) == 1
+    assert len(client.full_decision_prompts) == 2
+    assert "DYNAPLAN LOCALIZED DECISION SUFFIX REPAIR" not in (
+        client.full_decision_prompts[1]
+    )
+    assert "Decision suffix patch merge failed" not in (
+        client.full_decision_prompts[1]
+    )
+    assert result.extra_metrics["decision_suffix_patch_request_count"] == 1
+    assert result.extra_metrics["decision_suffix_patch_reject_count"] == 1
+    assert result.extra_metrics["decision_suffix_full_regeneration_count"] == 1
+    assert result.extra_metrics["suffix_patch_feedback_clear_count"] == 1
+
+
+def test_innerbot_rejection_triggers_full_hierarchy_regeneration() -> None:
+    private_task = _three_ring_task()
+    adapter = _V12CompatibleFlatHanoiAdapter()
     client = _AuditThenAcceptHanoiClient(adapter)
 
     result = run_shared_nlevel_loop(
@@ -365,26 +381,19 @@ def test_audit_localization_repairs_suffix_then_reaudits_full_candidate() -> Non
 
     assert result.score.solved and result.score.legal
     assert client.audit_count == 2
-    assert len(client.repair_prompts) == 1
+    assert len(client.repair_prompts) == 0
+    assert len(client.hierarchy_prompts) == 2
     assert len(result.attempts) == 2
     assert result.attempts[0]["failed_stage"] == "innerbot_router"
-    assert (
-        result.attempts[1]["repair_mode"]
-        == "llm_audit_localized_suffix_patch"
-    )
-    assert result.extra_metrics["audit_localized_repair_schedule_count"] == 1
-    assert result.extra_metrics["audit_localized_hierarchy_repair_count"] == 1
-    assert result.extra_metrics["localized_patch_accept_count"] == 1
-    certificate = result.extra_metrics[
-        "audit_localized_failure_certificates"
-    ][0]
-    assert certificate["semantic_verification"] == "WITHHELD"
-    assert certificate["mandatory_full_candidate_recheck"] is True
+    assert "repair_mode" not in result.attempts[1]
+    assert result.extra_metrics["audit_localized_repair_schedule_count"] == 0
+    assert result.extra_metrics["audit_localized_hierarchy_repair_count"] == 0
+    assert result.extra_metrics["localized_patch_request_count"] == 0
 
 
-def test_post_outer_innerbot_localization_runs_after_clean_rollback() -> None:
+def test_post_outer_rejection_rolls_back_then_fully_regenerates() -> None:
     private_task = _three_ring_task()
-    adapter = DynaPlanFlatHanoiAdapter()
+    adapter = _V12CompatibleFlatHanoiAdapter()
     client = _AuditThenAcceptHanoiClient(
         adapter,
         reject_on_audit=2,
@@ -407,11 +416,9 @@ def test_post_outer_innerbot_localization_runs_after_clean_rollback() -> None:
     assert result.score.solved and result.score.legal
     assert client.audit_count == 3
     assert client.outer_count == 2
-    assert len(client.repair_prompts) == 1
+    assert len(client.repair_prompts) == 0
+    assert len(client.hierarchy_prompts) == 2
     assert result.extra_metrics["candidate_transaction_rollback_count"] == 1
-    assert result.extra_metrics["audit_localized_post_outer_repair_count"] == 1
-    assert result.extra_metrics["audit_localized_repair_schedule_count"] == 1
-    assert (
-        result.attempts[-1]["repair_mode"]
-        == "llm_audit_localized_suffix_patch"
-    )
+    assert result.extra_metrics["audit_localized_post_outer_repair_count"] == 0
+    assert result.extra_metrics["audit_localized_repair_schedule_count"] == 0
+    assert "repair_mode" not in result.attempts[-1]

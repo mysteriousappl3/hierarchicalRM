@@ -1104,6 +1104,7 @@ class OpenAICompatibleClient(ModelClient):
         include_temperature: bool = True,
         reasoning_effort: Optional[str] = None,
         include_reasoning_effort: bool = False,
+        openrouter_reasoning: bool = False,
         include_response_schema: bool = False,
         extra_options: Optional[Dict[str, object]] = None,
         temperature: Optional[float] = None,
@@ -1114,6 +1115,7 @@ class OpenAICompatibleClient(ModelClient):
         self.token_limit_field = token_limit_field
         self.include_temperature = include_temperature
         self.include_reasoning_effort = include_reasoning_effort
+        self.openrouter_reasoning = openrouter_reasoning
         self.include_response_schema = include_response_schema
         self.extra_options = extra_options
         self.temperature = temperature
@@ -1140,7 +1142,10 @@ class OpenAICompatibleClient(ModelClient):
         }
         if self.include_temperature:
             payload["temperature"] = self.temperature if self.temperature is not None else 0
-        if effective_reasoning_effort and (self.include_reasoning_effort or reasoning_effort is not None):
+        if effective_reasoning_effort and self.openrouter_reasoning:
+            payload["reasoning"] = {"effort": effective_reasoning_effort}
+            payload["include_reasoning"] = True
+        elif effective_reasoning_effort and (self.include_reasoning_effort or reasoning_effort is not None):
             payload["reasoning_effort"] = effective_reasoning_effort
         if response_schema is not None and self.include_response_schema:
             payload["response_format"] = {
@@ -1736,6 +1741,26 @@ def create_client(
             include_temperature=False,
             reasoning_effort=reasoning_effort,
             include_reasoning_effort=bool(reasoning_effort),
+            include_response_schema=True,
+        )
+
+    if provider == "openrouter":
+        model = model or os.environ.get("DEFAULT_MODEL") or "qwen/qwen3.5-9b"
+        api_key = os.environ.get("OPENROUTER_API_KEY", "")
+        if not api_key:
+            raise ValueError("OPENROUTER_API_KEY is required for provider=openrouter")
+        return OpenAICompatibleClient(
+            model=model,
+            base_url=base_url
+            or os.environ.get(
+                "OPENROUTER_BASE_URL",
+                "https://openrouter.ai/api/v1/chat/completions",
+            ),
+            api_key=api_key,
+            token_limit_field="max_tokens",
+            include_temperature=False,
+            reasoning_effort=reasoning_effort,
+            openrouter_reasoning=bool(reasoning_effort),
             include_response_schema=True,
         )
 

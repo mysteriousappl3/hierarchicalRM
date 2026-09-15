@@ -47,6 +47,10 @@ def test_local_usage_is_exact_but_not_mislabeled_as_api() -> None:
     assert usage["total_tokens"] == 7
 
 
+def test_local_vllm_has_zero_api_cost() -> None:
+    assert benchmark._estimated_cost_usd("local-vllm", "qwen35-9b", {}) == 0.0
+
+
 def test_unified_direct_local_response_preserves_runtime_attestation(
     monkeypatch,
 ) -> None:

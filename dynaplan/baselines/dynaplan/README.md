@@ -1,15 +1,13 @@
 # DynaPlan
 
-Detailed architecture, bot contracts, design motivations, failure paths, and
-the main system figure are in [`../../ARCHITECTURE.md`](../../ARCHITECTURE.md).
-
-Framework ID: `dynaplan_final_nlevel_hierarchy_v1_1`
-Benchmark integration version: `59`
+Framework ID: `dynaplan_v1_3_compact_fallback`
+Benchmark integration version: `61`
 
 The frozen v1 setup report remains in
 [`../../OFFICIAL_RUN_READINESS_REPORT.md`](../../OFFICIAL_RUN_READINESS_REPORT.md).
-Its completed v1 results are not relabelled as v1.1 results; this revision
-needs a fresh live smoke before any new paid sweep.
+Its completed v1 results, partial v1.1 results, and v1.2 readiness evidence are
+not relabelled as v1.3 results. V1.3 offline validation has passed; no v1.3
+live smoke or full-sweep result is claimed here.
 
 DynaPlan is a success-first, transactional N-level planning framework. It uses
 one DecisionBot, one HierarchyPlanner role, one InnerBot semantic audit, and
@@ -33,7 +31,7 @@ public task (oracle fields removed)
        - forward action/state ledger
        - backward checkpoint/final-requirement support ledger
        - structured coverage certificate
-       - earliest-failure coordinates drive a suffix-only repair transaction
+       - rejection drives full candidate regeneration
   -> tentative shadow execution by subtask
   -> independent OuterBot review of exact actions, expanded H0, and
      public before/after shadow states
@@ -52,15 +50,54 @@ public task (oracle fields removed)
 | H1 source | Supplies reusable primitive capability definitions | Cached only after structural validation |
 | DecisionBot | Decomposes the task into ordered subtasks and complete checkpoint goal states | Includes the success-first checkpoint and temporal review instructions |
 | Checkpoint-tag normalizer | Repairs only an unambiguous `end_subtask_N` closer inside an already delimited `start_subtask_goalstate_N` block | Syntax-only; bodies, IDs, semantics, and downstream validators remain unchanged |
-| Localized repair controller | Preserves numbered blocks before the earliest Decision-validator or InnerBot-audit failure and regenerates only the suffix | InnerBot localization is advisory, never deterministic authority; every merge is fully re-audited from the frozen candidate start and falls back to full regeneration after two repeats |
-| HierarchyPlanner | Composes H1/H2/H3 calls for each DecisionBot subtask | Can regenerate a failed suffix while retaining eligible upstream artifacts |
+| Localized repair controller | May preserve Decision blocks only on the v1.2-compatible tagged path and only when the deterministic Decision artifact validator names the earliest invalid subtask | At most one Decision suffix patch; InnerBot audit coordinates never freeze a hierarchy prefix, and failed-patch feedback is cleared before full regeneration |
+| HierarchyPlanner | Composes H1/H2/H3 calls for each DecisionBot subtask | Registered compact-mode failures regenerate the complete JSON hierarchy; validated H1 remains independently cacheable |
 | Structural compiler | Expands composed hierarchy calls into canonical H0 calls and semantic actions | Proves expansion and syntax only; it does not prove applicability or goals |
 | InnerBot execution audit | Simulates the candidate forward and traces every checkpoint/final requirement backward to support | Strict JSON and evidence coverage are enforced, but witness truth is still an LLM judgment |
 | Transaction controller | Executes a candidate against a private shadow-state copy | Rejection restores state, action list, revision, and digest; a false LLM acceptance can still commit an invalid candidate |
 | OuterBot | Independently reviews each exact subtask trace and final-subtask marker without seeing InnerBot's verdict | Second LLM line of defense; correlated semantic errors remain possible |
 | Final evaluator | Replays the submitted primitive plan with the benchmark's deterministic scorer | Invoked once inside DynaPlan after planning; the unified harness may independently rescore the persisted output for audit agreement |
 
-## v1.1 behavior
+## Registered v1.3 changes
+
+The registered adapters enable three independent feature flags. Disabling one
+does not disable either of the others; disabling all three selects the
+v1.2-compatible path.
+
+- `compact_generation_contracts` requests strict JSON from DecisionBot and
+  HierarchyPlanner, rejects malformed/duplicate-key JSON and unknown or
+  ill-typed calls, then deterministically converts accepted JSON to the
+  existing tagged representation before the established parsers, compiler,
+  cache, and LLM audit consume it. Raw model responses remain separate from
+  the canonical tagged artifacts.
+- `exhaustion_candidate_fallback` retains a snapshot only after structural
+  validity and full expansion are established; the snapshot need not have
+  passed, or even completed, the LLM audits. It may select one only after the
+  complete attempt budget is exhausted and no candidate was accepted. An
+  explicit OuterBot rejection removes that candidate from consideration.
+  Selection is labelled `UNCERTIFIED_FALLBACK`: it is not acceptance, semantic
+  certification, or a success claim, and it never replaces an accepted plan.
+  Ranking uses only untrusted audit-reported progress and deterministic
+  structural tie-breakers. The fallback component calls no model, simulator,
+  or evaluator; the selected plan still receives the ordinary single final
+  evaluator call.
+- `lenient_irrelevant_evidence_fields` lets a `VALID` certificate tolerate
+  non-null `latest_trigger_state` and `latest_response_state` only when those
+  fields are irrelevant to a non-`sometime_after` obligation. All meaningful
+  witness, terminal-state, coverage, ID, index, and schema checks remain
+  required, and `sometime_after` validation is unchanged. The parsed
+  model-supplied certificate and evidence rows are copied without mutation,
+  ignored field names are recorded separately, and fallback retention preserves
+  the raw audit response separately from selection telemetry.
+
+These flags are representation, guard-compatibility, and controller changes
+only. The compact codec does not check action applicability, checkpoint or goal
+truth, or temporal semantics; the evidence guard does not verify witness
+truth; and fallback ranking does not inspect action meaning. No flag introduces
+online PDDL feedback, a classical planner, a domain simulator, a second
+InnerBot, or extra evaluator calls during planning.
+
+## Inherited v1.2 behavior
 
 - Parent architecture: `shared_nlevel_v5_llm_only_execution_audit_v3_3_success_first`.
 - `max_replans=15`, `reuse_h1=True`, `fixed_goal=False`.
@@ -73,10 +110,13 @@ public task (oracle fields removed)
 - Unambiguous DecisionBot checkpoint-closing-tag normalization.
 - Natural-language action verbs are permitted in Decision descriptions while
   actual `operator(...)` and `(operator ...)` calls remain prohibited.
-- Earliest-failing Decision and hierarchy suffix repair, including an
-  InnerBot recheck after an OuterBot rejection, with exact numbered-block
-  preservation, full frozen-start re-audit, and full-regeneration fallback
-  after two repeated localized failures.
+- On the v1.2-compatible tagged path, at most one suffix repair when the
+  deterministic Decision artifact validator identifies a local invalid
+  subtask; failed patches fall back to a clean full Decision generation without
+  carrying suffix-only feedback. Registered compact mode instead performs a
+  clean full JSON regeneration.
+- InnerBot and OuterBot rejections never freeze an LLM-audit-cleared hierarchy
+  prefix. They trigger the parent's full-candidate regeneration path.
 - No exact PDDL, Hanoi simulator, typed state machine, or other deterministic
   semantic feedback during planning.
 
@@ -87,9 +127,14 @@ public task (oracle fields removed)
 - `framework.json` — machine-readable framework registration.
 - `runtime/dynaplan_nlevel_checkpoint_normalization.py` — conservative tag
   normalization.
-- `runtime/dynaplan_nlevel_localized_repair.py` — Decision suffix transaction
-  and unverified audit-localization contract.
-- `runtime/dynaplan_nlevel_adapter.py` — the three versioned DynaPlan adapters.
+- `runtime/dynaplan_nlevel_compact_contracts.py` — strict JSON wire schemas,
+  structural validation, and deterministic conversion to tagged artifacts.
+- `runtime/dynaplan_nlevel_exhaustion_fallback.py` — oracle-free retention and
+  terminal selection of explicitly uncertified candidates.
+- `runtime/dynaplan_nlevel_localized_repair.py` — deterministic-validator-
+  localized Decision suffix transaction.
+- `runtime/dynaplan_nlevel_adapter.py` — the three v1.3 domain adapters and
+  feature-flag wiring.
 - `runtime/dynaplan_nlevel_pipeline.py` — architecture enforcement and
   DynaPlan telemetry.
 - `runtime/shared_nlevel_execution_audit_v3_3_adapter.py` — success-first
@@ -114,6 +159,16 @@ The copied runtime contains supporting inherited modules because the Python
 dependency graph is transitive. Presence in the copy does not mean every
 ablation is activated; `dynaplan_nlevel_adapter.py` and
 `dynaplan_nlevel_pipeline.py` select the registered path.
+
+## Source and result version separation
+
+`framework_version` identifies the planning architecture, while
+`benchmark_version` identifies its benchmark integration. Campaign evidence is
+bound to both recorded values and to the source copied into that campaign's
+implementation snapshot; later working-source changes do not revise a frozen
+campaign. V1, v1.1, and v1.2 artifacts therefore remain evidence only for
+their recorded source/version combinations and must not be reported as v1.3
+evidence.
 
 ## Controlled-comparison contract
 

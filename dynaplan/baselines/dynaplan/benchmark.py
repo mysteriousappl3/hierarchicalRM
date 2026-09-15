@@ -25,7 +25,20 @@ RUNTIME_ROOT = METHOD_ROOT / "runtime"
 DYNAPLAN_ROOT = METHOD_ROOT.parents[1]
 BENCHMARKS_ROOT = DYNAPLAN_ROOT / "benchmarks"
 FLAT_HANOI_ROOT = BENCHMARKS_ROOT / "Flat-Hanoi"
-LEXICON_ROOT = BENCHMARKS_ROOT / "LexiCon"
+_VENDORED_LEXICON_ROOT = BENCHMARKS_ROOT / "LexiCon"
+_WORKSPACE_LEXICON_ROOT = (
+    DYNAPLAN_ROOT.parents[1] / "dynaplan" / "benchmarks" / "LexiCon"
+)
+LEXICON_ROOT = Path(
+    os.environ.get(
+        "DYNAPLAN_LEXICON_ROOT",
+        str(
+            _VENDORED_LEXICON_ROOT
+            if (_VENDORED_LEXICON_ROOT / ".git").exists()
+            else _WORKSPACE_LEXICON_ROOT
+        ),
+    )
+).resolve()
 DEFAULT_ENV_FILE = DYNAPLAN_ROOT / ".env"
 DEFAULT_RESULTS_ROOT = BENCHMARKS_ROOT / "results" / "dynaplan_native"
 PINNED_LEXICON_COMMIT = "8dfb02ef0188e0c7fea55ca38d702c21d75f9691"
@@ -47,7 +60,7 @@ from dynaplan_nlevel_adapter import (  # noqa: E402
 from models import create_client  # noqa: E402
 
 
-BENCHMARK_VERSION = 59
+BENCHMARK_VERSION = 61
 DOMAINS = ("logistics", "blocksworld", "flat-hanoi")
 
 
@@ -286,7 +299,7 @@ def preflight(args: argparse.Namespace) -> Dict[str, Any]:
     runtime_files = sorted(RUNTIME_ROOT.glob("*.py"))
     if not runtime_files:
         raise IntegrationError("Copied DynaPlan runtime is empty")
-    if PIPELINE_VERSION != "dynaplan_final_nlevel_hierarchy_v1_1":
+    if PIPELINE_VERSION != "dynaplan_v1_3_compact_fallback":
         raise IntegrationError(f"Unexpected DynaPlan version: {PIPELINE_VERSION}")
     if not boundary["oracle_fields_structurally_absent"] or not boundary["slot_only"]:
         raise IntegrationError(f"Public task boundary failed: {boundary}")
@@ -374,7 +387,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--task", default="n3-0017")
     parser.add_argument("--constraints", type=int, default=1)
     parser.add_argument("--lexicon-id", type=int, default=1)
-    parser.add_argument("--provider", choices=("openai", "anthropic"), default="openai")
+    parser.add_argument(
+        "--provider", choices=("openai", "openrouter", "anthropic"), default="openai"
+    )
     parser.add_argument("--model", default="gpt-5.6-luna")
     parser.add_argument("--reasoning", default="medium")
     parser.add_argument("--anthropic-thinking-budget", type=int)

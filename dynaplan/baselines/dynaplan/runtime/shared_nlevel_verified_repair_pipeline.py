@@ -251,6 +251,40 @@ def _canonical_decision(
     return canonical
 
 
+def _canonical_hierarchy(
+    adapter: object,
+    task: object,
+    state: object,
+    h1_output: object,
+    decision_output: str,
+    decision: object,
+    output: str,
+) -> ArtifactCheck:
+    """Decode an optional hierarchy wire format before established checks.
+
+    Historical variants return tagged text directly and therefore take the
+    identity path.  A versioned successor may return an ``ArtifactCheck`` whose
+    value is canonical tagged text.  Keeping this hook in the controller makes
+    sure caches, the compiler, InnerBot, and OuterBot never see a mixture of
+    raw compact JSON and legacy hierarchy text.
+    """
+
+    canonicalizer = getattr(adapter, "canonicalize_hierarchy", None)
+    if not callable(canonicalizer):
+        return ArtifactCheck.accepted(output)
+    result = canonicalizer(
+        task,
+        state,
+        h1_output,
+        decision_output,
+        decision,
+        output,
+    )
+    if isinstance(result, str):
+        return ArtifactCheck.accepted(result)
+    return v2._coerce_artifact_check(result)
+
+
 def _append_stage_feedback(request: StageRequest, feedback: str) -> StageRequest:
     """Ensure adapters that ignore their feedback parameter still receive it."""
 
@@ -319,6 +353,16 @@ def run_shared_nlevel_loop(
         and transactional_candidate_execution
         and not online_verification_authoritative
     )
+    exhaustion_candidate_fallback = bool(
+        getattr(adapter, "exhaustion_candidate_fallback", False)
+    )
+    exhaustion_candidate_pool = getattr(
+        adapter, "exhaustion_candidate_pool", None
+    )
+    if exhaustion_candidate_fallback and exhaustion_candidate_pool is None:
+        raise TypeError(
+            "exhaustion_candidate_fallback requires an adapter-owned candidate pool"
+        )
 
     current_state = adapter.initial_state(task)
     state_revision = 0
@@ -444,6 +488,7 @@ def run_shared_nlevel_loop(
         "decision_suffix_full_regeneration_count": 0,
         "decision_suffix_preserved_subtask_count_total": 0,
         "decision_suffix_failure_certificates": [],
+        "suffix_patch_feedback_clear_count": 0,
         "audit_localized_repair_schedule_count": 0,
         "audit_localized_hierarchy_repair_count": 0,
         "audit_localized_decision_repair_count": 0,
@@ -845,6 +890,128 @@ def run_shared_nlevel_loop(
             repair_telemetry["candidate_transaction_commit_count"]
         ) + 1
 
+    def retain_exhaustion_candidate(
+        attempt: Dict[str, object],
+        active_candidate: Optional[RepairCandidate],
+        active_hierarchy: object,
+        active_projection: object,
+        *,
+        raw_audit_certificate: str,
+        audit_record: Mapping[str, object],
+    ) -> None:
+        """Keep one structurally complete snapshot without semantic authority."""
+
+        if not exhaustion_candidate_fallback or active_candidate is None:
+            return
+        subtasks = tuple(getattr(active_hierarchy, "subtasks", ()))
+        projected_subtasks = tuple(
+            getattr(active_projection, "subtasks", ())
+        )
+        fully_expanded = bool(
+            not executed_actions
+            and subtasks
+            and len(projected_subtasks) == len(subtasks)
+            and all(
+                getattr(item, "h0_calls", ()) and getattr(item, "actions", ())
+                for item in subtasks
+            )
+        )
+        candidate_actions = tuple(
+            action for item in subtasks for action in item.actions
+        )
+        canonical_actions = tuple(
+            adapter.format_action(action) for action in candidate_actions
+        )
+        candidate_high_level = tuple(
+            adapter.format_call(call_item)
+            for item in subtasks
+            for call_item in item.top_level_calls
+        )
+        candidate_h0 = tuple(
+            adapter.format_call(call_item)
+            for item in subtasks
+            for call_item in item.h0_calls
+        )
+        candidate_levels = dict(level_totals)
+        for item in subtasks:
+            for level, count in item.level_counts.items():
+                candidate_levels[int(level)] = (
+                    candidate_levels.get(int(level), 0) + int(count)
+                )
+        stats = getattr(active_hierarchy, "stats", None)
+        stats_max_level = int(getattr(stats, "max_level", 0))
+        all_actions = (*tuple(executed_actions), *candidate_actions)
+        all_high_level = (*tuple(high_level_plan), *candidate_high_level)
+        all_h0 = (*tuple(expanded_h0_plan), *candidate_h0)
+        context = FinalScoreContext(
+            # Keep the public task here.  The private evaluator task is attached
+            # only after terminal selection, immediately before the one score.
+            task=task,
+            final_state=adapter.copy_state(
+                task, getattr(active_projection, "final_state")
+            ),
+            executed_actions=tuple(all_actions),
+            high_level_plan=tuple(all_high_level),
+            expanded_h0_plan=tuple(all_h0),
+            parse_errors=tuple(parse_errors),
+            last_illegal_reason=None,
+            total_top_level_count=len(all_high_level),
+            total_h0_count=len(all_h0),
+            level_totals=dict(candidate_levels),
+            max_level_seen=max(
+                [max_level_seen, stats_max_level, *candidate_levels.keys()],
+                default=max(max_level_seen, stats_max_level),
+            ),
+            base_valid_any=bool(
+                base_valid_any or getattr(stats, "base_pattern_valid", False)
+            ),
+            hierarchy_valid_any=bool(
+                hierarchy_valid_any or getattr(stats, "hierarchy_valid", False)
+            ),
+            last_mapping_count_by_level=dict(
+                getattr(stats, "mapping_count_by_level", {})
+            ),
+            hierarchy_errors_seen=tuple(
+                getattr(stats, "errors", hierarchy_errors_seen)
+            ),
+        )
+        retained = exhaustion_candidate_pool.consider(
+            candidate_serial=active_candidate.serial,
+            state_revision=state_revision + len(candidate_actions),
+            structurally_valid=True,
+            fully_expanded=fully_expanded,
+            final_state=adapter.copy_state(
+                task, getattr(active_projection, "final_state")
+            ),
+            executed_actions=all_actions,
+            high_level_plan=all_high_level,
+            expanded_h0_plan=all_h0,
+            canonical_actions=tuple(
+                adapter.format_action(action) for action in all_actions
+            ),
+            score_context=context,
+            outputs=dict(attempt.get("stage_outputs", {})),
+            raw_audit_certificate=raw_audit_certificate,
+            audit_record=audit_record,
+            subtask_action_counts=tuple(
+                (int(item.index), len(item.actions)) for item in subtasks
+            ),
+        )
+        attempt["exhaustion_fallback_retention"] = {
+            "candidate_serial": active_candidate.serial,
+            "eligible": fully_expanded,
+            "retained_or_updated": retained,
+            "semantic_certification": False,
+        }
+
+    def latest_audit_record() -> Mapping[str, object]:
+        records = getattr(adapter, "single_innerbot_audit_records", ())
+        if isinstance(records, Sequence) and records:
+            latest = records[-1]
+            if isinstance(latest, Mapping):
+                return latest
+        return {}
+
     solved = False
     for repair_index in range(max_replans + 1):
         cycle_revision = state_revision
@@ -1189,7 +1356,17 @@ def run_shared_nlevel_loop(
                                 merged
                             )
                             invalidate_decision(message)
-                            feedback_by_stage["decision"] = message
+                            # The next request is a full Decision generation.
+                            # Do not leak suffix-only merge instructions into
+                            # that different output contract.
+                            feedback_by_stage["decision"] = ""
+                            repair_telemetry[
+                                "suffix_patch_feedback_clear_count"
+                            ] = int(
+                                repair_telemetry[
+                                    "suffix_patch_feedback_clear_count"
+                                ]
+                            ) + 1
                             failure_attempt(
                                 attempt,
                                 stage=active_stage,
@@ -1461,7 +1638,17 @@ def run_shared_nlevel_loop(
                             ]
                         ) + 1
                         invalidate_hierarchy(message)
-                        feedback_by_stage["hierarchy_planner"] = message
+                        # The fallback uses the ordinary full-hierarchy
+                        # contract, so suffix-only feedback must not cross the
+                        # mode boundary.
+                        feedback_by_stage["hierarchy_planner"] = ""
+                        repair_telemetry[
+                            "suffix_patch_feedback_clear_count"
+                        ] = int(
+                            repair_telemetry[
+                                "suffix_patch_feedback_clear_count"
+                            ]
+                        ) + 1
                         failure_attempt(
                             attempt,
                             stage=active_stage,
@@ -1470,6 +1657,57 @@ def run_shared_nlevel_loop(
                         )
                         continue
                     hierarchy_output = merged_check.value
+
+                if repair_context is None:
+                    canonical_hierarchy = _canonical_hierarchy(
+                        adapter,
+                        task,
+                        current_state,
+                        h1_output,
+                        decision_output,
+                        decision,
+                        hierarchy_output,
+                    )
+                    attempt["hierarchy_canonicalization"] = v2._check_payload(
+                        canonical_hierarchy
+                    )
+                    if (
+                        not canonical_hierarchy.valid
+                        or not isinstance(canonical_hierarchy.value, str)
+                    ):
+                        errors = list(canonical_hierarchy.errors) or [
+                            canonical_hierarchy.reason
+                        ]
+                        message = (
+                            "Hierarchy wire-contract validation failed: "
+                            + "; ".join(errors)
+                        )
+                        parse_errors.extend(
+                            f"HierarchyContract: {item}" for item in errors
+                        )
+                        attempt["stage_outputs"][
+                            "hierarchy_raw_output"
+                        ] = raw_hierarchy_output
+                        attempt["stage_outputs"][
+                            "hierarchy_output"
+                        ] = raw_hierarchy_output
+                        attempt["hierarchy_validation"] = v2._check_payload(
+                            canonical_hierarchy
+                        )
+                        invalidate_hierarchy(message)
+                        feedback_by_stage["hierarchy_planner"] = message
+                        failure_attempt(
+                            attempt,
+                            stage=active_stage,
+                            message=message,
+                            owner=OWNER_HIERARCHY,
+                        )
+                        continue
+                    if canonical_hierarchy.value != hierarchy_output:
+                        attempt["stage_outputs"][
+                            "hierarchy_raw_output"
+                        ] = raw_hierarchy_output
+                    hierarchy_output = canonical_hierarchy.value
 
                 hierarchy_check = v2._coerce_artifact_check(
                     adapter.compile_hierarchy(
@@ -1537,8 +1775,31 @@ def run_shared_nlevel_loop(
                         if not errors:
                             errors.append("Hierarchy: no executable subtasks were produced")
                     message = "Hierarchy validation failed: " + "; ".join(errors)
+                    if repair_context is not None:
+                        # A merged suffix that fails the full compiler is also
+                        # a failed patch.  Discard its frozen target and return
+                        # to ordinary full generation on the next iteration.
+                        pending_repair = None
+                        candidate = None
+                        repair_telemetry[
+                            "full_regeneration_fallback_count"
+                        ] = int(
+                            repair_telemetry[
+                                "full_regeneration_fallback_count"
+                            ]
+                        ) + 1
                     invalidate_hierarchy(message)
-                    feedback_by_stage["hierarchy_planner"] = message
+                    if repair_context is None:
+                        feedback_by_stage["hierarchy_planner"] = message
+                    else:
+                        feedback_by_stage["hierarchy_planner"] = ""
+                        repair_telemetry[
+                            "suffix_patch_feedback_clear_count"
+                        ] = int(
+                            repair_telemetry[
+                                "suffix_patch_feedback_clear_count"
+                            ]
+                        ) + 1
                     failure_attempt(
                         attempt,
                         stage=active_stage,
@@ -1816,6 +2077,19 @@ def run_shared_nlevel_loop(
             attempt["stage_outputs"]["hierarchy_output"] = hierarchy_output
             last_outputs = dict(attempt["stage_outputs"])
 
+            # Retain before the audit call so a terminally truncated audit can
+            # still leave a structurally complete candidate for the explicitly
+            # uncertified exhaustion policy.  A parsed certificate updates the
+            # same serial below; an explicit OuterBot rejection discards it.
+            retain_exhaustion_candidate(
+                attempt,
+                candidate,
+                hierarchy,
+                projection,
+                raw_audit_certificate="",
+                audit_record={},
+            )
+
             active_stage = "innerbot_router"
             stage_counts["router_check_count"] += 1
             stage_counts["router_llm_call_count"] += 1
@@ -1837,6 +2111,14 @@ def run_shared_nlevel_loop(
             last_outputs["router_output"] = router_output
             attempt["stage_outputs"]["router_output"] = router_output
             router_verdict = adapter.parse_router(router_output)
+            retain_exhaustion_candidate(
+                attempt,
+                candidate,
+                hierarchy,
+                projection,
+                raw_audit_certificate=router_output,
+                audit_record=latest_audit_record(),
+            )
             if not router_verdict.no_mistake:
                 message = (
                     "InnerBot router rejected the compiled hierarchy: "
@@ -2116,6 +2398,8 @@ def run_shared_nlevel_loop(
             if solved:
                 if execution_transaction is not None:
                     commit_execution_transaction(attempt)
+                if exhaustion_candidate_fallback:
+                    exhaustion_candidate_pool.mark_accepted()
                 attempt["verdict"] = "TASK SUCCESS"
                 attempt["feedback_out"] = ""
                 attempts.append(attempt)
@@ -2123,6 +2407,12 @@ def run_shared_nlevel_loop(
                 break
 
             if replan_required:
+                if (
+                    exhaustion_candidate_fallback
+                    and failure_stage == "outerbot"
+                    and candidate is not None
+                ):
+                    exhaustion_candidate_pool.discard(candidate.serial)
                 if execution_transaction is not None:
                     rollback_execution_transaction(
                         execution_transaction,
@@ -2202,6 +2492,8 @@ def run_shared_nlevel_loop(
                 f"Plan finished without an OuterBot-confirmed {authority_label}. "
                 f"Current state is {adapter.snapshot_state(task, current_state)}."
             )
+            if exhaustion_candidate_fallback and candidate is not None:
+                exhaustion_candidate_pool.discard(candidate.serial)
             if execution_transaction is not None:
                 rollback_execution_transaction(
                     execution_transaction,
@@ -2267,6 +2559,51 @@ def run_shared_nlevel_loop(
     replan_count = sum(
         1 for attempt in attempts[:-1] if attempt.get("verdict") == "REPLAN"
     )
+    exhaustion_fallback_selection: Optional[Mapping[str, object]] = None
+    attempts_exhausted = bool(
+        not solved
+        and termination_reason == "max_replans_exhausted"
+        and len(attempts) == max_replans + 1
+    )
+    if exhaustion_candidate_fallback:
+        selected = exhaustion_candidate_pool.select_on_exhaustion(
+            attempts_exhausted=attempts_exhausted,
+            accepted_candidate_exists=bool(solved or valid_incumbent is not None),
+        )
+        if selected is not None:
+            retained = selected.candidate
+            retained_context = retained.score_context
+            current_state = adapter.copy_state(task, retained.final_state)
+            executed_actions = list(retained.executed_actions)
+            high_level_plan = list(retained.high_level_plan)
+            expanded_h0_plan = list(retained.expanded_h0_plan)
+            level_totals = dict(retained_context.level_totals)
+            max_level_seen = retained_context.max_level_seen
+            base_valid_any = retained_context.base_valid_any
+            hierarchy_valid_any = retained_context.hierarchy_valid_any
+            last_mapping_count_by_level = dict(
+                retained_context.last_mapping_count_by_level
+            )
+            hierarchy_errors_seen = list(
+                retained_context.hierarchy_errors_seen
+            )
+            total_top_level_count = retained_context.total_top_level_count
+            total_h0_count = retained_context.total_h0_count
+            state_revision = retained.state_revision
+            last_illegal_reason = None
+            termination_reason = "uncertified_fallback_submitted"
+            exhaustion_fallback_selection = selected.telemetry()
+            last_outputs = dict(retained.outputs)
+            last_outputs["uncertified_fallback"] = dict(
+                exhaustion_fallback_selection
+            )
+            last_outputs["fallback_raw_audit_certificate"] = (
+                retained.raw_audit_certificate
+            )
+            if attempts:
+                attempts[-1]["exhaustion_fallback_selection"] = dict(
+                    exhaustion_fallback_selection
+                )
     if (
         online_verification_authoritative
         and v2._goal_reached(adapter, task, current_state)
@@ -2341,6 +2678,16 @@ def run_shared_nlevel_loop(
     ]
 
     model_cache_hits = sum(model_call_cache_hits.values())
+    exhaustion_metrics = (
+        dict(exhaustion_candidate_pool.telemetry())
+        if exhaustion_candidate_pool is not None
+        else {
+            "exhaustion_candidate_fallback": False,
+            "exhaustion_fallback_selection_taken": False,
+            "exhaustion_fallback_semantic_authority": False,
+            "exhaustion_fallback_evaluator_calls": 0,
+        }
+    )
     extra_metrics: Dict[str, object] = {
         "max_hierarchy_level": max_level_seen,
         "base_pattern_valid": base_valid_any,
@@ -2387,6 +2734,18 @@ def run_shared_nlevel_loop(
         "valid_incumbent_action_count": (
             valid_incumbent.action_count if valid_incumbent is not None else None
         ),
+        "attempt_budget_exhausted": attempts_exhausted,
+        "exhaustion_fallback_status": (
+            exhaustion_fallback_selection.get("status")
+            if exhaustion_fallback_selection is not None
+            else None
+        ),
+        "exhaustion_fallback_selection": (
+            dict(exhaustion_fallback_selection)
+            if exhaustion_fallback_selection is not None
+            else None
+        ),
+        **exhaustion_metrics,
         **repair_telemetry,
     }
 

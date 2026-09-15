@@ -31,7 +31,9 @@ def test_requested_hanoi_aliases_resolve_to_same_frozen_instance():
 
 def test_framework_manifest_points_only_inside_official_method_directory():
     manifest = json.loads((METHOD_ROOT / "framework.json").read_text(encoding="utf-8"))
-    assert manifest["framework_version"] == "dynaplan_final_nlevel_hierarchy_v1_1"
+    assert manifest["framework_version"] == (
+        "dynaplan_v1_3_compact_fallback"
+    )
     for relative in manifest["primary_architecture_files"]:
         path = WORKSPACE_ROOT / relative
         assert path.is_file(), relative
@@ -101,12 +103,17 @@ def test_lexicon_decisions_allow_prose_verbs_but_reject_action_calls():
         )
 
         def decision(description: str) -> str:
-            return f"""```start_subtask_1
-{description}
-```end_subtask_1
-```start_subtask_goalstate_1
-{checkpoint}
-```end_subtask_goalstate_1"""
+            return json.dumps(
+                {
+                    "subtasks": [
+                        {
+                            "id": 1,
+                            "description": description,
+                            "checkpoint": json.loads(checkpoint),
+                        }
+                    ]
+                }
+            )
 
         accepted = adapter.parse_decision(task, decision(prose))
         assert accepted.valid, accepted.errors
