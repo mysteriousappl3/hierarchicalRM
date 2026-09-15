@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/n-hierarchy/prompt-induced-rules-v1.schema.json",
+  "title": "N-Hierarchy Prompt-Induced Transition Rules",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "domain_name",
+    "types",
+    "objects",
+    "predicates",
+    "actions",
+    "initial_facts",
+    "goal",
+    "temporal_constraints",
+    "source_constraints"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "const": "n_hierarchy_rules_v1"},
+    "domain_name": {"$ref": "#/$defs/name"},
+    "types": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/type_definition"}
+    },
+    "objects": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/object_definition"}
+    },
+    "predicates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/predicate"}
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/action"}
+    },
+    "initial_facts": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/fact"}
+    },
+    "goal": {"$ref": "#/$defs/condition"},
+    "temporal_constraints": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/temporal_constraint"}
+    },
+    "source_constraints": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  },
+  "$defs": {
+    "name": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+    },
+    "fact": {
+      "type": "string",
+      "pattern": "^\\([A-Za-z][A-Za-z0-9_-]*(?: [A-Za-z0-9_?\\-]+)*\\)$"
+    },
+    "type_definition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "parent"],
+      "properties": {
+        "name": {"$ref": "#/$defs/name"},
+        "parent": {"type": "string"}
+      }
+    },
+    "object_definition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type"],
+      "properties": {
+        "name": {"$ref": "#/$defs/name"},
+        "type": {"$ref": "#/$defs/name"}
+      }
+    },
+    "predicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "parameter_types", "mutable"],
+      "properties": {
+        "name": {"$ref": "#/$defs/name"},
+        "parameter_types": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/name"}
+        },
+        "mutable": {"type": "boolean"}
+      }
+    },
+    "parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type"],
+      "properties": {
+        "name": {"$ref": "#/$defs/name"},
+        "type": {"$ref": "#/$defs/name"}
+      }
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["all_of", "any_of", "none_of"],
+      "properties": {
+        "all_of": {"type": "array", "items": {"$ref": "#/$defs/fact"}},
+        "any_of": {"type": "array", "items": {"$ref": "#/$defs/fact"}},
+        "none_of": {"type": "array", "items": {"$ref": "#/$defs/fact"}}
+      }
+    },
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["add", "delete"],
+      "properties": {
+        "add": {"type": "array", "items": {"$ref": "#/$defs/fact"}},
+        "delete": {"type": "array", "items": {"$ref": "#/$defs/fact"}}
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "parameters", "precondition", "effects"],
+      "properties": {
+        "name": {"$ref": "#/$defs/name"},
+        "parameters": {"type": "array", "items": {"$ref": "#/$defs/parameter"}},
+        "precondition": {"$ref": "#/$defs/condition"},
+        "effects": {"$ref": "#/$defs/effects"}
+      }
+    },
+    "temporal_constraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "operator", "first", "second"],
+      "properties": {
+        "id": {"$ref": "#/$defs/name"},
+        "operator": {
+          "type": "string",
+          "enum": ["sometime", "sometime-before", "sometime-after", "always", "at-most-once"]
+        },
+        "first": {"$ref": "#/$defs/condition"},
+        "second": {"$ref": "#/$defs/condition"}
+      }
+    }
+  }
+}

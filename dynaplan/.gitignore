@@ -1,0 +1,10 @@
+.env
+*.py[cod]
+__pycache__/
+.pytest_cache/
+
+# Hosted/local model artifacts and paid-run outputs are never source-controlled.
+models/
+benchmarks/results/
+
+# Nested reference repositories are recorded as pinned submodules.

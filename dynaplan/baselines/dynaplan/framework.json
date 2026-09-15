@@ -1,0 +1,86 @@
+{
+  "name": "DynaPlan",
+  "status": "official-sweep-registered",
+  "framework_version": "dynaplan_final_nlevel_hierarchy_v1",
+  "benchmark_version": 58,
+  "parent_framework": "shared_nlevel_v5_llm_only_execution_audit_v3_3_success_first",
+  "entrypoint": "dynaplan/baselines/dynaplan/benchmark.py",
+  "runtime_root": "dynaplan/baselines/dynaplan/runtime",
+  "primary_architecture_files": [
+    "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_checkpoint_normalization.py",
+    "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_adapter.py",
+    "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_pipeline.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_execution_audit_v3_3_adapter.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_execution_audit_v3_3_evidence.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_execution_audit_v3_3_pipeline.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_execution_audit_v3_1_adapter.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_verified_repair_pipeline.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_pipeline.py"
+  ],
+  "implementation_files": [
+    "dynaplan/baselines/dynaplan/benchmark.py",
+    "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_checkpoint_normalization.py",
+    "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_adapter.py",
+    "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_pipeline.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_execution_audit_v3_3_adapter.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_execution_audit_v3_3_evidence.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_execution_audit_v3_3_pipeline.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_execution_audit_v3_1_adapter.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_verified_repair_pipeline.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_pipeline.py"
+  ],
+  "test_files": [
+    "dynaplan/baselines/dynaplan/test_integration.py",
+    "simmer-style-libero/benchmarking/test_dynaplan_nlevel.py"
+  ],
+  "domain_adapters": {
+    "logistics": "DynaPlanLexiconAdapter",
+    "blocksworld": "DynaPlanBlocksworldAdapter",
+    "flat-hanoi": "DynaPlanFlatHanoiAdapter"
+  },
+  "controls": {
+    "fixed_goal": false,
+    "max_replans": 15,
+    "reuse_h1": true,
+    "include_code_block": true,
+    "online_semantic_verification": false,
+    "official_final_evaluator_calls": 1,
+    "independent_innerbot_count": 1,
+    "outerbot_receives_innerbot_verdict": false
+  },
+  "decision_checkpoint_normalization": {
+    "revision": "dynaplan_safe_checkpoint_closer_normalization_v1",
+    "domain_neutral": true,
+    "syntax_only": true,
+    "body_edits_allowed": false,
+    "existing_validation_bypassed": false,
+    "additional_model_calls": 0,
+    "additional_evaluator_calls": 0
+  },
+  "comparison_protocol": {
+    "version": "shared-public-semantics-v3",
+    "shared_domain_action_semantics_exactly_once_per_call": true,
+    "shared_lexicon_temporal_semantics_exactly_once_per_call": true,
+    "minimum_action_objective_exactly_once_per_call": true,
+    "shared_flat_hanoi_solved_example_exactly_once_per_call": true,
+    "oracle_fields_structurally_absent": true,
+    "exact_prompts_persisted": true
+  },
+  "isolation": {
+    "subprocess_per_condition": true,
+    "imports_development_architecture_tree": false,
+    "copied_runtime_snapshotted_per_campaign": true
+  },
+  "evaluation_status": {
+    "integration_smoke_completed": true,
+    "integration_smoke_setup_passed": "6/6",
+    "integration_smoke_valid": "5/6",
+    "full_official_sweep_completed": false,
+    "full_official_sweep_started": false,
+    "official_condition_count": 720,
+    "frozen_instances_per_difficulty_stratum": 3,
+    "full_matched_campaign_completed": false,
+    "parent_v3_3_results_are_not_relabelled": true,
+    "integration_smoke_required_before_sweep": true
+  }
+}

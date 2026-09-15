@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "campaign_id": "dynaplan_official_two_model_three_per_stratum_v1",
+  "comparison_prompt_protocol": "shared-public-semantics-v3",
+  "statistical_unit": "one frozen benchmark instance and one fresh unseeded hosted-model generation",
+  "methods": [
+    "base",
+    "dynaplan",
+    "adaplan-h",
+    "tdp",
+    "adapt",
+    "reactree",
+    "aot-plus",
+    "llm-p"
+  ],
+  "models": [
+    {
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "reasoning": "medium",
+      "max_output_tokens": 8192,
+      "thinking_budget_tokens": null
+    },
+    {
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5-20251001",
+      "reasoning": "medium",
+      "max_output_tokens": 8192,
+      "thinking_budget_tokens": 4096
+    }
+  ],
+  "benchmarks": {
+    "flat-hanoi": {
+      "selection_rule": "minimum, median, and maximum optimal-distance members of each previously frozen five-task ring stratum",
+      "tasks": [
+        {"rings": 3, "task_id": "n3-0032"},
+        {"rings": 3, "task_id": "n3-0004"},
+        {"rings": 3, "task_id": "n3-0013"},
+        {"rings": 4, "task_id": "n4-0018"},
+        {"rings": 4, "task_id": "n4-0015"},
+        {"rings": 4, "task_id": "n4-0013"},
+        {"rings": 5, "task_id": "n5-0008"},
+        {"rings": 5, "task_id": "n5-0003"},
+        {"rings": 5, "task_id": "n5-0012"},
+        {"rings": 6, "task_id": "n6-0026"},
+        {"rings": 6, "task_id": "n6-0019"},
+        {"rings": 6, "task_id": "n6-0017"},
+        {"rings": 7, "task_id": "n7-0000"},
+        {"rings": 7, "task_id": "n7-0029"},
+        {"rings": 7, "task_id": "n7-0010"}
+      ]
+    },
+    "logistics": {
+      "selection_rule": "three lexicographically earliest complete unconstrained-problem SHA-256 chains represented at c=1,3,5,7,10",
+      "chains": [
+        {
+          "chain_id": 1,
+          "unconstrained_problem_sha256": "d1c083aecdc9fccb9fe80cefa4ebe64c7f2ca75ddfc5d06e25935bcf92a4a8b0",
+          "packed_ids": {"1": 14, "3": 18, "5": 7, "7": 2, "10": 2}
+        },
+        {
+          "chain_id": 2,
+          "unconstrained_problem_sha256": "f8174b3480a26acd91aa64b0746ab6953d789b4a17ce514a6284ba05e6c053c6",
+          "packed_ids": {"1": 16, "3": 20, "5": 9, "7": 4, "10": 3}
+        },
+        {
+          "chain_id": 3,
+          "unconstrained_problem_sha256": "55577154abd65c41f1251758348e8c9da7592dd942c8f6a4830b507c6ba4a4d5",
+          "packed_ids": {"1": 19, "3": 23, "5": 12, "7": 6, "10": 4}
+        }
+      ]
+    },
+    "blocksworld": {
+      "selection_rule": "three smallest embedded generation seeds represented at c=1,3,5,7,10",
+      "chains": [
+        {
+          "generation_seed": 2002,
+          "unconstrained_problem_sha256": "11786ed7462061cc430bd5e439e088ea143f5bea2bc50977d614760ff955cf24",
+          "packed_ids": {"1": 14, "3": 4, "5": 12, "7": 2, "10": 12}
+        },
+        {
+          "generation_seed": 2005,
+          "unconstrained_problem_sha256": "97eefedd0ead53a892ffae0aca3cdf5cbd1bd7e136a54c91ee9fb8e97dd5546f",
+          "packed_ids": {"1": 17, "3": 6, "5": 14, "7": 3, "10": 13}
+        },
+        {
+          "generation_seed": 2006,
+          "unconstrained_problem_sha256": "447dda44b052a7b3f8030591a193178b70cf3a284e3bd8011ef50c17059dbce3",
+          "packed_ids": {"1": 18, "3": 7, "5": 15, "7": 4, "10": 14}
+        }
+      ]
+    }
+  },
+  "lexicon": {
+    "repository": "https://github.com/Periklismant/lexicon_neurips.git",
+    "commit": "8dfb02ef0188e0c7fea55ca38d702c21d75f9691"
+  },
+  "execution": {
+    "hosted_generations_seeded": false,
+    "temperature_parameter_sent": false,
+    "tools_allowed": false,
+    "timeout_seconds": 300,
+    "official_condition_count": 720
+  }
+}

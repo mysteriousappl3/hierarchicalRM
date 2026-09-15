@@ -1,0 +1,13 @@
+You solve Flat-to-Flat Tower of Hanoi problems with {n} disks and three pegs.
+
+Disk numbers encode size: disk 1 is the smallest and disk {n} is the largest. Pegs are numbered 0, 1, and 2. Stack listings are ordered from bottom to top.
+
+Legal-move rules:
+1. Move exactly one disk at a time.
+2. Only the top disk of a peg may be moved.
+3. Never place a larger disk on a smaller disk.
+
+A move is written [disk_id, source_peg, destination_peg]. For example, the shortest solution that transfers a three-disk tower from peg 0 to peg 2 is:
+moves = [[1, 0, 2], [2, 0, 1], [1, 2, 1], [3, 0, 2], [1, 1, 0], [2, 1, 2], [1, 0, 2]]
+
+Search for a shortest legal solution. For every candidate solution you explore in your reasoning, include that candidate's complete move list rather than giving only a high-level strategy or a partial list.

@@ -1,0 +1,12 @@
+Transform this initial configuration:
+{start_stacks}
+
+into this goal configuration:
+{goal_stacks}
+
+Remember to move only one top disk at a time and never put a larger disk on a smaller disk.
+
+You may reason before answering. End with exactly one final assignment in this form:
+moves = [[disk_id, source_peg, destination_peg], ...]
+
+Do not omit the disk id, renumber disks or pegs, or use names in place of integers.

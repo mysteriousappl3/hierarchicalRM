@@ -1,0 +1,778 @@
+[
+    {
+        "task_desc": "Task Description:\nYour task is to determine if unknown substance S is electrically conductive. The unknown substance S is located around the workshop. First, focus on the unknown substance S. If it is electrically conductive, place it in the orange box. If it is electrically nonconductive, place it in the yellow box.",
+        "task_id": "10_418"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) living thing. First, focus on the thing. Then, move it to the red box in the bathroom.",
+        "task_id": "12_186"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the melting point of mercury, which is located around the kitchen. First, focus on the thermometer. Next, focus on the mercury. If the melting point of mercury is above 200.0 degrees celsius, focus on the orange box. If the melting point of mercury is below 200.0 degrees celsius, focus on the yellow box. The boxes are located around the kitchen.",
+        "task_id": "4_326"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) animal. First, focus on the thing. Then, move it to the green box in the living room.",
+        "task_id": "11_193"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a cherry plant from seed. Seeds can be found in the bedroom. First, focus on a seed. Then, make changes to the environment that grow the plant until it reaches the reproduction life stage.",
+        "task_id": "16_65"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) plant. First, focus on the thing. Then, move it to the purple box in the workshop.",
+        "task_id": "14_179"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if plastic fork is electrically conductive. The plastic fork is located around the living room. First, focus on the plastic fork. If it is electrically conductive, place it in the blue box. If it is electrically nonconductive, place it in the orange box.",
+        "task_id": "9_587"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) animal. First, focus on the thing. Then, move it to the blue box in the bathroom.",
+        "task_id": "11_218"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the temperature of unknown substance B, which is located around the bathroom. First, focus on the thermometer. Next, focus on the unknown substance B. If the unknown substance B temperature is above 50.0 degrees celsius, place it in the green box. If the unknown substance B temperature is below 50.0 degrees celsius, place it in the blue box. The boxes are located around the living room.",
+        "task_id": "6_384"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if paper clip is electrically conductive. The paper clip is located around the kitchen. First, focus on the paper clip. If it is electrically conductive, place it in the yellow box. If it is electrically nonconductive, place it in the purple box.",
+        "task_id": "9_479"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) animal. First, focus on the thing. Then, move it to the orange box in the bathroom.",
+        "task_id": "11_159"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if plastic fork is electrically conductive. The plastic fork is located around the workshop. First, focus on the plastic fork. If it is electrically conductive, place it in the orange box. If it is electrically nonconductive, place it in the yellow box.",
+        "task_id": "9_528"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if unknown substance S is electrically conductive. The unknown substance S is located around the workshop. First, focus on the unknown substance S. If it is electrically conductive, place it in the orange box. If it is electrically nonconductive, place it in the yellow box.",
+        "task_id": "10_413"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if unknown substance Q is electrically conductive. The unknown substance Q is located around the workshop. First, focus on the unknown substance Q. If it is electrically conductive, place it in the blue box. If it is electrically nonconductive, place it in the orange box.",
+        "task_id": "10_352"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the temperature of unknown substance B, which is located around the bathroom. First, focus on the thermometer. Next, focus on the unknown substance B. If the unknown substance B temperature is above 100.0 degrees celsius, place it in the orange box. If the unknown substance B temperature is below 100.0 degrees celsius, place it in the yellow box. The boxes are located around the bathroom.",
+        "task_id": "6_385"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the shortest life span.  The animals are in the 'outside' location.  Focus on the animal with the shortest life span.",
+        "task_id": "22_69"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) animal. First, focus on the thing. Then, move it to the green box in the kitchen.",
+        "task_id": "11_211"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if unknown substance O is electrically conductive. The unknown substance O is located around the workshop. First, focus on the unknown substance O. If it is electrically conductive, place it in the orange box. If it is electrically nonconductive, place it in the yellow box.",
+        "task_id": "10_313"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) plant. First, focus on the thing. Then, move it to the green box in the workshop.",
+        "task_id": "14_175"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if paper clip is electrically conductive. The paper clip is located around the workshop. First, focus on the paper clip. If it is electrically conductive, place it in the yellow box. If it is electrically nonconductive, place it in the purple box.",
+        "task_id": "9_474"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if shovel is electrically conductive. The shovel is located around the living room. First, focus on the shovel. If it is electrically conductive, place it in the blue box. If it is electrically nonconductive, place it in the orange box.",
+        "task_id": "9_662"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if unknown substance R is electrically conductive. The unknown substance R is located around the workshop. First, focus on the unknown substance R. If it is electrically conductive, place it in the green box. If it is electrically nonconductive, place it in the blue box.",
+        "task_id": "10_386"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to melt ice cream. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "3_14"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) plant. First, focus on the thing. Then, move it to the purple box in the workshop.",
+        "task_id": "14_209"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if plastic fork is electrically conductive. The plastic fork is located around the living room. First, focus on the plastic fork. If it is electrically conductive, place it in the yellow box. If it is electrically nonconductive, place it in the purple box.",
+        "task_id": "9_579"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the temperature of unknown substance B, which is located around the bedroom. First, focus on the thermometer. Next, focus on the unknown substance B. If the unknown substance B temperature is above 100.0 degrees celsius, place it in the green box. If the unknown substance B temperature is below 100.0 degrees celsius, place it in the blue box. The boxes are located around the bathroom.",
+        "task_id": "6_314"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to boil ice cream. For compounds without a boiling point, combusting the substance is also acceptable. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "0_14"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the melting point of orange juice, which is located around the kitchen. First, focus on the thermometer. Next, focus on the orange juice. If the melting point of orange juice is above 200.0 degrees celsius, focus on the green box. If the melting point of orange juice is below 200.0 degrees celsius, focus on the blue box. The boxes are located around the kitchen.",
+        "task_id": "4_280"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the temperature of unknown substance B, which is located around the bathroom. First, focus on the thermometer. Next, focus on the unknown substance B. If the unknown substance B temperature is above 0.0 degrees celsius, place it in the red box. If the unknown substance B temperature is below 0.0 degrees celsius, place it in the green box. The boxes are located around the bedroom.",
+        "task_id": "6_378"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if shovel is electrically conductive. The shovel is located around the living room. First, focus on the shovel. If it is electrically conductive, place it in the red box. If it is electrically nonconductive, place it in the green box.",
+        "task_id": "9_655"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) living thing. First, focus on the thing. Then, move it to the purple box in the bathroom.",
+        "task_id": "12_161"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if unknown substance T is electrically conductive. The unknown substance T is located around the workshop. First, focus on the unknown substance T. If it is electrically conductive, place it in the orange box. If it is electrically nonconductive, place it in the yellow box.",
+        "task_id": "10_448"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the temperature of unknown substance B, which is located around the bedroom. First, focus on the thermometer. Next, focus on the unknown substance B. If the unknown substance B temperature is above 200.0 degrees celsius, place it in the red box. If the unknown substance B temperature is below 200.0 degrees celsius, place it in the green box. The boxes are located around the living room.",
+        "task_id": "6_360"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if unknown substance R is electrically conductive. The unknown substance R is located around the workshop. First, focus on the unknown substance R. If it is electrically conductive, place it in the yellow box. If it is electrically nonconductive, place it in the purple box.",
+        "task_id": "10_389"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the melting point of orange juice, which is located around the kitchen. First, focus on the thermometer. Next, focus on the orange juice. If the melting point of orange juice is above 200.0 degrees celsius, focus on the yellow box. If the melting point of orange juice is below 200.0 degrees celsius, focus on the purple box. The boxes are located around the kitchen.",
+        "task_id": "4_287"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the temperature of unknown substance B, which is located around the bedroom. First, focus on the thermometer. Next, focus on the unknown substance B. If the unknown substance B temperature is above 0.0 degrees celsius, place it in the orange box. If the unknown substance B temperature is below 0.0 degrees celsius, place it in the yellow box. The boxes are located around the bathroom.",
+        "task_id": "6_364"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if shovel is electrically conductive. The shovel is located around the kitchen. First, focus on the shovel. If it is electrically conductive, place it in the red box. If it is electrically nonconductive, place it in the green box.",
+        "task_id": "9_640"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if unknown substance S is electrically conductive. The unknown substance S is located around the workshop. First, focus on the unknown substance S. If it is electrically conductive, place it in the yellow box. If it is electrically nonconductive, place it in the purple box.",
+        "task_id": "10_409"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if paper clip is electrically conductive. The paper clip is located around the living room. First, focus on the paper clip. If it is electrically conductive, place it in the orange box. If it is electrically nonconductive, place it in the yellow box.",
+        "task_id": "9_523"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create violet-red paint. When you are part-way done, focus on the intermediate (secondary color) paint you created.  When you are completely done, focus on the violet paint.",
+        "task_id": "19_25"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the temperature of unknown substance B, which is located around the bedroom. First, focus on the thermometer. Next, focus on the unknown substance B. If the unknown substance B temperature is above 200.0 degrees celsius, place it in the yellow box. If the unknown substance B temperature is below 200.0 degrees celsius, place it in the purple box. The boxes are located around the bathroom.",
+        "task_id": "6_284"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to turn on the electric motor by powering it using a renewable power source. First, focus on the electric motor. Then, create an electrical circuit that powers it on.",
+        "task_id": "8_14"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if paper clip is electrically conductive. The paper clip is located around the kitchen. First, focus on the paper clip. If it is electrically conductive, place it in the red box. If it is electrically nonconductive, place it in the green box.",
+        "task_id": "9_485"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the melting point of mercury, which is located around the kitchen. First, focus on the thermometer. Next, focus on the mercury. If the melting point of mercury is above 200.0 degrees celsius, focus on the orange box. If the melting point of mercury is below 200.0 degrees celsius, focus on the yellow box. The boxes are located around the kitchen.",
+        "task_id": "4_286"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) living thing. First, focus on the thing. Then, move it to the red box in the kitchen.",
+        "task_id": "12_180"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a lemon. This will require growing several plants, and them being crosspollinated to produce fruit.  Seeds can be found in the workshop. To complete the task, focus on the grown lemon.",
+        "task_id": "15_85"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) plant. First, focus on the thing. Then, move it to the orange box in the workshop.",
+        "task_id": "14_177"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) living thing. First, focus on the thing. Then, move it to the purple box in the workshop.",
+        "task_id": "12_209"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if unknown substance R is electrically conductive. The unknown substance R is located around the workshop. First, focus on the unknown substance R. If it is electrically conductive, place it in the yellow box. If it is electrically nonconductive, place it in the purple box.",
+        "task_id": "10_394"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to melt rubber. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "3_18"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) animal. First, focus on the thing. Then, move it to the purple box in the bedroom.",
+        "task_id": "11_173"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the melting point of mercury, which is located around the kitchen. First, focus on the thermometer. Next, focus on the mercury. If the melting point of mercury is above -10.0 degrees celsius, focus on the yellow box. If the melting point of mercury is below -10.0 degrees celsius, focus on the purple box. The boxes are located around the kitchen.",
+        "task_id": "4_281"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) animal. First, focus on the thing. Then, move it to the purple box in the bathroom.",
+        "task_id": "11_221"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to change the state of matter of ice cream. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "1_14"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to melt soap. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "3_16"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) living thing. First, focus on the thing. Then, move it to the red box in the bathroom.",
+        "task_id": "12_216"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a orange. This will require growing several plants, and them being crosspollinated to produce fruit.  Seeds can be found in the kitchen. To complete the task, focus on the grown orange.",
+        "task_id": "15_90"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to determine if unknown substance R is electrically conductive. The unknown substance R is located around the workshop. First, focus on the unknown substance R. If it is electrically conductive, place it in the green box. If it is electrically nonconductive, place it in the blue box.",
+        "task_id": "10_376"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span, then the shortest life span. First, focus on the animal with the longest life span.  Then, focus on the animal with the shortest life span. The animals are in the 'outside' location.",
+        "task_id": "21_87"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) animal. First, focus on the thing. Then, move it to the orange box in the kitchen.",
+        "task_id": "11_213"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the melting point of mercury, which is located around the kitchen. First, focus on the thermometer. Next, focus on the mercury. If the melting point of mercury is above 50.0 degrees celsius, focus on the orange box. If the melting point of mercury is below 50.0 degrees celsius, focus on the yellow box. The boxes are located around the kitchen.",
+        "task_id": "4_300"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) plant. First, focus on the thing. Then, move it to the purple box in the bedroom.",
+        "task_id": "14_203"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the temperature of unknown substance B, which is located around the bedroom. First, focus on the thermometer. Next, focus on the unknown substance B. If the unknown substance B temperature is above 50.0 degrees celsius, place it in the orange box. If the unknown substance B temperature is below 50.0 degrees celsius, place it in the yellow box. The boxes are located around the living room.",
+        "task_id": "6_285"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) animal. First, focus on the thing. Then, move it to the red box in the bathroom.",
+        "task_id": "11_216"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) animal. First, focus on the thing. Then, move it to the blue box in the bathroom.",
+        "task_id": "11_188"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) animal. First, focus on the thing. Then, move it to the blue box in the workshop.",
+        "task_id": "11_176"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) plant. First, focus on the thing. Then, move it to the blue box in the workshop.",
+        "task_id": "14_206"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a lemon plant from seed. Seeds can be found in the bathroom. First, focus on a seed. Then, make changes to the environment that grow the plant until it reaches the reproduction life stage.",
+        "task_id": "16_77"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the melting point of mercury, which is located around the kitchen. First, focus on the thermometer. Next, focus on the mercury. If the melting point of mercury is above 200.0 degrees celsius, focus on the blue box. If the melting point of mercury is below 200.0 degrees celsius, focus on the orange box. The boxes are located around the kitchen.",
+        "task_id": "4_253"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the shortest life span.  The animals are in the 'outside' location.  Focus on the animal with the shortest life span.",
+        "task_id": "22_87"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the melting point of mercury, which is located around the kitchen. First, focus on the thermometer. Next, focus on the mercury. If the melting point of mercury is above -10.0 degrees celsius, focus on the orange box. If the melting point of mercury is below -10.0 degrees celsius, focus on the yellow box. The boxes are located around the kitchen.",
+        "task_id": "4_299"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the temperature of unknown substance B, which is located around the bedroom. First, focus on the thermometer. Next, focus on the unknown substance B. If the unknown substance B temperature is above 0.0 degrees celsius, place it in the yellow box. If the unknown substance B temperature is below 0.0 degrees celsius, place it in the purple box. The boxes are located around the living room.",
+        "task_id": "6_358"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the melting point of tin, which is located around the kitchen. First, focus on the thermometer. Next, focus on the tin. If the melting point of tin is above 200.0 degrees celsius, focus on the orange box. If the melting point of tin is below 200.0 degrees celsius, focus on the yellow box. The boxes are located around the kitchen.",
+        "task_id": "4_292"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the temperature of unknown substance B, which is located around the bedroom. First, focus on the thermometer. Next, focus on the unknown substance B. If the unknown substance B temperature is above 0.0 degrees celsius, place it in the yellow box. If the unknown substance B temperature is below 0.0 degrees celsius, place it in the purple box. The boxes are located around the bathroom.",
+        "task_id": "6_291"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) living thing. First, focus on the thing. Then, move it to the yellow box in the kitchen.",
+        "task_id": "12_214"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span, then the shortest life span. First, focus on the animal with the longest life span.  Then, focus on the animal with the shortest life span. The animals are in the 'outside' location.",
+        "task_id": "21_67"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to change the state of matter of soap. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "1_16"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span.  The animals are in the 'outside' location.  Focus on the animal with the longest life span.",
+        "task_id": "20_83"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) living thing. First, focus on the thing. Then, move it to the purple box in the bathroom.",
+        "task_id": "12_221"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to measure the melting point of orange juice, which is located around the kitchen. First, focus on the thermometer. Next, focus on the orange juice. If the melting point of orange juice is above 200.0 degrees celsius, focus on the red box. If the melting point of orange juice is below 200.0 degrees celsius, focus on the green box. The boxes are located around the kitchen.",
+        "task_id": "4_325"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the shortest life span.  The animals are in the 'outside' location.  Focus on the animal with the shortest life span.",
+        "task_id": "22_91"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the shortest life span.  The animals are in the 'outside' location.  Focus on the animal with the shortest life span.",
+        "task_id": "22_84"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) non-living thing. First, focus on the thing. Then, move it to the red box in the kitchen.",
+        "task_id": "13_150"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a lemon plant from seed. Seeds can be found in the workshop. First, focus on a seed. Then, make changes to the environment that grow the plant until it reaches the reproduction life stage.",
+        "task_id": "16_84"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a cherry plant from seed. Seeds can be found in the workshop. First, focus on a seed. Then, make changes to the environment that grow the plant until it reaches the reproduction life stage.",
+        "task_id": "16_68"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) plant. First, focus on the thing. Then, move it to the green box in the kitchen.",
+        "task_id": "14_181"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the shortest life span.  The animals are in the 'outside' location.  Focus on the animal with the shortest life span.",
+        "task_id": "22_76"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) living thing. First, focus on the thing. Then, move it to the yellow box in the bedroom.",
+        "task_id": "12_202"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to focus on the 3 life stages of the frog, starting from earliest to latest.",
+        "task_id": "23_7"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span.  The animals are in the 'outside' location.  Focus on the animal with the longest life span.",
+        "task_id": "20_88"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) living thing. First, focus on the thing. Then, move it to the blue box in the workshop.",
+        "task_id": "12_206"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) non-living thing. First, focus on the thing. Then, move it to the yellow box in the kitchen.",
+        "task_id": "13_184"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span, then the shortest life span. First, focus on the animal with the longest life span.  Then, focus on the animal with the shortest life span. The animals are in the 'outside' location.",
+        "task_id": "21_68"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) living thing. First, focus on the thing. Then, move it to the blue box in the bathroom.",
+        "task_id": "12_218"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) non-living thing. First, focus on the thing. Then, move it to the green box in the bathroom.",
+        "task_id": "13_187"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to boil ice cream. For compounds without a boiling point, combusting the substance is also acceptable. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "0_15"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span.  The animals are in the 'outside' location.  Focus on the animal with the longest life span.",
+        "task_id": "20_84"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span.  The animals are in the 'outside' location.  Focus on the animal with the longest life span.",
+        "task_id": "20_66"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) non-living thing. First, focus on the thing. Then, move it to the yellow box in the kitchen.",
+        "task_id": "13_214"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create violet paint. When you are done, focus on the violet paint.",
+        "task_id": "18_25"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to turn on the blue light bulb. First, focus on the blue light bulb. Then, create an electrical circuit that powers it on.",
+        "task_id": "7_11"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) plant. First, focus on the thing. Then, move it to the blue box in the living room.",
+        "task_id": "14_164"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span, then the shortest life span. First, focus on the animal with the longest life span.  Then, focus on the animal with the shortest life span. The animals are in the 'outside' location.",
+        "task_id": "21_66"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) plant. First, focus on the thing. Then, move it to the yellow box in the kitchen.",
+        "task_id": "14_154"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) non-living thing. First, focus on the thing. Then, move it to the red box in the bedroom.",
+        "task_id": "13_198"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span.  The animals are in the 'outside' location.  Focus on the animal with the longest life span.",
+        "task_id": "20_68"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) plant. First, focus on the thing. Then, move it to the orange box in the living room.",
+        "task_id": "14_165"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) non-living thing. First, focus on the thing. Then, move it to the purple box in the workshop.",
+        "task_id": "13_209"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) non-living thing. First, focus on the thing. Then, move it to the purple box in the kitchen.",
+        "task_id": "13_185"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to boil lead. For compounds without a boiling point, combusting the substance is also acceptable. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "0_20"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create yellow-orange paint. When you are part-way done, focus on the intermediate (secondary color) paint you created.  When you are completely done, focus on the orange paint.",
+        "task_id": "19_21"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the shortest life span.  The animals are in the 'outside' location.  Focus on the animal with the shortest life span.",
+        "task_id": "22_80"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span, then the shortest life span. First, focus on the animal with the longest life span.  Then, focus on the animal with the shortest life span. The animals are in the 'outside' location.",
+        "task_id": "21_64"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) non-living thing. First, focus on the thing. Then, move it to the purple box in the workshop.",
+        "task_id": "13_179"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span, then the shortest life span. First, focus on the animal with the longest life span.  Then, focus on the animal with the shortest life span. The animals are in the 'outside' location.",
+        "task_id": "21_78"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) non-living thing. First, focus on the thing. Then, move it to the red box in the living room.",
+        "task_id": "13_192"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to boil soap. For compounds without a boiling point, combusting the substance is also acceptable. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "0_17"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to melt lead. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "3_20"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a lemon. This will require growing several plants, and them being crosspollinated to produce fruit.  Seeds can be found in the kitchen. To complete the task, focus on the grown lemon.",
+        "task_id": "15_72"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span, then the shortest life span. First, focus on the animal with the longest life span.  Then, focus on the animal with the shortest life span. The animals are in the 'outside' location.",
+        "task_id": "21_69"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find a(n) non-living thing. First, focus on the thing. Then, move it to the blue box in the bathroom.",
+        "task_id": "13_158"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a cherry plant from seed. Seeds can be found in the bedroom. First, focus on a seed. Then, make changes to the environment that grow the plant until it reaches the reproduction life stage.",
+        "task_id": "16_64"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a lemon. This will require growing several plants, and them being crosspollinated to produce fruit.  Seeds can be found in the greenhouse. To complete the task, focus on the grown lemon.",
+        "task_id": "15_88"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to change the state of matter of soap. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "1_17"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span, then the shortest life span. First, focus on the animal with the longest life span.  Then, focus on the animal with the shortest life span. The animals are in the 'outside' location.",
+        "task_id": "21_80"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a lemon plant from seed. Seeds can be found in the workshop. First, focus on a seed. Then, make changes to the environment that grow the plant until it reaches the reproduction life stage.",
+        "task_id": "16_85"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span.  The animals are in the 'outside' location.  Focus on the animal with the longest life span.",
+        "task_id": "20_80"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the shortest life span.  The animals are in the 'outside' location.  Focus on the animal with the shortest life span.",
+        "task_id": "22_82"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a lemon plant from seed. Seeds can be found in the workshop. First, focus on a seed. Then, make changes to the environment that grow the plant until it reaches the reproduction life stage.",
+        "task_id": "16_86"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to change the state of matter of rubber. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "1_18"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create violet-red paint. When you are part-way done, focus on the intermediate (secondary color) paint you created.  When you are completely done, focus on the violet paint.",
+        "task_id": "19_26"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a lemon plant from seed. Seeds can be found in the living room. First, focus on a seed. Then, make changes to the environment that grow the plant until it reaches the reproduction life stage.",
+        "task_id": "16_78"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to melt rubber. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "3_19"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create the substance 'dough'. A recipe and some of the ingredients might be found near the workshop. When you are done, focus on the dough.",
+        "task_id": "17_21"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a cherry. This will require growing several plants, and them being crosspollinated to produce fruit.  Seeds can be found in the bedroom. To complete the task, focus on the grown cherry.",
+        "task_id": "15_65"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span, then the shortest life span. First, focus on the animal with the longest life span.  Then, focus on the animal with the shortest life span. The animals are in the 'outside' location.",
+        "task_id": "21_72"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create orange paint. When you are done, focus on the orange paint.",
+        "task_id": "18_20"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a lemon plant from seed. Seeds can be found in the greenhouse. First, focus on a seed. Then, make changes to the environment that grow the plant until it reaches the reproduction life stage.",
+        "task_id": "16_88"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to melt ice cream. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "3_15"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span, then the shortest life span. First, focus on the animal with the longest life span.  Then, focus on the animal with the shortest life span. The animals are in the 'outside' location.",
+        "task_id": "21_85"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span.  The animals are in the 'outside' location.  Focus on the animal with the longest life span.",
+        "task_id": "20_78"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a lemon plant from seed. Seeds can be found in the greenhouse. First, focus on a seed. Then, make changes to the environment that grow the plant until it reaches the reproduction life stage.",
+        "task_id": "16_87"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create yellow-orange paint. When you are part-way done, focus on the intermediate (secondary color) paint you created.  When you are completely done, focus on the orange paint.",
+        "task_id": "19_23"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the shortest life span.  The animals are in the 'outside' location.  Focus on the animal with the shortest life span.",
+        "task_id": "22_70"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the shortest life span.  The animals are in the 'outside' location.  Focus on the animal with the shortest life span.",
+        "task_id": "22_85"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span.  The animals are in the 'outside' location.  Focus on the animal with the longest life span.",
+        "task_id": "20_72"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create the substance 'jam sandwich'. A recipe and some of the ingredients might be found near the kitchen. When you are done, focus on the jam sandwich.",
+        "task_id": "17_19"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create orange paint. When you are done, focus on the orange paint.",
+        "task_id": "18_18"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span.  The animals are in the 'outside' location.  Focus on the animal with the longest life span.",
+        "task_id": "20_73"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to change the state of matter of ice cream. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "1_15"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a lemon. This will require growing several plants, and them being crosspollinated to produce fruit.  Seeds can be found in the workshop. To complete the task, focus on the grown lemon.",
+        "task_id": "15_84"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to change the state of matter of rubber. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "1_19"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the longest life span.  The animals are in the 'outside' location.  Focus on the animal with the longest life span.",
+        "task_id": "20_92"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create orange paint. When you are done, focus on the orange paint.",
+        "task_id": "18_22"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a lemon. This will require growing several plants, and them being crosspollinated to produce fruit.  Seeds can be found in the living room. To complete the task, focus on the grown lemon.",
+        "task_id": "15_80"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a cherry. This will require growing several plants, and them being crosspollinated to produce fruit.  Seeds can be found in the greenhouse. To complete the task, focus on the grown cherry.",
+        "task_id": "15_71"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to focus on the life stages of the grapefruit plant, starting from earliest to latest. The plants are located outside.",
+        "task_id": "24_5"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to focus on the life stages of the cherry plant, starting from earliest to latest. The plants are located outside.",
+        "task_id": "24_4"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to freeze rubber. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "2_19"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to find the animal with the shortest life span.  The animals are in the 'outside' location.  Focus on the animal with the shortest life span.",
+        "task_id": "22_71"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to turn on the blue light bulb by powering it using a renewable power source. First, focus on the blue light bulb. Then, create an electrical circuit that powers it on.",
+        "task_id": "8_10"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to freeze ice cream. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "2_15"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a cherry. This will require growing several plants, and them being crosspollinated to produce fruit.  Seeds can be found in the living room. To complete the task, focus on the grown cherry.",
+        "task_id": "15_62"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create violet paint. When you are done, focus on the violet paint.",
+        "task_id": "18_26"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to freeze rubber. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "2_18"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to focus on the 4 life stages of the blue jay, starting from earliest to latest.",
+        "task_id": "23_8"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to grow a cherry. This will require growing several plants, and them being crosspollinated to produce fruit.  Seeds can be found in the workshop. To complete the task, focus on the grown cherry.",
+        "task_id": "15_68"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to focus on the 4 life stages of the moth, starting from earliest to latest.",
+        "task_id": "23_6"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create the substance 'fruit salad'. A recipe and some of the ingredients might be found near the kitchen. When you are done, focus on the fruit salad.",
+        "task_id": "17_18"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to freeze soap. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "2_16"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create orange paint. When you are done, focus on the orange paint.",
+        "task_id": "18_23"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create violet-red paint. When you are part-way done, focus on the intermediate (secondary color) paint you created.  When you are completely done, focus on the violet paint.",
+        "task_id": "19_24"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to melt soap. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "3_17"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create yellow-orange paint. When you are part-way done, focus on the intermediate (secondary color) paint you created.  When you are completely done, focus on the orange paint.",
+        "task_id": "19_22"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to boil soap. For compounds without a boiling point, combusting the substance is also acceptable. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "0_16"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create yellow-orange paint. When you are part-way done, focus on the intermediate (secondary color) paint you created.  When you are completely done, focus on the orange paint.",
+        "task_id": "19_19"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create yellow-orange paint. When you are part-way done, focus on the intermediate (secondary color) paint you created.  When you are completely done, focus on the orange paint.",
+        "task_id": "19_18"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to turn on the electric motor. First, focus on the electric motor. Then, create an electrical circuit that powers it on.",
+        "task_id": "7_13"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create the substance 'jam sandwich'. A recipe and some of the ingredients might be found near the workshop. When you are done, focus on the jam sandwich.",
+        "task_id": "17_23"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to turn on the electric motor. First, focus on the electric motor. Then, create an electrical circuit that powers it on.",
+        "task_id": "7_12"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create orange paint. When you are done, focus on the orange paint.",
+        "task_id": "18_19"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to turn on the electric motor by powering it using a nonrenewable power source. First, focus on the electric motor. Then, create an electrical circuit that powers it on.",
+        "task_id": "8_13"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to freeze soap. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "2_17"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create orange paint. When you are done, focus on the orange paint.",
+        "task_id": "18_21"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to boil rubber. For compounds without a boiling point, combusting the substance is also acceptable. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "0_19"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to freeze ice cream. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "2_14"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create the substance 'smores'. A recipe and some of the ingredients might be found near the workshop. When you are done, focus on the smores.",
+        "task_id": "17_20"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create violet paint. When you are done, focus on the violet paint.",
+        "task_id": "18_24"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to freeze lead. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "2_20"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to change the state of matter of lead. First, focus on the substance. Then, take actions that will cause it to change its state of matter.",
+        "task_id": "1_20"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create the substance 'dough'. A recipe and some of the ingredients might be found near the kitchen. When you are done, focus on the dough.",
+        "task_id": "17_17"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create yellow-orange paint. When you are part-way done, focus on the intermediate (secondary color) paint you created.  When you are completely done, focus on the orange paint.",
+        "task_id": "19_20"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create the substance 'smores'. A recipe and some of the ingredients might be found near the kitchen. When you are done, focus on the smores.",
+        "task_id": "17_16"
+    },
+    {
+        "task_desc": "Task Description:\nYour task is to use chemistry to create the substance 'fruit salad'. A recipe and some of the ingredients might be found near the workshop. When you are done, focus on the fruit salad.",
+        "task_id": "17_22"
+    }
+]

@@ -1,0 +1,56 @@
+{
+  "benchmark_artifact_hashes": {
+    "batch_cli_source_sha256": "333aaf8b334378b7faa59ab850e56cfda6cc677745225d23a87c31b5249093bc",
+    "evaluator_source_sha256": "ac26dd91b90c00fcd8fdc814be8eca691f43851c5216a373134568d8f940a782",
+    "generator_source_sha256": "84fba2e0a6a63b5c5668abc9e0c16931326e5693d3e2697459b6217963b21e31",
+    "manifest_io_source_sha256": "d34d0082c8d58e7389c4450535ab36534b23975716c67ed52c1fd8221865756f",
+    "oracle_source_sha256": "65d1c03a0b6e7a581c2a8c5e591ee2c59d79189566168186f7d8d27a4226933d",
+    "parser_source_sha256": "54089d6d929387d23a653bdf6a984a3529189faa1cf2a575d7c38c1f770f13e5",
+    "prompt_renderer_source_sha256": "440d4b8e10cb29a46e363dee4f1e1ef9c2f411665c4bc95dda164dfce407d75e",
+    "prompt_system_sha256": "26e14140de926fb4b4d6810c7f60bd7516ca9d22530d1564b0ce7cc060cc7184",
+    "prompt_user_sha256": "a0a49c56cab5cbcd355e4adaba7f074a3962a32f8e307fc40501abc0671341b8",
+    "report_source_sha256": "4b82f4b8e7d6d95bb5060f7e19184a195edf968797b113166ed236172001ba5d",
+    "simulator_source_sha256": "744a741306a25025bf50ffdbccb58bad7afca321b22e2584273a110f949c4d8c",
+    "state_model_source_sha256": "e91e6f5b58ddcccbad79bfde17a2314eeae8c43b3fdf9664115da294ffb4e5ed"
+  },
+  "counts_by_n": {
+    "4": 6480
+  },
+  "counts_by_split": {
+    "train": 5184,
+    "validation": 1296
+  },
+  "evaluation_protocol": {
+    "headline_metric": "optimal_accuracy",
+    "max_output_tokens": 32000,
+    "output_budget_scope": "answer_only; provider-side reasoning may be additional",
+    "temperature": 1.0,
+    "temperature_basis": "inherited_from_the_cited_shojaee_baseline_protocol",
+    "tools_allowed": false,
+    "unparseable_in_denominator": true
+  },
+  "generator_seed": 260807077,
+  "generator_version": "flat-hanoi-paper-derived-v1",
+  "instance_count": 6480,
+  "jsonl_sha256": "ae79b1675272bac8529a907a08afd81b5fa396ad25b7531a965a402b9a96c64c",
+  "optimal_distance_histogram": {
+    "1": 240,
+    "10": 504,
+    "11": 624,
+    "12": 456,
+    "13": 492,
+    "14": 348,
+    "15": 258,
+    "2": 312,
+    "3": 408,
+    "4": 384,
+    "5": 522,
+    "6": 516,
+    "7": 522,
+    "8": 384,
+    "9": 510
+  },
+  "sampling_policy": "exhaustive_all_distinct_ordered_pairs",
+  "sampling_profile": "transformer-n4-v1",
+  "schema_version": 1
+}
