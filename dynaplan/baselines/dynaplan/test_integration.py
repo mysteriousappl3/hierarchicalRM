@@ -31,7 +31,7 @@ def test_requested_hanoi_aliases_resolve_to_same_frozen_instance():
 
 def test_framework_manifest_points_only_inside_official_method_directory():
     manifest = json.loads((METHOD_ROOT / "framework.json").read_text(encoding="utf-8"))
-    assert manifest["framework_version"] == "dynaplan_final_nlevel_hierarchy_v1"
+    assert manifest["framework_version"] == "dynaplan_final_nlevel_hierarchy_v1_1"
     for relative in manifest["primary_architecture_files"]:
         path = WORKSPACE_ROOT / relative
         assert path.is_file(), relative
@@ -66,6 +66,53 @@ def test_all_three_public_task_boundaries_preflight_without_model_calls():
         boundary = payload["public_task_boundary"]
         assert boundary["oracle_fields_structurally_absent"] is True
         assert boundary["slot_only"] is True
+
+
+def test_lexicon_decisions_allow_prose_verbs_but_reject_action_calls():
+    module = _load_entrypoint()
+    cases = (
+        (
+            "logistics",
+            "lexicon-logistics",
+            "Unload a package after its truck reaches the destination.",
+            "Execute unloadtruck(p1, t1, l1_1).",
+        ),
+        (
+            "blocksworld",
+            "lexicon-blocksworld",
+            "Unstack a blocking block and stack it elsewhere before finishing.",
+            "Execute unstack(blue_block_1, white_block_1).",
+        ),
+    )
+    for domain, internal_domain, prose, executable in cases:
+        private_task = module._load_task(domain, "n3-0017", 1, 1)
+        task = module.shared_runner._public_task_view(
+            internal_domain, private_task
+        )
+        adapter = module._adapter(domain)
+        checkpoint = json.dumps(
+            {
+                "required_true": list(task.goals),
+                "required_false": [],
+                "constraints_addressed": list(
+                    range(1, len(task.constraints) + 1)
+                ),
+            }
+        )
+
+        def decision(description: str) -> str:
+            return f"""```start_subtask_1
+{description}
+```end_subtask_1
+```start_subtask_goalstate_1
+{checkpoint}
+```end_subtask_goalstate_1"""
+
+        accepted = adapter.parse_decision(task, decision(prose))
+        assert accepted.valid, accepted.errors
+        rejected = adapter.parse_decision(task, decision(executable))
+        assert not rejected.valid
+        assert "leaks executable action syntax" in rejected.reason
 
 
 def test_copied_runtime_does_not_symlink_to_development_tree():

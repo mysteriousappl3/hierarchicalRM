@@ -182,16 +182,11 @@ def _parse_decision(task: LexiconBlocksworldTask, text: str) -> ArtifactCheck:
 
     subtasks: List[LexiconDecisionSubtask] = []
     covered_constraints: set[int] = set()
-    primitive_names = "|".join(map(re.escape, PRIMITIVE_ARITIES))
-    primitive_leak_re = re.compile(rf"\b(?:{primitive_names})\b", re.IGNORECASE)
-    function_call_leak_re = re.compile(r"\b[A-Z][A-Za-z0-9_]*\s*\(")
     for index in indices:
         description = descriptions.get(index, "").strip()
         if not description:
             errors.append(f"Subtask {index} description is empty")
-        if primitive_leak_re.search(description) or function_call_leak_re.search(
-            description
-        ):
+        if common._contains_executable_action_syntax(description, PRIMITIVE_ARITIES):
             errors.append(f"Subtask {index} description leaks executable action syntax")
 
         raw_checkpoint = raw_checkpoints.get(index)

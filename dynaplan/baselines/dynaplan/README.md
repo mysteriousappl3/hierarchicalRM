@@ -1,10 +1,12 @@
 # DynaPlan
 
-Framework ID: `dynaplan_final_nlevel_hierarchy_v1`  
-Benchmark integration version: `58`
+Framework ID: `dynaplan_final_nlevel_hierarchy_v1_1`
+Benchmark integration version: `59`
 
-Official integration findings and remaining run gates are in
+The frozen v1 setup report remains in
 [`../../OFFICIAL_RUN_READINESS_REPORT.md`](../../OFFICIAL_RUN_READINESS_REPORT.md).
+Its completed v1 results are not relabelled as v1.1 results; this revision
+needs a fresh live smoke before any new paid sweep.
 
 DynaPlan is a success-first, transactional N-level planning framework. It uses
 one DecisionBot, one HierarchyPlanner role, one InnerBot semantic audit, and
@@ -28,6 +30,7 @@ public task (oracle fields removed)
        - forward action/state ledger
        - backward checkpoint/final-requirement support ledger
        - structured coverage certificate
+       - earliest-failure coordinates drive a suffix-only repair transaction
   -> tentative shadow execution by subtask
   -> independent OuterBot review of exact actions, expanded H0, and
      public before/after shadow states
@@ -46,6 +49,7 @@ public task (oracle fields removed)
 | H1 source | Supplies reusable primitive capability definitions | Cached only after structural validation |
 | DecisionBot | Decomposes the task into ordered subtasks and complete checkpoint goal states | Includes the success-first checkpoint and temporal review instructions |
 | Checkpoint-tag normalizer | Repairs only an unambiguous `end_subtask_N` closer inside an already delimited `start_subtask_goalstate_N` block | Syntax-only; bodies, IDs, semantics, and downstream validators remain unchanged |
+| Localized repair controller | Preserves numbered blocks before the earliest Decision-validator or InnerBot-audit failure and regenerates only the suffix | InnerBot localization is advisory, never deterministic authority; every merge is fully re-audited from the frozen candidate start and falls back to full regeneration after two repeats |
 | HierarchyPlanner | Composes H1/H2/H3 calls for each DecisionBot subtask | Can regenerate a failed suffix while retaining eligible upstream artifacts |
 | Structural compiler | Expands composed hierarchy calls into canonical H0 calls and semantic actions | Proves expansion and syntax only; it does not prove applicability or goals |
 | InnerBot execution audit | Simulates the candidate forward and traces every checkpoint/final requirement backward to support | Strict JSON and evidence coverage are enforced, but witness truth is still an LLM judgment |
@@ -53,7 +57,7 @@ public task (oracle fields removed)
 | OuterBot | Independently reviews each exact subtask trace and final-subtask marker without seeing InnerBot's verdict | Second LLM line of defense; correlated semantic errors remain possible |
 | Final evaluator | Replays the submitted primitive plan with the benchmark's deterministic scorer | Invoked once inside DynaPlan after planning; the unified harness may independently rescore the persisted output for audit agreement |
 
-## Registered v1 behavior
+## v1.1 behavior
 
 - Parent architecture: `shared_nlevel_v5_llm_only_execution_audit_v3_3_success_first`.
 - `max_replans=15`, `reuse_h1=True`, `fixed_goal=False`.
@@ -64,6 +68,12 @@ public task (oracle fields removed)
   candidate-level `NON-RECOVERABLE` judgment.
 - Exact OuterBot trace handoff across all three domains.
 - Unambiguous DecisionBot checkpoint-closing-tag normalization.
+- Natural-language action verbs are permitted in Decision descriptions while
+  actual `operator(...)` and `(operator ...)` calls remain prohibited.
+- Earliest-failing Decision and hierarchy suffix repair, including an
+  InnerBot recheck after an OuterBot rejection, with exact numbered-block
+  preservation, full frozen-start re-audit, and full-regeneration fallback
+  after two repeated localized failures.
 - No exact PDDL, Hanoi simulator, typed state machine, or other deterministic
   semantic feedback during planning.
 
@@ -74,6 +84,8 @@ public task (oracle fields removed)
 - `framework.json` — machine-readable framework registration.
 - `runtime/dynaplan_nlevel_checkpoint_normalization.py` — conservative tag
   normalization.
+- `runtime/dynaplan_nlevel_localized_repair.py` — Decision suffix transaction
+  and unverified audit-localization contract.
 - `runtime/dynaplan_nlevel_adapter.py` — the three versioned DynaPlan adapters.
 - `runtime/dynaplan_nlevel_pipeline.py` — architecture enforcement and
   DynaPlan telemetry.

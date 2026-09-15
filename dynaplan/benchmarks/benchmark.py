@@ -1467,7 +1467,7 @@ def _baseline_source_status(
             except json.JSONDecodeError as error:
                 errors.append(f"invalid framework.json: {error}")
         if framework.get("framework_version") != (
-            "dynaplan_final_nlevel_hierarchy_v1"
+            "dynaplan_final_nlevel_hierarchy_v1_1"
         ):
             errors.append("framework version mismatch")
         return {
@@ -3184,7 +3184,7 @@ def _run_dynaplan_case(
     source_status = _baseline_source_status(baseline)
     invocation_agreement = bool(
         native_metrics.get("architecture_version")
-        == "dynaplan_final_nlevel_hierarchy_v1"
+        == "dynaplan_final_nlevel_hierarchy_v1_1"
         and native_metrics.get("provider") == PROVIDER
         and native_metrics.get("model") == MODEL
         and native_metrics.get("reasoning_effort") == REASONING_EFFORT

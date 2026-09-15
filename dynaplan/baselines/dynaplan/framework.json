@@ -1,13 +1,14 @@
 {
   "name": "DynaPlan",
-  "status": "official-sweep-registered",
-  "framework_version": "dynaplan_final_nlevel_hierarchy_v1",
-  "benchmark_version": 58,
+  "status": "v1.1-offline-tested-awaiting-live-smoke",
+  "framework_version": "dynaplan_final_nlevel_hierarchy_v1_1",
+  "benchmark_version": 59,
   "parent_framework": "shared_nlevel_v5_llm_only_execution_audit_v3_3_success_first",
   "entrypoint": "dynaplan/baselines/dynaplan/benchmark.py",
   "runtime_root": "dynaplan/baselines/dynaplan/runtime",
   "primary_architecture_files": [
     "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_checkpoint_normalization.py",
+    "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_localized_repair.py",
     "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_adapter.py",
     "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_pipeline.py",
     "dynaplan/baselines/dynaplan/runtime/shared_nlevel_execution_audit_v3_3_adapter.py",
@@ -15,11 +16,14 @@
     "dynaplan/baselines/dynaplan/runtime/shared_nlevel_execution_audit_v3_3_pipeline.py",
     "dynaplan/baselines/dynaplan/runtime/shared_nlevel_execution_audit_v3_1_adapter.py",
     "dynaplan/baselines/dynaplan/runtime/shared_nlevel_verified_repair_pipeline.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_lexicon.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_blocksworld.py",
     "dynaplan/baselines/dynaplan/runtime/shared_nlevel_pipeline.py"
   ],
   "implementation_files": [
     "dynaplan/baselines/dynaplan/benchmark.py",
     "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_checkpoint_normalization.py",
+    "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_localized_repair.py",
     "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_adapter.py",
     "dynaplan/baselines/dynaplan/runtime/dynaplan_nlevel_pipeline.py",
     "dynaplan/baselines/dynaplan/runtime/shared_nlevel_execution_audit_v3_3_adapter.py",
@@ -27,11 +31,13 @@
     "dynaplan/baselines/dynaplan/runtime/shared_nlevel_execution_audit_v3_3_pipeline.py",
     "dynaplan/baselines/dynaplan/runtime/shared_nlevel_execution_audit_v3_1_adapter.py",
     "dynaplan/baselines/dynaplan/runtime/shared_nlevel_verified_repair_pipeline.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_lexicon.py",
+    "dynaplan/baselines/dynaplan/runtime/shared_nlevel_blocksworld.py",
     "dynaplan/baselines/dynaplan/runtime/shared_nlevel_pipeline.py"
   ],
   "test_files": [
     "dynaplan/baselines/dynaplan/test_integration.py",
-    "simmer-style-libero/benchmarking/test_dynaplan_nlevel.py"
+    "dynaplan/baselines/dynaplan/test_localized_repair.py"
   ],
   "domain_adapters": {
     "logistics": "DynaPlanLexiconAdapter",
@@ -57,6 +63,16 @@
     "additional_model_calls": 0,
     "additional_evaluator_calls": 0
   },
+  "localized_suffix_repair": {
+    "revision": "dynaplan_audit_guided_suffix_repair_v1",
+    "innerbot_localization_authority": "unverified-advisory",
+    "decision_validation_localization": "deterministic-existing-validator",
+    "maximum_repeated_local_patches": 2,
+    "full_candidate_recheck_from_frozen_start": true,
+    "additional_innerbots": 0,
+    "additional_evaluator_calls": 0,
+    "online_pddl_feedback": false
+  },
   "comparison_protocol": {
     "version": "shared-public-semantics-v3",
     "shared_domain_action_semantics_exactly_once_per_call": true,
@@ -72,11 +88,12 @@
     "copied_runtime_snapshotted_per_campaign": true
   },
   "evaluation_status": {
-    "integration_smoke_completed": true,
-    "integration_smoke_setup_passed": "6/6",
-    "integration_smoke_valid": "5/6",
-    "full_official_sweep_completed": false,
-    "full_official_sweep_started": false,
+    "v1_1_offline_regression_tests_passed": "13/13",
+    "v1_1_unified_preflight_passed": "3/3",
+    "v1_1_live_model_smoke_completed": false,
+    "v1_1_full_official_sweep_completed": false,
+    "v1_1_full_official_sweep_started": false,
+    "prior_v1_official_results_preserved": true,
     "official_condition_count": 720,
     "frozen_instances_per_difficulty_stratum": 3,
     "full_matched_campaign_completed": false,

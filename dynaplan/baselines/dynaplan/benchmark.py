@@ -47,7 +47,7 @@ from dynaplan_nlevel_adapter import (  # noqa: E402
 from models import create_client  # noqa: E402
 
 
-BENCHMARK_VERSION = 58
+BENCHMARK_VERSION = 59
 DOMAINS = ("logistics", "blocksworld", "flat-hanoi")
 
 
@@ -286,7 +286,7 @@ def preflight(args: argparse.Namespace) -> Dict[str, Any]:
     runtime_files = sorted(RUNTIME_ROOT.glob("*.py"))
     if not runtime_files:
         raise IntegrationError("Copied DynaPlan runtime is empty")
-    if PIPELINE_VERSION != "dynaplan_final_nlevel_hierarchy_v1":
+    if PIPELINE_VERSION != "dynaplan_final_nlevel_hierarchy_v1_1":
         raise IntegrationError(f"Unexpected DynaPlan version: {PIPELINE_VERSION}")
     if not boundary["oracle_fields_structurally_absent"] or not boundary["slot_only"]:
         raise IntegrationError(f"Public task boundary failed: {boundary}")

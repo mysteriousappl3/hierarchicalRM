@@ -1,4 +1,4 @@
-"""DynaPlan N-level telemetry wrapper over the frozen v3.3 architecture."""
+"""DynaPlan v1.1 telemetry over the frozen v3.3 parent architecture."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from dynaplan_nlevel_adapter import (
     DynaPlanLexiconAdapter,
 )
 from dynaplan_nlevel_checkpoint_normalization import NORMALIZATION_REVISION
+from dynaplan_nlevel_localized_repair import LOCALIZED_REPAIR_REVISION
 from shared_nlevel_execution_audit_v3_3_pipeline import (
     run_shared_nlevel_loop as run_v33,
 )
@@ -72,6 +73,14 @@ def run_shared_nlevel_loop(*args, **kwargs):
                 normalization_records
             ),
             "decision_checkpoint_body_semantics_changed": False,
+            "audit_guided_suffix_repair": True,
+            "decision_guided_suffix_repair": True,
+            "localized_repair_revision": LOCALIZED_REPAIR_REVISION,
+            "localized_prefix_semantic_authority": (
+                "deterministic-artifact-validation-or-unverified-llm-audit"
+            ),
+            "localized_repair_full_candidate_recheck_required": True,
+            "localized_repair_full_regeneration_after_repeats": 2,
         }
     )
     return replace(result, extra_metrics=extra)

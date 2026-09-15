@@ -69,6 +69,19 @@ class RepairContext:
 
 
 @dataclass(frozen=True)
+class DecisionRepairContext:
+    """A block-complete Decision output awaiting a suffix-only rewrite."""
+
+    state_revision: int
+    h1_output: str
+    candidate_output: str
+    certificate: Mapping[str, object]
+    preserved_subtask_indices: Tuple[int, ...]
+    repair_subtask_indices: Tuple[int, ...]
+    failure_count: int
+
+
+@dataclass(frozen=True)
 class ValidIncumbent:
     """Shortest complete candidate accepted by deterministic projection."""
 
@@ -394,11 +407,16 @@ def run_shared_nlevel_loop(
 
     candidate: Optional[RepairCandidate] = None
     pending_repair: Optional[RepairContext] = None
+    pending_decision_repair: Optional[DecisionRepairContext] = None
     valid_incumbent: Optional[ValidIncumbent] = None
     incumbent_candidate_serials: set[int] = set()
     candidate_serial = 0
     last_failure_signature: Optional[Tuple[object, ...]] = None
     same_failure_count = 0
+    last_decision_failure_signature: Optional[Tuple[object, ...]] = None
+    same_decision_failure_count = 0
+    last_audit_failure_signature: Optional[Tuple[object, ...]] = None
+    same_audit_failure_count = 0
     decision_repair_certificate: Optional[Mapping[str, object]] = None
     repair_telemetry: Dict[str, object] = {
         "localized_patch_request_count": 0,
@@ -420,6 +438,18 @@ def run_shared_nlevel_loop(
         "candidate_transaction_rollback_count": 0,
         "continue_after_rollback": continue_after_rollback,
         "candidate_rollback_continuation_count": 0,
+        "decision_suffix_patch_request_count": 0,
+        "decision_suffix_patch_accept_count": 0,
+        "decision_suffix_patch_reject_count": 0,
+        "decision_suffix_full_regeneration_count": 0,
+        "decision_suffix_preserved_subtask_count_total": 0,
+        "decision_suffix_failure_certificates": [],
+        "audit_localized_repair_schedule_count": 0,
+        "audit_localized_hierarchy_repair_count": 0,
+        "audit_localized_decision_repair_count": 0,
+        "audit_localized_post_outer_repair_count": 0,
+        "audit_localized_full_regeneration_count": 0,
+        "audit_localized_failure_certificates": [],
     }
 
     def call(request: StageRequest) -> str:
@@ -466,7 +496,7 @@ def run_shared_nlevel_loop(
         log_invalidation("hierarchy", reason, had_value)
 
     def invalidate_decision(reason: str) -> None:
-        nonlocal candidate, pending_repair
+        nonlocal candidate, pending_repair, pending_decision_repair
         had_value = cache["decision_output"] is not None or cache["decision"] is not None
         cache["decision_revision"] = None
         cache["decision_output"] = None
@@ -475,6 +505,7 @@ def run_shared_nlevel_loop(
         log_invalidation("decision", reason, had_value)
         candidate = None
         pending_repair = None
+        pending_decision_repair = None
         invalidate_hierarchy(reason)
 
     def invalidate_h1(reason: str) -> None:
@@ -534,6 +565,163 @@ def run_shared_nlevel_loop(
             invalidate_decision(reason)
         set_owner_feedback(canonical, reason)
         return canonical
+
+    def schedule_audit_localized_repair(
+        *,
+        owner: str,
+        reason: str,
+        active_candidate: Optional[RepairCandidate],
+        active_projection: object,
+        active_hierarchy: object,
+        active_decision_output: str,
+        active_h1_output: str,
+    ) -> bool:
+        """Schedule one advisory InnerBot-localized suffix transaction.
+
+        The audit coordinates are not semantic proof.  This helper only
+        selects a regeneration boundary; the normal compile and full audit
+        path remains mandatory for the merged candidate.
+        """
+
+        nonlocal pending_repair, pending_decision_repair
+        nonlocal last_audit_failure_signature, same_audit_failure_count
+
+        localization_hook = getattr(adapter, "last_audit_localization", None)
+        localization = (
+            localization_hook() if callable(localization_hook) else None
+        )
+        if (
+            not isinstance(localization, Mapping)
+            or active_candidate is None
+            or not bool(
+                getattr(adapter, "audit_localized_suffix_repair", False)
+            )
+        ):
+            return False
+        try:
+            failed_subtask = int(localization.get("first_bad_subtask", 0))
+            failed_action = int(
+                localization.get("first_bad_action_in_subtask", 0)
+            )
+            ordered_indices = tuple(
+                int(item.index) for item in active_hierarchy.subtasks
+            )
+        except (AttributeError, TypeError, ValueError):
+            return False
+        if failed_subtask not in ordered_indices:
+            return False
+
+        signature = (
+            state_revision,
+            owner,
+            failed_subtask,
+            failed_action,
+        )
+        if signature == last_audit_failure_signature:
+            same_audit_failure_count += 1
+        else:
+            last_audit_failure_signature = signature
+            same_audit_failure_count = 1
+        limit = max(
+            0,
+            int(
+                getattr(
+                    adapter,
+                    "audit_localized_suffix_repair_limit",
+                    0,
+                )
+            ),
+        )
+        if same_audit_failure_count > limit:
+            repair_telemetry[
+                "audit_localized_full_regeneration_count"
+            ] = int(
+                repair_telemetry[
+                    "audit_localized_full_regeneration_count"
+                ]
+            ) + 1
+            last_audit_failure_signature = None
+            same_audit_failure_count = 0
+            return False
+
+        failed_position = ordered_indices.index(failed_subtask)
+        preserved_indices = ordered_indices[:failed_position]
+        repair_indices = ordered_indices[failed_position:]
+        certificate = {
+            **dict(localization),
+            "failure_count": same_audit_failure_count,
+            "preserved_subtask_indices": list(preserved_indices),
+            "repair_subtask_indices": list(repair_indices),
+        }
+        if owner == OWNER_HIERARCHY:
+            pending_repair = RepairContext(
+                candidate=active_candidate,
+                projection=active_projection,
+                certificate=certificate,
+                preserved_subtask_indices=tuple(preserved_indices),
+                repair_subtask_indices=tuple(repair_indices),
+                failure_count=same_audit_failure_count,
+            )
+            invalidate_hierarchy(reason)
+            repair_telemetry[
+                "audit_localized_hierarchy_repair_count"
+            ] = int(
+                repair_telemetry[
+                    "audit_localized_hierarchy_repair_count"
+                ]
+            ) + 1
+        else:
+            spec_hook = getattr(adapter, "decision_suffix_repair_spec", None)
+            spec = (
+                spec_hook(
+                    active_decision_output,
+                    [f"Subtask {failed_subtask}: {reason}"],
+                )
+                if callable(spec_hook)
+                and bool(
+                    getattr(
+                        adapter,
+                        "decision_localized_suffix_repair",
+                        False,
+                    )
+                )
+                else None
+            )
+            if spec is None:
+                return False
+            decision_context = DecisionRepairContext(
+                state_revision=state_revision,
+                h1_output=active_h1_output,
+                candidate_output=active_decision_output,
+                certificate=certificate,
+                preserved_subtask_indices=tuple(
+                    spec.preserved_subtask_indices
+                ),
+                repair_subtask_indices=tuple(spec.repair_subtask_indices),
+                failure_count=same_audit_failure_count,
+            )
+            invalidate_decision(reason)
+            pending_decision_repair = decision_context
+            repair_telemetry[
+                "audit_localized_decision_repair_count"
+            ] = int(
+                repair_telemetry[
+                    "audit_localized_decision_repair_count"
+                ]
+            ) + 1
+
+        repair_telemetry[
+            "audit_localized_repair_schedule_count"
+        ] = int(
+            repair_telemetry["audit_localized_repair_schedule_count"]
+        ) + 1
+        certificates = repair_telemetry[
+            "audit_localized_failure_certificates"
+        ]
+        assert isinstance(certificates, list)
+        certificates.append(certificate)
+        set_owner_feedback(owner, reason)
+        return True
 
     def start_stage() -> str:
         if cache["descriptor_revision"] != state_revision:
@@ -900,6 +1088,13 @@ def run_shared_nlevel_loop(
             else:
                 active_stage = "decision"
                 stage_counts["plan_generation_count"] += 1
+                decision_patch_context = pending_decision_repair
+                if decision_patch_context is not None and (
+                    decision_patch_context.state_revision != state_revision
+                    or decision_patch_context.h1_output != h1_output
+                ):
+                    decision_patch_context = None
+                    pending_decision_repair = None
                 decision_request = adapter.decision_request(
                     task,
                     current_state,
@@ -908,14 +1103,101 @@ def run_shared_nlevel_loop(
                     h1_output,
                     feedback_by_stage["decision"],
                 )
-                if decision_repair_certificate is not None:
+                if (
+                    decision_patch_context is None
+                    and decision_repair_certificate is not None
+                ):
                     decision_request = adapter.augment_decision_repair_request(
                         task,
                         current_state,
                         decision_request,
                         decision_repair_certificate,
                     )
-                decision_output = call(decision_request)
+                if decision_patch_context is None:
+                    decision_output = call(decision_request)
+                else:
+                    request_hook = getattr(
+                        adapter, "decision_suffix_repair_request", None
+                    )
+                    merge_hook = getattr(
+                        adapter, "merge_decision_suffix_repair", None
+                    )
+                    if not callable(request_hook) or not callable(merge_hook):
+                        pending_decision_repair = None
+                        decision_patch_context = None
+                        decision_output = call(decision_request)
+                    else:
+                        repair_telemetry[
+                            "decision_suffix_patch_request_count"
+                        ] = int(
+                            repair_telemetry[
+                                "decision_suffix_patch_request_count"
+                            ]
+                        ) + 1
+                        patch_request = request_hook(
+                            decision_request,
+                            decision_patch_context.candidate_output,
+                            decision_patch_context.certificate,
+                            decision_patch_context.preserved_subtask_indices,
+                            decision_patch_context.repair_subtask_indices,
+                        )
+                        patch_output = call(patch_request)
+                        attempt["stage_outputs"][
+                            "decision_patch_output"
+                        ] = patch_output
+                        attempt["repair_mode"] = (
+                            "localized_decision_suffix_patch"
+                        )
+                        attempt["preserved_decision_subtasks"] = list(
+                            decision_patch_context.preserved_subtask_indices
+                        )
+                        merged = v2._coerce_artifact_check(
+                            merge_hook(
+                                decision_patch_context.candidate_output,
+                                patch_output,
+                                decision_patch_context.preserved_subtask_indices,
+                                decision_patch_context.repair_subtask_indices,
+                            )
+                        )
+                        if not merged.valid or not isinstance(merged.value, str):
+                            repair_telemetry[
+                                "decision_suffix_patch_reject_count"
+                            ] = int(
+                                repair_telemetry[
+                                    "decision_suffix_patch_reject_count"
+                                ]
+                            ) + 1
+                            repair_telemetry[
+                                "decision_suffix_full_regeneration_count"
+                            ] = int(
+                                repair_telemetry[
+                                    "decision_suffix_full_regeneration_count"
+                                ]
+                            ) + 1
+                            errors = list(merged.errors) or [merged.reason]
+                            message = (
+                                "Decision suffix patch merge failed: "
+                                + "; ".join(errors)
+                            )
+                            parse_errors.extend(
+                                f"DecisionPatch: {item}" for item in errors
+                            )
+                            attempt["stage_outputs"][
+                                "decision_output"
+                            ] = patch_output
+                            attempt["decision_validation"] = v2._check_payload(
+                                merged
+                            )
+                            invalidate_decision(message)
+                            feedback_by_stage["decision"] = message
+                            failure_attempt(
+                                attempt,
+                                stage=active_stage,
+                                message=message,
+                                owner=OWNER_DECISION,
+                            )
+                            continue
+                        decision_output = merged.value
                 decision_check = v2._coerce_artifact_check(
                     adapter.parse_decision(task, decision_output)
                 )
@@ -924,6 +1206,14 @@ def run_shared_nlevel_loop(
                 attempt["stage_outputs"]["decision_output"] = decision_output
                 attempt["decision_validation"] = v2._check_payload(decision_check)
                 if not decision_check.valid or decision is None:
+                    if decision_patch_context is not None:
+                        repair_telemetry[
+                            "decision_suffix_patch_reject_count"
+                        ] = int(
+                            repair_telemetry[
+                                "decision_suffix_patch_reject_count"
+                            ]
+                        ) + 1
                     message = (
                         "Decision validation failed: "
                         f"{decision_check.reason}"
@@ -931,7 +1221,97 @@ def run_shared_nlevel_loop(
                     parse_errors.extend(
                         f"Plan: {error}" for error in decision_check.errors
                     )
+                    localized_context: Optional[DecisionRepairContext] = None
+                    spec_hook = getattr(
+                        adapter, "decision_suffix_repair_spec", None
+                    )
+                    normalized_failed_output = decision_output
+                    if callable(spec_hook) and bool(
+                        getattr(
+                            adapter, "decision_localized_suffix_repair", False
+                        )
+                    ):
+                        try:
+                            normalized_failed_output = _canonical_decision(
+                                adapter,
+                                task,
+                                decision_output,
+                                decision_check,
+                            )
+                        except (TypeError, ValueError):
+                            normalized_failed_output = decision_output
+                        spec = spec_hook(
+                            normalized_failed_output, decision_check.errors
+                        )
+                        if spec is not None:
+                            signature = (
+                                state_revision,
+                                h1_output,
+                                int(spec.failed_subtask_index),
+                            )
+                            if signature == last_decision_failure_signature:
+                                same_decision_failure_count += 1
+                            else:
+                                last_decision_failure_signature = signature
+                                same_decision_failure_count = 1
+                            limit = max(
+                                0,
+                                int(
+                                    getattr(
+                                        adapter,
+                                        "decision_localized_suffix_repair_limit",
+                                        0,
+                                    )
+                                ),
+                            )
+                            certificate = {
+                                "certificate_source": (
+                                    "deterministic_decision_validation"
+                                ),
+                                "semantic_verification": "WITHHELD",
+                                "failed_subtask_index": int(
+                                    spec.failed_subtask_index
+                                ),
+                                "errors": list(decision_check.errors),
+                                "failure_count": same_decision_failure_count,
+                                "preserved_subtask_indices": list(
+                                    spec.preserved_subtask_indices
+                                ),
+                                "repair_subtask_indices": list(
+                                    spec.repair_subtask_indices
+                                ),
+                            }
+                            if same_decision_failure_count <= limit:
+                                localized_context = DecisionRepairContext(
+                                    state_revision=state_revision,
+                                    h1_output=h1_output,
+                                    candidate_output=normalized_failed_output,
+                                    certificate=certificate,
+                                    preserved_subtask_indices=tuple(
+                                        spec.preserved_subtask_indices
+                                    ),
+                                    repair_subtask_indices=tuple(
+                                        spec.repair_subtask_indices
+                                    ),
+                                    failure_count=same_decision_failure_count,
+                                )
+                                certificates = repair_telemetry[
+                                    "decision_suffix_failure_certificates"
+                                ]
+                                assert isinstance(certificates, list)
+                                certificates.append(certificate)
+                            else:
+                                repair_telemetry[
+                                    "decision_suffix_full_regeneration_count"
+                                ] = int(
+                                    repair_telemetry[
+                                        "decision_suffix_full_regeneration_count"
+                                    ]
+                                ) + 1
+                                last_decision_failure_signature = None
+                                same_decision_failure_count = 0
                     invalidate_decision(message)
+                    pending_decision_repair = localized_context
                     feedback_by_stage["decision"] = message
                     failure_attempt(
                         attempt,
@@ -940,6 +1320,23 @@ def run_shared_nlevel_loop(
                         owner=OWNER_DECISION,
                     )
                     continue
+                if decision_patch_context is not None:
+                    repair_telemetry[
+                        "decision_suffix_patch_accept_count"
+                    ] = int(
+                        repair_telemetry["decision_suffix_patch_accept_count"]
+                    ) + 1
+                    repair_telemetry[
+                        "decision_suffix_preserved_subtask_count_total"
+                    ] = int(
+                        repair_telemetry[
+                            "decision_suffix_preserved_subtask_count_total"
+                        ]
+                    ) + len(
+                        decision_patch_context.preserved_subtask_indices
+                    )
+                last_decision_failure_signature = None
+                same_decision_failure_count = 0
                 canonical_decision_output = _canonical_decision(
                     adapter,
                     task,
@@ -954,6 +1351,7 @@ def run_shared_nlevel_loop(
                 cache["decision"] = decision
                 feedback_by_stage["decision"] = ""
                 decision_repair_certificate = None
+                pending_decision_repair = None
 
             attempt["stage_outputs"]["plan_output"] = decision_output
             attempt["stage_outputs"]["decision_output"] = decision_output
@@ -1014,7 +1412,14 @@ def run_shared_nlevel_loop(
                     attempt["stage_outputs"][
                         "hierarchy_patch_output"
                     ] = raw_hierarchy_output
-                    attempt["repair_mode"] = "verified_prefix_suffix_patch"
+                    attempt["repair_mode"] = (
+                        "llm_audit_localized_suffix_patch"
+                        if repair_context.certificate.get(
+                            "certificate_source"
+                        )
+                        == "llm_execution_audit"
+                        else "verified_prefix_suffix_patch"
+                    )
                     attempt["preserved_subtasks"] = list(
                         repair_context.preserved_subtask_indices
                     )
@@ -1456,7 +1861,22 @@ def run_shared_nlevel_loop(
                         ),
                     }
                 else:
-                    owner = invalidate_owner(router_verdict.owner, message)
+                    owner = route(router_verdict.owner)
+                    scheduled_local_repair = schedule_audit_localized_repair(
+                        owner=owner,
+                        reason=message,
+                        active_candidate=candidate,
+                        active_projection=projection,
+                        active_hierarchy=hierarchy,
+                        active_decision_output=decision_output,
+                        active_h1_output=h1_output,
+                    )
+                    if not scheduled_local_repair:
+                        if owner == OWNER_HIERARCHY:
+                            invalidate_hierarchy(message)
+                        else:
+                            invalidate_decision(message)
+                        set_owner_feedback(owner, message)
                     attempt["router_check"] = {
                         "result": "NO",
                         "owner": owner,
@@ -1709,7 +2129,28 @@ def run_shared_nlevel_loop(
                         attempt,
                         failure_message,
                     )
-                    invalidate_owner(failure_owner, failure_message)
+                    scheduled_post_outer_repair = (
+                        failure_stage == "outerbot"
+                        and schedule_audit_localized_repair(
+                            owner=failure_owner,
+                            reason=failure_message,
+                            active_candidate=candidate,
+                            active_projection=projection,
+                            active_hierarchy=hierarchy,
+                            active_decision_output=decision_output,
+                            active_h1_output=h1_output,
+                        )
+                    )
+                    if scheduled_post_outer_repair:
+                        repair_telemetry[
+                            "audit_localized_post_outer_repair_count"
+                        ] = int(
+                            repair_telemetry[
+                                "audit_localized_post_outer_repair_count"
+                            ]
+                        ) + 1
+                    else:
+                        invalidate_owner(failure_owner, failure_message)
                     if (
                         continue_after_rollback
                         and termination_reason == "non_recoverable"
@@ -1972,6 +2413,7 @@ __all__ = [
     "PIPELINE_VERSION",
     "RepairCandidate",
     "RepairContext",
+    "DecisionRepairContext",
     "ValidIncumbent",
     "VerifiedRepairAdapter",
     "run_shared_nlevel_loop",

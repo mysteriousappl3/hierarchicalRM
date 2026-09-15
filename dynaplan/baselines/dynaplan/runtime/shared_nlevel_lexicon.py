@@ -117,6 +117,27 @@ _COMPILER_MONITOR_RE = re.compile(
 )
 
 
+def _contains_executable_action_syntax(
+    description: str, primitive_names: Iterable[str]
+) -> bool:
+    """Distinguish executable calls from ordinary action words in prose.
+
+    DecisionBot is asked for natural-language objectives, so sentences such as
+    ``unload the package`` or ``unstack the blue block`` are valid.  Only a
+    function-style call (``unloadtruck(...)``), a PDDL-style call
+    (``(unloadtruck ...)``), or a hierarchy function call is executable syntax.
+    """
+
+    names = "|".join(map(re.escape, primitive_names))
+    primitive_call = re.compile(
+        rf"(?:\(\s*(?:{names})\b|\b(?:{names})\s*\()", re.IGNORECASE
+    )
+    hierarchy_call = re.compile(r"\b[A-Z][A-Za-z0-9_]*\s*\(")
+    return bool(
+        primitive_call.search(description) or hierarchy_call.search(description)
+    )
+
+
 _H1_TO_PRIMITIVE: Dict[str, str] = {
     "LoadTruck": "loadtruck",
     "LoadAirplane": "loadairplane",
@@ -495,16 +516,11 @@ def _parse_decision(task: LexiconLogisticsTask, text: str) -> ArtifactCheck:
 
     subtasks: List[LexiconDecisionSubtask] = []
     covered_constraints: set[int] = set()
-    primitive_leak_re = re.compile(
-        r"\b(?:" + "|".join(map(re.escape, PRIMITIVE_ARITIES)) + r")\b",
-        re.IGNORECASE,
-    )
-    function_call_leak_re = re.compile(r"\b[A-Z][A-Za-z0-9_]*\s*\(")
     for index in indices:
         description = descriptions.get(index, "").strip()
         if not description:
             errors.append(f"Subtask {index} description is empty")
-        if primitive_leak_re.search(description) or function_call_leak_re.search(description):
+        if _contains_executable_action_syntax(description, PRIMITIVE_ARITIES):
             errors.append(f"Subtask {index} description leaks executable action syntax")
 
         raw_checkpoint = raw_checkpoints.get(index)
