@@ -1,0 +1,234 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1160" viewBox="0 0 1800 1160" role="img" aria-labelledby="title desc">
+  <title id="title">DynaPlan v1.1 architecture</title>
+  <desc id="desc">A success-first transactional N-level planning pipeline. A public task passes through state grounding, DecisionBot decomposition, hierarchical composition, deterministic structural expansion, one InnerBot audit, tentative shadow execution, and independent OuterBot review. Rejected candidates roll back and enter localized suffix repair. Accepted candidates commit and are scored once by the official deterministic evaluator.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7f9fc"/>
+      <stop offset="1" stop-color="#edf3fa"/>
+    </linearGradient>
+    <linearGradient id="header" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#14213d"/>
+      <stop offset="1" stop-color="#243b63"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#14213d" flood-opacity="0.15"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#52657a"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#d76b28"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#23845a"/>
+    </marker>
+    <style>
+      .title { font: 700 38px Inter, ui-sans-serif, system-ui, sans-serif; fill: #ffffff; }
+      .subtitle { font: 400 18px Inter, ui-sans-serif, system-ui, sans-serif; fill: #dbe6f5; }
+      .lane { font: 700 17px Inter, ui-sans-serif, system-ui, sans-serif; letter-spacing: 1.4px; fill: #4b6076; }
+      .box-title { font: 700 20px Inter, ui-sans-serif, system-ui, sans-serif; fill: #17263b; }
+      .box-body { font: 400 15px Inter, ui-sans-serif, system-ui, sans-serif; fill: #33475b; }
+      .small { font: 400 13px Inter, ui-sans-serif, system-ui, sans-serif; fill: #42576b; }
+      .badge { font: 700 12px Inter, ui-sans-serif, system-ui, sans-serif; letter-spacing: .5px; }
+      .edge { fill: none; stroke: #52657a; stroke-width: 3; marker-end: url(#arrow); }
+      .edge-orange { fill: none; stroke: #d76b28; stroke-width: 3.2; marker-end: url(#arrowOrange); }
+      .edge-green { fill: none; stroke: #23845a; stroke-width: 3.2; marker-end: url(#arrowGreen); }
+      .edge-dash { fill: none; stroke: #7a8b9c; stroke-width: 2.5; stroke-dasharray: 8 7; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1800" height="1160" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1800" height="112" fill="url(#header)"/>
+  <text x="72" y="55" class="title">DynaPlan v1.1</text>
+  <text x="72" y="84" class="subtitle">Success-first · transactional N-level hierarchy · LLM-only online semantic audit</text>
+  <rect x="1365" y="29" width="355" height="52" rx="26" fill="#ffffff" fill-opacity="0.10" stroke="#ffffff" stroke-opacity="0.28"/>
+  <text x="1542" y="51" text-anchor="middle" class="subtitle" style="font-weight:700">ONLINE SEMANTICS WITHHELD</text>
+  <text x="1542" y="72" text-anchor="middle" class="subtitle" style="font-size:13px">official evaluator runs once, at the end</text>
+
+  <!-- Lane labels -->
+  <text x="72" y="154" class="lane">1 · PUBLIC GROUNDING</text>
+  <text x="72" y="354" class="lane">2 · PLAN AND COMPILE</text>
+  <text x="72" y="592" class="lane">3 · AUDIT AND TRANSACT</text>
+  <text x="72" y="875" class="lane">4 · ACCEPT, REPAIR, OR SCORE</text>
+
+  <!-- Lane 1 -->
+  <g filter="url(#shadow)">
+    <rect x="72" y="174" width="315" height="125" rx="16" fill="#ffffff" stroke="#8ea6bd" stroke-width="2"/>
+    <rect x="92" y="190" width="113" height="23" rx="11" fill="#d8e8f7"/>
+    <text x="148" y="206" text-anchor="middle" class="badge" fill="#24547a">TRUSTED INPUT</text>
+    <text x="96" y="239" class="box-title">Public task boundary</text>
+    <text x="96" y="265" class="box-body">Initial state · goals · constraints</text>
+    <text x="96" y="287" class="small">Oracle plan and optimum are absent</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="446" y="174" width="300" height="125" rx="16" fill="#fff8eb" stroke="#e2a95b" stroke-width="2"/>
+    <rect x="466" y="190" width="88" height="23" rx="11" fill="#fce2ba"/>
+    <text x="510" y="206" text-anchor="middle" class="badge" fill="#9a5a12">LLM ROLE</text>
+    <text x="470" y="239" class="box-title">StateDescriptor</text>
+    <text x="470" y="265" class="box-body">Summarizes current state and target</text>
+    <text x="470" y="287" class="small">Structure is parsed before reuse</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="805" y="174" width="315" height="125" rx="16" fill="#fff8eb" stroke="#e2a95b" stroke-width="2"/>
+    <rect x="825" y="190" width="88" height="23" rx="11" fill="#fce2ba"/>
+    <text x="869" y="206" text-anchor="middle" class="badge" fill="#9a5a12">LLM ROLE</text>
+    <text x="829" y="239" class="box-title">State-review InnerBot</text>
+    <text x="829" y="265" class="box-body">Checks descriptor against visible task</text>
+    <text x="829" y="287" class="small">YES / NO + reason</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="1179" y="174" width="335" height="125" rx="16" fill="#fff8eb" stroke="#e2a95b" stroke-width="2"/>
+    <rect x="1199" y="190" width="88" height="23" rx="11" fill="#fce2ba"/>
+    <text x="1243" y="206" text-anchor="middle" class="badge" fill="#9a5a12">LLM ROLE</text>
+    <text x="1203" y="239" class="box-title">H1ActionGenerator</text>
+    <text x="1203" y="265" class="box-body">Builds reusable primitive wrappers</text>
+    <text x="1203" y="287" class="small">Validated once; cached task-wide</text>
+  </g>
+  <path d="M387 236 H446" class="edge"/>
+  <path d="M746 236 H805" class="edge"/>
+  <path d="M1120 236 H1179" class="edge"/>
+
+  <!-- Lane 2 -->
+  <g filter="url(#shadow)">
+    <rect x="72" y="377" width="340" height="154" rx="16" fill="#fff8eb" stroke="#e2a95b" stroke-width="2"/>
+    <rect x="92" y="393" width="88" height="23" rx="11" fill="#fce2ba"/>
+    <text x="136" y="409" text-anchor="middle" class="badge" fill="#9a5a12">LLM ROLE</text>
+    <text x="96" y="443" class="box-title">DecisionBot</text>
+    <text x="96" y="469" class="box-body">What: ordered subtasks</text>
+    <text x="96" y="491" class="box-body">Contract: checkpoint after each</text>
+    <text x="96" y="515" class="small">Success first; primitive calls forbidden</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="477" y="377" width="340" height="154" rx="16" fill="#fff8eb" stroke="#e2a95b" stroke-width="2"/>
+    <rect x="497" y="393" width="88" height="23" rx="11" fill="#fce2ba"/>
+    <text x="541" y="409" text-anchor="middle" class="badge" fill="#9a5a12">LLM ROLE</text>
+    <text x="501" y="443" class="box-title">HierarchyPlanner</text>
+    <text x="501" y="469" class="box-body">How: composes H1 / H2 / H3+</text>
+    <text x="501" y="491" class="box-body">Binds calls to every subtask</text>
+    <text x="501" y="515" class="small">May regenerate only a failed suffix</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="882" y="377" width="350" height="154" rx="16" fill="#eaf5ff" stroke="#5798c8" stroke-width="2"/>
+    <rect x="902" y="393" width="135" height="23" rx="11" fill="#cfe9fb"/>
+    <text x="969" y="409" text-anchor="middle" class="badge" fill="#24658f">DETERMINISTIC</text>
+    <text x="906" y="443" class="box-title">Structural compiler</text>
+    <text x="906" y="469" class="box-body">Parses names, arity, binding, graph</text>
+    <text x="906" y="491" class="box-body">Expands hierarchy into canonical H0</text>
+    <text x="906" y="515" class="small">Does not prove action applicability</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="1297" y="377" width="365" height="154" rx="16" fill="#ffffff" stroke="#8ea6bd" stroke-width="2"/>
+    <rect x="1317" y="393" width="104" height="23" rx="11" fill="#e4ebf2"/>
+    <text x="1369" y="409" text-anchor="middle" class="badge" fill="#4b6076">CANDIDATE</text>
+    <text x="1321" y="443" class="box-title">Canonical H0 trace</text>
+    <text x="1321" y="469" class="box-body">Actions grouped by subtask</text>
+    <text x="1321" y="491" class="box-body">Stable IDs and execution order</text>
+    <text x="1321" y="515" class="small">Semantic verification: WITHHELD</text>
+  </g>
+  <path d="M412 454 H477" class="edge"/>
+  <path d="M817 454 H882" class="edge"/>
+  <path d="M1232 454 H1297" class="edge"/>
+  <path d="M1347 299 V332 H242 V377" class="edge-dash"/>
+
+  <!-- Lane 3 -->
+  <g filter="url(#shadow)">
+    <rect x="72" y="617" width="410" height="183" rx="16" fill="#fff8eb" stroke="#e2a95b" stroke-width="2"/>
+    <rect x="92" y="633" width="88" height="23" rx="11" fill="#fce2ba"/>
+    <text x="136" y="649" text-anchor="middle" class="badge" fill="#9a5a12">LLM ROLE</text>
+    <text x="96" y="684" class="box-title">One InnerBot execution audit</text>
+    <text x="96" y="710" class="box-body">Pass A: forward legality + checkpoints</text>
+    <text x="96" y="733" class="box-body">Pass B: backward support + adversarial check</text>
+    <text x="96" y="756" class="box-body">Structured coverage + requirement evidence</text>
+    <text x="96" y="783" class="small">Outputs VALID or earliest failure + owner</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="558" y="617" width="390" height="183" rx="16" fill="#eaf5ff" stroke="#5798c8" stroke-width="2"/>
+    <rect x="578" y="633" width="135" height="23" rx="11" fill="#cfe9fb"/>
+    <text x="645" y="649" text-anchor="middle" class="badge" fill="#24658f">DETERMINISTIC</text>
+    <text x="582" y="684" class="box-title">Candidate transaction</text>
+    <text x="582" y="710" class="box-body">Snapshot state, actions, revision, digest</text>
+    <text x="582" y="733" class="box-body">Apply public effects in a shadow copy</text>
+    <text x="582" y="756" class="box-body">Commit on acceptance · rollback on rejection</text>
+    <text x="582" y="783" class="small">Shadow execution never checks preconditions</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="1024" y="617" width="410" height="183" rx="16" fill="#fff8eb" stroke="#e2a95b" stroke-width="2"/>
+    <rect x="1044" y="633" width="88" height="23" rx="11" fill="#fce2ba"/>
+    <text x="1088" y="649" text-anchor="middle" class="badge" fill="#9a5a12">LLM ROLE</text>
+    <text x="1048" y="684" class="box-title">Independent OuterBot review</text>
+    <text x="1048" y="710" class="box-body">Exact actions + H0 + before/after state</text>
+    <text x="1048" y="733" class="box-body">Checks checkpoint and final-subtask marker</text>
+    <text x="1048" y="756" class="box-body">Returns success or failure classification</text>
+    <text x="1048" y="783" class="small">InnerBot verdict is deliberately hidden</text>
+  </g>
+  <g>
+    <rect x="1501" y="636" width="213" height="145" rx="16" fill="#fff2f0" stroke="#cf665c" stroke-width="2"/>
+    <text x="1523" y="671" class="box-title" style="font-size:17px">Online limitation</text>
+    <text x="1523" y="699" class="small">Evidence guards validate</text>
+    <text x="1523" y="719" class="small">shape and coverage—not</text>
+    <text x="1523" y="739" class="small">witness truth. InnerBot</text>
+    <text x="1523" y="759" class="small">and OuterBot can agree</text>
+    <text x="1523" y="779" class="small">on an illegal plan.</text>
+  </g>
+  <path d="M1479 531 V566 H277 V617" class="edge"/>
+  <path d="M482 708 H558" class="edge-green"/>
+  <path d="M948 708 H1024" class="edge"/>
+  <path d="M1434 708 H1501" class="edge-dash"/>
+
+  <!-- Lane 4 -->
+  <g filter="url(#shadow)">
+    <rect x="72" y="904" width="385" height="165" rx="16" fill="#fff3e9" stroke="#d76b28" stroke-width="2.5"/>
+    <rect x="92" y="920" width="89" height="23" rx="11" fill="#fbdabd"/>
+    <text x="136" y="936" text-anchor="middle" class="badge" fill="#9d4a16">REJECT</text>
+    <text x="96" y="971" class="box-title">Localized repair + rollback</text>
+    <text x="96" y="997" class="box-body">Restore snapshot when transaction exists</text>
+    <text x="96" y="1020" class="box-body">Preserve exact prefix; regenerate suffix</text>
+    <text x="96" y="1044" class="small">Full re-audit; full regeneration after 2 repeats</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="600" y="904" width="275" height="165" rx="16" fill="#edf8f2" stroke="#4c9c76" stroke-width="2.5"/>
+    <rect x="620" y="920" width="88" height="23" rx="11" fill="#ccebdc"/>
+    <text x="664" y="936" text-anchor="middle" class="badge" fill="#23714d">ACCEPT</text>
+    <text x="624" y="971" class="box-title">Commit candidate</text>
+    <text x="624" y="997" class="box-body">Persist actions and state revision</text>
+    <text x="624" y="1020" class="box-body">Stop success-first search</text>
+    <text x="624" y="1044" class="small">Acceptance is still probabilistic</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="1018" y="904" width="360" height="165" rx="16" fill="#f1edff" stroke="#7665b4" stroke-width="2.5"/>
+    <rect x="1038" y="920" width="151" height="23" rx="11" fill="#ded6ff"/>
+    <text x="1113" y="936" text-anchor="middle" class="badge" fill="#544494">ONLY AUTHORITY</text>
+    <text x="1042" y="971" class="box-title">Official final evaluator ×1</text>
+    <text x="1042" y="997" class="box-body">Replays submitted primitive actions</text>
+    <text x="1042" y="1020" class="box-body">Checks legality, goals, and constraints</text>
+    <text x="1042" y="1044" class="small">No result returns to the planning loop</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="1517" y="904" width="197" height="165" rx="16" fill="#ffffff" stroke="#8ea6bd" stroke-width="2"/>
+    <text x="1541" y="955" class="box-title">Final result</text>
+    <text x="1541" y="987" class="box-body">Valid / invalid</text>
+    <text x="1541" y="1012" class="box-body">Optimal / suboptimal</text>
+    <text x="1541" y="1037" class="small">Calls · tokens · traces</text>
+  </g>
+
+  <path d="M1165 800 V846 H737 V904" class="edge-green"/>
+  <text x="947" y="837" class="small" fill="#23714d" style="font-weight:700">TASK SUCCESS</text>
+  <path d="M1080 800 V855 H264 V904" class="edge-orange"/>
+  <text x="568" y="850" class="small" fill="#9d4a16" style="font-weight:700">OUTERBOT REJECT → ROLLBACK</text>
+  <path d="M277 800 V874 H170 V904" class="edge-orange"/>
+  <text x="291" y="827" class="small" fill="#9d4a16" style="font-weight:700">INVALID</text>
+  <text x="511" y="700" class="small" fill="#23714d" style="font-weight:700">VALID</text>
+  <path d="M875 986 H1018" class="edge-green"/>
+  <path d="M1378 986 H1517" class="edge"/>
+  <path d="M264 904 V850 H34 V454 H72" class="edge-orange"/>
+  <text x="47" y="686" class="small" fill="#9d4a16" transform="rotate(-90 47 686)" style="font-weight:700">RETRY WITH VALIDATED CACHE + LOCALIZED FEEDBACK</text>
+
+  <!-- Footer legend -->
+  <rect x="72" y="1105" width="17" height="17" rx="4" fill="#fff8eb" stroke="#e2a95b"/>
+  <text x="99" y="1119" class="small">LLM judgment</text>
+  <rect x="235" y="1105" width="17" height="17" rx="4" fill="#eaf5ff" stroke="#5798c8"/>
+  <text x="262" y="1119" class="small">deterministic structure / bookkeeping</text>
+  <rect x="540" y="1105" width="17" height="17" rx="4" fill="#f1edff" stroke="#7665b4"/>
+  <text x="567" y="1119" class="small">authoritative semantic evaluation</text>
+  <text x="1714" y="1119" text-anchor="end" class="small">Framework: dynaplan_final_nlevel_hierarchy_v1_1 · benchmark integration 59</text>
+</svg>

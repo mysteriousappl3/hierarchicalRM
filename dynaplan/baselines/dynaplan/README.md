@@ -1,5 +1,8 @@
 # DynaPlan
 
+Detailed architecture, bot contracts, design motivations, failure paths, and
+the main system figure are in [`../../ARCHITECTURE.md`](../../ARCHITECTURE.md).
+
 Framework ID: `dynaplan_final_nlevel_hierarchy_v1_1`
 Benchmark integration version: `59`
 
