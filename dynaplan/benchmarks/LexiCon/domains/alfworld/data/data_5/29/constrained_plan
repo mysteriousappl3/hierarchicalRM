@@ -1,4 +1,0 @@
-(gotolocation agent1 location1 location4)
-(gotolocation agent1 location4 location2)
-(examinereceptacle agent1 armchair_2)
-(gotolocation agent1 location2 location5)

@@ -1,3 +1,0 @@
-(gotoobject grey_box_1 room_3)
-(gotodoor red_door_1 room_3 room_1)
-(toggle red_door_1)

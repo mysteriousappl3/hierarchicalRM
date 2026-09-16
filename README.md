@@ -1,94 +1,128 @@
-# HierarchicalRM Project
+# DynaPlan
 
-A Unity-based surgical peg transfer task driven by HierarchicalRM pipeline. The system breaks a natural-language instruction into a hierarchy of robot actions and executes them using a simulated dvrk robot arm.
+**Dynamic Hierarchy Discovery for Robotic Planning in Long-Horizon Puzzle Tasks**
+
+Anonymous code release for double-blind review. Project page: `index.html`
+(served from this branch).
+
+DynaPlan plans long-horizon tasks by composing actions out of other composed
+actions, so the depth of the hierarchy follows the task instead of being set
+in advance. The expanded plan is checked before anything runs, and a failed
+check rewrites only the artifact it names. Structure is handled
+deterministically; every semantic judgment made online is a language-model
+call, and the benchmark's own validator is withheld until the final plan.
+
+Framework ID: `dynaplan_v1_3_compact_fallback` · Benchmark integration
+version: `61`
 
 ---
 
-## Navigating the Repository
+## Pipeline
 
-Most of the relevant code lives inside the Unity project. Please navigate to:
-
-```
-src/unity_project/Assets/Tasks/PegTransferTask/
-```
-
----
-
-## PegTransferTask
-
-### Folder Structure
-
-```
-PegTransferTask/
-├── Prefabs/          # Scene prefabs for different ring counts
-├── Scenes/           # Unity scenes for each configuration
-├── Scripts/          # All C# scripts for the task
-└── Task_Images/      # Screenshots captured during task execution
+```text
+task (goal, constraints, initial state; benchmark-internal fields removed)
+  -> Decision Bot: subtasks and checkpoints, no actions named
+  -> base actions H1: written once per task, validated, cached
+  -> Hierarchy Planner: JSON definitions and per-subtask calls
+  -> compiler: callees exist, arities match, no self-calls;
+               levels computed; calls expanded into one H0 trace
+  -> Inner Bot: one call, forward over actions and backward over
+                goals and constraints
+       rejected -> rewrite the named artifact, check the whole plan again
+  -> execution, one subtask at a time against a saved state
+       Outer Bot reviews the exact actions and states, without seeing
+       the Inner Bot verdict; a rejection rolls the plan back
+  -> benchmark validator, once, on the submitted plan
 ```
 
-### Prefabs
+## What is in this repo
 
-Three prefabs are available depending on how many rings your task involves:
+```text
+dynaplan/
+  ARCHITECTURE.md                 design reference for the shipped pipeline
+  DYNAPLAN_ARCHITECTURE.svg       pipeline diagram
+  baselines/dynaplan/
+    README.md                     framework notes and commands
+    benchmark.py                  entry point for a single condition
+    framework.json                registered framework metadata
+    runtime/                      the framework itself
+      dynaplan_nlevel_pipeline.py         controller and repair loop
+      dynaplan_nlevel_compact_contracts.py JSON generation contracts
+      dynaplan_nlevel_localized_repair.py  owner-scoped rewrite
+      dynaplan_nlevel_exhaustion_fallback.py  uncertified submission
+      shared_nlevel_*                     compile, expand, check, execute
+      prompts.py, flat_prompts.py, ...    prompts per domain
+      hanoi_solver.py, scoring.py         oracle and scoring helpers
+  baselines/TDP/README.md         note on how TDP was reimplemented
+  benchmarks/
+    official_sweep.py             frozen task registry and runner
+    official_sweep_v1.json        the 45 tasks used in the paper
+    dynaplan_v13_sweep.py         the two-model campaign launcher
+    dynaplan_v13_smoke.py         small offline check
+    benchmark.py                  shared harness
+    COMPARISON_PROMPT_PROTOCOL.md what every method is given
+    Flat-Hanoi/                   flat Tower of Hanoi generator and evaluator
+assets/                           figures used by the project page
+index.html, style.css             project page
+```
 
-| Prefab | Scene |
+## Components
+
+| Component | Responsibility | Boundary |
+|---|---|---|
+| Decision Bot | Subtasks and checkpoints for the task | Writes no actions |
+| H1 source | Base actions, one state change each | Cached after structural validation |
+| Hierarchy Planner | Definitions and calls that reach each checkpoint | JSON against a fixed schema |
+| Compiler | Callees, arities, self-calls, levels, expansion to primitives | Structure only, no semantics |
+| Inner Bot | One check of the expanded plan, forward and backward | Model judgment, coverage enforced deterministically |
+| Outer Bot | Review of each executed subtask against its checkpoint | Does not see the Inner Bot verdict |
+| Transaction controller | Saves state, executes, rolls back on rejection | Deterministic |
+| Validator | Scores the submitted plan | Runs once, cannot trigger repair |
+
+## Third-party baselines and benchmarks
+
+Not vendored here. Clone them next to `dynaplan/baselines/` if you want to
+reproduce the comparison:
+
+| Method | Repository |
 |---|---|
-| `Prefabs/3Rings_Scene.prefab` | `Scenes/3Rings.unity` |
-| `Prefabs/4Rings_Scene.prefab` | `Scenes/4Rings.unity` |
-| `Prefabs/5Rings_Scene.prefab` | `Scenes/5Rings.unity` |
+| AdaPlan-H | https://github.com/import-myself/AHP |
+| ADaPT | https://github.com/archiki/ADaPT |
+| AoT+ | https://github.com/llmsresearch/aot-plus |
+| LLM+P | https://github.com/Cranial-XIX/llm-pddl |
+| ReAcTree | https://github.com/Choi-JaeWoo/ReAcTree |
+| LexiCon benchmark | https://github.com/Periklismant/lexicon_neurips |
 
-Open the matching scene for your desired ring count before running.
+TDP has no public implementation; it was reimplemented from the prompts and
+algorithm in its paper, and `dynaplan/baselines/TDP/README.md` records what
+that involved.
 
-### Scripts Overview
+## How to run
 
-| Script | Role |
-|---|---|
-| `Main.cs` | Central controller — holds the OpenAI API key/URLs, the `pegColorToNumMapping`, and orchestrates execution of hierarchical functions |
-| `PipelineExecutor.cs` | Utility UI script — reads the task instruction from the input field and kicks off the full pipeline via `APIRunner()` |
-| `DecisionBot.cs` | Top-level planner — takes the user instruction and produces a sequence of H2/H1 function calls broken into subtasks |
-| `OuterBot.cs` | Performs subtask/task completion and decides whether replanning is needed |
-| `InnerBot.cs` | Performs verification for state description and decision bot plan and provides relevant feedback for correction |
-| `H1ActionGenerator.cs` | Generates H1-level functions (single state changes, e.g. move one ring) from H0 primitives |
-| `H2ActionGenerator.cs` | Generates H2-level functions (multi-step compositions of H1 functions) |
-| `SceneDescriptor.cs` | Captures a screenshot and calls the VLM to produce a structured JSON scene description |
-| `StateDescriptor.cs` | Uses the scene description and user instruction to produce goal and constraint spatial relation dictionaries |
-| `LowLevelMotor.cs` | Executes physical robot movements — move to peg, grab ring, drop ring |
+1. Python 3.10 or newer. Install the harness requirements, then install the
+   Flat-Hanoi package in editable mode:
+   ```bash
+   pip install -e dynaplan/benchmarks/Flat-Hanoi
+   ```
+2. Put provider keys in the environment, for example `OPENAI_API_KEY` and
+   `ANTHROPIC_API_KEY`. Nothing is read from a checked-in file.
+3. Offline check, which makes no paid calls:
+   ```bash
+   python dynaplan/benchmarks/dynaplan_v13_smoke.py
+   ```
+4. Run the campaign. Registration and verification are offline, and inference
+   happens only with `--execute`:
+   ```bash
+   python dynaplan/benchmarks/dynaplan_v13_sweep.py --execute
+   ```
+   Results are written to a local results directory that this repo ignores.
 
-### API Endpoints
+The 45 tasks are fixed in `official_sweep_v1.json`: three flat Tower of Hanoi
+instances for each of N = 3 to 7, and three LexiCon problems at each of 1, 3,
+5, 7 and 10 constraints in Logistics and in Blocksworld.
 
-Both API key and URLs are configured in `Scripts/Main.cs`:
+## Not included
 
-```csharp
-private string openAIKey = "...";
-private const string openAIUrl          = "https://api.openai.com/v1/chat/completions";
-private const string openAIReasoningURL = "https://api.openai.com/v1/responses";
-```
-
-Swap in your own key there before running.
-
----
-
-### How to Run
-
-1. Open the Unity scene that matches your desired ring count (`3Rings`, `4Rings`, or `5Rings`).
-2. Configure the **PegConfigs** on the `Agent` game object found under `Src` parent object in scene.
-3. Enter your task instruction in the on-screen input field.
-4. Press **Execute Pipeline** button — `PipelineExecutor` triggers `APIRunner()`, which runs the HierarchicalRM pipeline to solve your task.
-
----
-
-### Important Note: PegConfigs Mapping Before Running Pipeline
-
-`Agent` game object exposes a `pegConfigs` list in the Inspector. Each entry is a `PegHoopConfig` that links a **peg GameObject** to the **rings currently sitting on it**.
-
-
-#### Convention: bottom-to-top.
----
-
-Rings are listed from the bottom of the peg upward:
-- **Element 0** → the bottom-most ring on that peg (e.g. `RingOne`)
-- **Element 1** → the ring directly above it (e.g. `RingTwo`)
-- and so on up to the top
-
-Repeat this for the subsequent pegs and their individual ordering of hoops within them.
-
-Before hitting Play, drag the peg and ring GameObjects from the Scene into each `pegConfigs` entry so the list reflects the actual physical stacking order you want as your starting state. The planner reads this mapping to know where every ring is at the start, so it must match what is visible in the scene view.
+- Model outputs, run logs and scored results. The scripts regenerate them.
+- The Unity simulator and the recorded videos from the earlier project.
+- Third-party baseline checkouts and the LexiCon data, linked above.

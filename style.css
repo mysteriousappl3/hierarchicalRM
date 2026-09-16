@@ -176,24 +176,17 @@ a:hover {
     max-width: 78%; 
 }
 
-.video-label { 
-    font-size: 1rem; 
-    font-weight: 600; 
-    color: #2a2a2a; 
-    margin: 1.75rem 0 0.5rem; 
-}
-
-.video-wrap { 
-    max-width: 80%; 
-    margin: 0 auto 1.5rem; 
-}
-
-.video-wrap video { 
-    width: 100%; 
-    height: auto; 
-    display: block; 
-    border-radius: 4px; 
-    box-shadow: 0 2px 12px rgba(0,0,0,0.1); 
+.algorithm {
+    background-color: #fafafa;
+    border: 1px solid #ededed;
+    border-radius: 4px;
+    padding: 1.1rem 1.25rem;
+    margin: 1.25rem 0 0;
+    overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: #333;
 }
 
 .divider { 
@@ -228,11 +221,12 @@ a:hover {
         padding: 2.25rem 1rem 2rem; 
     }
     
-    .fig-large, .fig-medium { 
-        max-width: 100%; 
+    .fig-large, .fig-medium {
+        max-width: 100%;
     }
-    
-    .video-wrap { 
-        max-width: 100%; 
+
+    .algorithm {
+        font-size: 0.68rem;
+        padding: 0.9rem;
     }
 }

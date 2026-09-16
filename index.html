@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HierarchicalRM: Solving Long-Horizon Surgical Training Tasks with Reasoning Models</title>
+    <title>DynaPlan: Dynamic Hierarchy Discovery for Robotic Planning in Long-Horizon Puzzle Tasks</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,12 +11,12 @@
 <header class="hero">
     <div class="page-wrapper">
         <h1 class="publication-title">
-            HierarchicalRM: Solving Long-Horizon Surgical Training Tasks with Reasoning Models
+            DynaPlan: Dynamic Hierarchy Discovery for Robotic Planning in Long-Horizon Puzzle Tasks
         </h1>
         <div class="publication-authors">Anonymous Authors</div>
         <div class="publication-venue">Anonymous double-blind review version. Will be de-anonymized upon acceptance.</div>
         <div class="publication-links">
-            <a href="https://anonymous.4open.science/r/hierarchicalRM-F180/README.md" class="btn-link">
+            <a href="CODE_URL_PLACEHOLDER" class="btn-link">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
                 Code
             </a>
@@ -30,10 +30,10 @@
     <div class="section-inner narrow">
         <h2>Abstract</h2>
         <p>
-            Automating peg-transfer, a fundamental laparoscopic surgery training task, on the da Vinci Research Kit (dVRK) has been limited to single-step maneuvers, falling short of the multi-step sequences performed in clinical practice. Successful surgical task automation requires not only precise low-level control but also planning across many dependent subtasks. To study this challenge, we introduce the Multi-Ring Transfer Benchmark, which extends peg-transfer into long-horizon rearrangement tasks with controllable planning complexity. Vision-Language Models (VLMs) have shown promise for multi-step robot manipulation from visual observations and high-level instructions, yet they continue to struggle with state tracking, constraint satisfaction, and recovery in long-horizon tasks. Recent Reasoning Models (RMs) introduce explicit reasoning traces, but whether these traces translate into improved robotic task planning remains an open question.
+            Language model planners for long-horizon robot tasks become less reliable as plans grow, since every action must be correct and earlier mistakes make later ones more likely. Hierarchical decomposition groups primitive steps into higher-level actions, but existing methods fix the number of levels in advance, and when composed actions may call only primitives the planner still writes out every step. We introduce DynaPlan, a planning framework in which composed actions may call other composed actions, so the number of levels is not fixed in advance.
         </p>
         <p>
-            To address this, we present HierarchicalRM, which combines RMs with hierarchical task decomposition to reduce planning depth in long-horizon manipulation. In simulation, HierarchicalRM completes tasks up to 3&times; more complex than standard VLMs while reducing replanning by 50%. We further validate end-to-end execution on the dVRK, demonstrating recovery from failed grasps through visual verification and replanning. Analysis of thinking tokens reveals that reasoning depth directly correlates with task success, positioning RMs as a promising framework for advancing autonomous surgical planning.
+            A language model checks the fully expanded plan before execution, in a forward pass over its actions and a backward pass over its goals and constraints, and a failed plan is repaired by rewriting only the part at fault from the first failing subtask. We evaluate DynaPlan on flat Tower of Hanoi and on the Logistics and Blocksworld domains of the LexiCon benchmark, which adds temporal constraints to classical planning problems. We further validate DynaPlan on two real robots executing primitive skills, a dVRK solving flat Tower of Hanoi and a Franka arm solving Blocksworld problems.
         </p>
     </div>
 </section>
@@ -42,61 +42,32 @@
     <div class="section-inner">
         <h2>Approach</h2>
 
-        <h3>Architecture Overview</h3>
-        <img class="fig fig-wide" src="images/main_arch.png" alt="Main architecture overview">
-        <p class="caption">&nbsp;</p>
+        <h3>A hierarchy whose depth follows the task</h3>
+        <img class="fig fig-large" src="assets/teaser.png" alt="DynaPlan on a Blocksworld task: composed actions, the check before execution, and the expanded plan">
+        <p class="caption">DynaPlan on a Blocksworld task with temporal constraints. ClearAndStack is defined once and called by both BuildTower actions, and the depth of the hierarchy is computed from the definitions the model writes. Action names are illustrative.</p>
         <p>
-            The system runs in three stages. In <strong>Pre-Planning</strong>, a Scene Descriptor parses the scene and the H1/H2 Action Generators build a library of hierarchical actions. In <strong>Planning &amp; Correction</strong>, a Decision Bot composes an H1/H2 plan from the state and instruction; an Inner Bot validates it and returns targeted fixes. In <strong>Execution &amp; Verification</strong>, an Action Resolver dispatches actions via the Low-Level Motor Module, the Scene Descriptor updates state, and an Outer Bot verifies progress. Failures trigger replanning until completion or failure.
+            A composed action may call other composed actions, so one definition can cover many primitive steps and the same structure can be reused wherever it repeats. Nothing in the pipeline sets a depth: the level of an action follows from what it calls, and the depth of the hierarchy is the largest level among the definitions. The full plan is recovered by expanding those definitions, without another call to the model.
         </p>
 
-        <h3>Planning Flow &amp; Correction</h3>
-        <img class="fig fig-large" src="images/planning_flow.png" alt="Planning flow visualization">
-        <p class="caption"><strong>Planning and correction:</strong> Example outputs from the Scene/State Descriptors, H1/H2 action schemas, and Decision/Inner Bot planning.</p>
+        <h3>Pipeline</h3>
+        <img class="fig fig-wide" src="assets/architecture.png" alt="DynaPlan pipeline: planning, composing and checking, execution">
+        <p class="caption">The Decision Bot writes checkpoints without naming actions, the Hierarchy Planner composes the actions that reach them, a compiler expands everything into one list of primitive actions, and the Inner Bot checks that list before anything runs.</p>
+        <p>
+            Planning and composition are separated. The Decision Bot writes a sequence of subtasks with a checkpoint for each, and never names an action, which keeps a mistake in the plan apart from a mistake in carrying it out. The Hierarchy Planner then composes the actions those checkpoints need, answering in JSON against a fixed schema. A compiler checks that every called action exists, that each call has the right number of arguments and that no action calls itself, computes the levels, and expands the calls into one ordered list of primitive actions grouped by subtask.
+        </p>
 
-        <img class="fig fig-large" src="images/outerbot_flow.png" alt="Outer Bot flow visualization">
-        <p class="caption"><strong>Overview of the outer-bot validation loop:</strong> The Outer Bot compares the post-execution state with the expected state. Matching states mark the subtask as successful. Otherwise, errors are flagged for replanning. Highlighted text shows the incorrect state after executing a subtask.</p>
+        <h3>Checking a plan before the robot acts</h3>
+        <img class="fig fig-large" src="assets/planning_example.png" alt="Planning outputs for a three-ring flat Tower of Hanoi task">
+        <p class="caption">Checkpoints for a three-ring flat Tower of Hanoi task. The check finds that checkpoint g<sub>2</sub> blocks a later one and assigns the fault to the Decision Bot, which rewrites the checkpoints from g<sub>2</sub> onward while g<sub>1</sub> is kept.</p>
+        <p>
+            One model call checks the expanded plan in two passes. The forward pass starts from the initial state, tests every primitive action against its preconditions, applies its effects, tracks each temporal constraint and tests every checkpoint, stopping at the first error. The backward pass starts from each goal and constraint, traces it to the action or initial fact that establishes it, checks that nothing later undoes it, and looks for a counterexample to the forward conclusion. A rejection names the artifact at fault, and only that artifact is written again before the whole plan is checked once more.
+        </p>
 
-        <h3>Real Robot and Simulation Setup</h3>
-        <img class="fig fig-medium" src="images/scene_setup.png" alt="Scene setup">
-        <p class="caption">Robot setup for the ring transfer tasks: The dVRK robot with a single PSM is used. We use a yellow 3D printed peg board and different colored 3D printed rings. The robot takes action based on the DepthAI Oak-1 camera.</p>
-    </div>
-</section>
-
-<section class="section">
-    <div class="section-inner">
-        <h2>Experiments</h2>
-
-        <h3>Real Robot Experiments</h3>
-
-        <p class="video-label">Experiment 1<br>Real Robot Tower Of Hanoi Execution</p>
-        <div class="video-wrap">
-            <video controls preload="metadata"><source src="videos/real_exp_1.mp4#t=0" type="video/mp4">Your browser does not support the video tag.</video>
-        </div>
-        <p class="video-label">Experiment 2<br>Cyclic Movement Of Hoops</p>
-        <div class="video-wrap">
-            <video controls preload="metadata"><source src="videos/real_exp_2.mp4#t=0" type="video/mp4">Your browser does not support the video tag.</video>
-        </div>
-        <p class="video-label">Experiment 3<br>Outer Bot Recoverable Error</p>
-        <div class="video-wrap">
-            <video controls preload="metadata"><source src="videos/real_exp_3.mp4#t=0" type="video/mp4">Your browser does not support the video tag.</video>
-        </div>
-
-        <h3>Simulation Environment Experiments</h3>
-
-        <p class="video-label">Experiment 1<br>Planning In Higher Action Hierarchy</p>
-        <div class="video-wrap">
-            <video controls preload="metadata"><source src="videos/sim_exp_1.mp4#t=0" type="video/mp4">Your browser does not support the video tag.</video>
-        </div>
-        <p class="video-label">Experiment 2<br>Correcting Errors In Task Plan</p>
-        <div class="video-wrap">
-            <video controls preload="metadata"><source src="videos/sim_exp_2.mp4#t=0" type="video/mp4">Your browser does not support the video tag.</video>
-        </div>
-
-        <h3>Simulator Walkthrough</h3>
-
-        <div class="video-wrap">
-            <video controls preload="metadata"><source src="videos/sim_walkthrough.mp4#t=0" type="video/mp4">Your browser does not support the video tag.</video>
-        </div>
+        <img class="fig fig-large" src="assets/composition.png" alt="Definitions written by the model and the resulting call graph">
+        <p class="caption">Definitions written by the model for a Blocksworld task, coloured by level, with the calls between actions on the right. ClearAndStack calls a base action and two primitives, so it has level 2.</p>
+        <p>
+            During execution each subtask is run against a saved state. An Outer Bot then reviews the exact actions and the state before and after against the checkpoint, without seeing the first check's verdict, so the two judgments stay independent. A rejected plan is rolled back and repaired. The benchmark's validator is withheld until the end and scores the submitted plan once, so no scoring signal leaks into planning.
+        </p>
     </div>
 </section>
 
@@ -104,39 +75,82 @@
     <div class="section-inner">
         <h2>Results</h2>
 
-        <h3>Comparing HierarchicalRM To Baseline Methods</h3>
-        <p>The below table summarizes the simulation results grouped by metrics. The results show that for tasks with increasing task complextiy, HierarchicalRM extends the solbale complexity frontier by roughly 3X compared to other replanning only approaches. Furthermore, we see HierarchicalRM replan counts are significantly lesser and step count are near optimal. This further validates the effectiveness of hierarchical actions in reducing effective replans and planning depth.</p>
-        <img class="fig fig-medium" src="images/table4.png" alt="Results table 1">
-        <p class="caption">Abbreviations: HRM = HierarchicalRM, RVLM = ReplanVLM, RP = REPLAN, SR = Success Rate, RC = Replan Count, SC = Step Count.</p>
-        
-        <h3>Real Robot Experiments</h3>
-        <p>The below table summarizes the real robot experiment results on tasks of increasing complexity. We observe as task complexity increases, there are more frequent execution errors that are detected by the Outer Bot. This results in subsequent replans causing an increase in effective step count.</p>
-        <img class="fig fig-medium" src="images/table5.png" alt="Results table 2">
-        <p class="caption">success rate (SR), Outer Bot verification frequency (Outer Bot), and total Step Count (SC) including retries after verification triggers.</p>
+        <h3>Symbolic puzzles</h3>
+        <p>
+            We evaluate on flat Tower of Hanoi and on the Logistics and Blocksworld domains of LexiCon, which states temporal constraints in natural language. Each method plans 15 tasks per benchmark with two models, under the same task description, the same action and constraint definitions and the same instruction to use as few actions as possible. No method, DynaPlan included, sees the validator during planning.
+        </p>
+        <img class="fig fig-medium" src="assets/table_main.png" alt="Valid and optimal plan counts per benchmark for every method and both models">
+        <p class="caption">Valid plans, and valid plans as short as the optimal one, out of 15 per benchmark. DynaPlan solves the most flat Tower of Hanoi tasks with both models, and it is the only planner to solve a Hanoi instance whose optimal solution is 35 moves long, where no baseline solves one longer than 11 moves.</p>
 
-        <h3>Ablation Study Across Reasoning Configs</h3>
-        <p>The below table highlights the effectiveness of various modules in our pipeline compared to ReplanVLM baseline. We observe that lack of scene and state descriptors reduces the success rate of the tasks by upto 50% for low reasoning configs while medium reasoning doesn't seem to incur this effect. However, removing the hierarchical actions module causes a significant drop in success rate for both reasoning configs. In addition to a drop in success rate, we also see that replan counts increases significantly in the ablation for hierarchical actions compared to the descriptors.</p>
-        <img class="fig fig-medium" src="images/table6.png" alt="Results table 3">
-        <p class="caption">Abbreviations: SR = Success Rate, RC = Mean Replan Count, F = Full model, -D = w/o scene-state descriptors, -H = w/o hierarchical actions (H1/H2), RVLM = ReplanVLM.</p>
+        <h3>Composition on long plans</h3>
+        <p>
+            A planner that writes its plan directly has to produce every action the robot executes. DynaPlan instead composes one call per subtask and the definitions those calls use, and the compiler expands them into the actions that run.
+        </p>
+        <img class="fig fig-medium" src="assets/compression.png" alt="Actions in the final plan against actions composed by DynaPlan, grouped by plan length">
+        <p class="caption">On plans of ten actions or fewer, composition saves nothing. On plans longer than 25 actions the model composes 16.2 actions for a 33.6-action plan, a factor of 2.1. Base actions are written once per task and are not counted.</p>
+    </div>
+</section>
 
-        <h3>Success-Rate Trends Across Task Complexity & Reasoning Configs</h3>
-        <p>The below figure demonstrates the performance between the various reasoning configs on tasks of increasing complexities. We compare the performance between ChatGPT models and Claude models. We observe that, Claude models achieve an higher average performance across tasks compared to ChatGPT models.</p>
-        <img class="fig fig-medium" src="images/success_rate_plot.png" alt="Success rate plot">
-        <p class="caption">Success Rate trends across configs for ChatGPT (a) and Claude models (b).</p>
+<section class="section">
+    <div class="section-inner">
+        <h2>Supplementary</h2>
 
-        <h3>Reasoning Tokens Usage Trend & Ablations Performance</h3>
-        <p>Figure (a) demonstrates the reasoning tokens usage trends across tasks of increasing complexities and model configs. We observe that as task complexities increases, the token usage among various model families decreases. This insight suggests the degradation in performance among high reasoning models despite sufficient availibility of tokens for reasoning.</p>
-        </br>
-        <p>Figure (b) shows the performance between ablations of scene/state descriptors, hierarchical actions against the complete model among various reasoning configs and tasks.</p>
-        <img class="fig fig-medium" src="images/reasoning_tokens_and_ablations_plot.png" alt="Reasoning tokens and ablations">
-        <p class="caption">Reasoning token usage trends (a) and primitive vs hierarchical actions (b). Abbreviations: F = Full model, -D = w/o scene-state descriptors, -H = w/o hierarchical actions (H1/H2).</p>
+        <h3>Algorithm</h3>
+        <p>
+            The pipeline as it runs in the released code. The repair budget is 15 rounds after the first attempt. Structure is handled deterministically, every semantic judgment online is made by a language model, and the benchmark's validator runs once at the end.
+        </p>
+<pre class="algorithm">
+Input : instruction I, initial state s0, goal s*, constraints C,
+        base action signatures H1, repair budget R = 15
+Output: one primitive plan, or the furthest plan reached
+
+ 1  check that s*, C match I                      (one model call)
+ 2  write and validate the base actions H1, then cache them
+ 3  P <- Decision Bot: subtasks d_1..d_n with checkpoints g_1..g_n,
+       written without naming any action
+ 4  D, a <- Hierarchy Planner: definitions and per-subtask calls (JSON)
+ 5  compile D: every callee exists, arities match, no action calls
+       itself; compute the level of each action; expand the calls
+       into one primitive trace T grouped by subtask
+ 6  for round = 0 .. R:
+ 7      verdict, e, owner <- Inner Bot check of T             (one call)
+ 8          forward : each primitive against its preconditions,
+ 9                    constraints tracked, checkpoints tested,
+10                    stopping at the first error
+11          backward: each goal and constraint traced to what
+12                    establishes it, checking nothing undoes it
+13      if verdict = INVALID:
+14          rewrite the artifact named by owner (hierarchy or plan P);
+15          keep subtasks before e only when a deterministic check of
+16          the Decision Bot output names e; recompile and continue
+17      else:
+18          for subtask i = 1 .. n:
+19              save the state, execute the primitives of a_i
+20              outcome <- Outer Bot review of the exact actions, the
+21                         states before and after, and g_i
+22                         (the Inner Bot verdict is withheld)
+23              if outcome = rejected:
+24                  restore the saved state, rewrite as above, break
+25              if outcome = task success:
+26                  return the executed plan
+27  return the plan that reached the furthest point, marked uncertified
+</pre>
+
+        <h3>Real robot setups</h3>
+        <img class="fig fig-medium" src="assets/robots.png" alt="dVRK and Franka setups used in the real-robot experiments">
+        <p class="caption">Left: a da Vinci Research Kit patient side manipulator with a Large Needle Driver, a light source and a fixed camera viewing 3D-printed rings on a peg board. Top right: the camera view the state is read from, and the ring dimensions. Bottom right: a Franka Emika arm with a parallel-jaw gripper and coloured blocks on a tabletop.</p>
+        <p>
+            Both robots execute fixed primitive skills with no learned policy, and the state after each subtask is read by colour thresholding against a fixed palette, which is why the rings and blocks use saturated colours. On the dVRK a ring move expands to four primitives, and on the Franka a block move expands to two.
+        </p>
     </div>
 </section>
 
 <section class="section">
     <div class="section-inner">
         <h2>Code</h2>
-        <p>Please navigate to the <a href="https://anonymous.4open.science/r/hierarchicalRM-F180/README.md" target="_blank">codebase</a> referenced at the top to access the project. You will need to install the latest version of Unity 6 for this project.</p>
+        <p>
+            The codebase linked at the top contains the DynaPlan framework and the benchmark harness: the Decision Bot, Hierarchy Planner, compiler, Inner Bot and Outer Bot, the prompts, and the scripts that run the frozen task registry. Third-party baselines and the LexiCon benchmark are linked from the README rather than vendored, and no model outputs or run logs are included, so every number can be reproduced from the released scripts.
+        </p>
     </div>
 </section>
 

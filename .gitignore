@@ -1,27 +1,44 @@
-# Root-level ignores for the hierarchicalRM repo.
-# benchmarking/ has its own more specific .gitignore (venv, results/,
-# __pycache__, local Modelfiles, etc.) - see that file for the pipeline
-# code's ignore rules.
+# Ignores for the anonymous DynaPlan release branch.
+#
+# This branch carries the DynaPlan framework, the benchmark harness and the
+# project page only. Everything below stays out of the release: the simulator,
+# the previous pipeline, recorded videos, third-party baseline checkouts and
+# every paid-run output.
 
 # ---------------------------------------------------------------------
-# Unity (src/unity_project/)
+# Not part of this release
 # ---------------------------------------------------------------------
-[Ll]ibrary/
-[Tt]emp/
-[Oo]bj/
-[Bb]uild/
-[Bb]uilds/
-[Ll]ogs/
-[Mm]emoryCaptures/
-[Uu]serSettings/
-.vs/
-*.pidb.meta
-*.pdb.meta
-*.mdb.meta
-sysinfo.txt
-*.apk
-*.aab
-*.unitypackage
+src/
+videos/
+benchmarking/
+*Reviewer Comments*.pdf
+.claude/
+
+# Third-party baselines and benchmarks are linked in the README, not vendored.
+dynaplan/baselines/ReAcTree/
+dynaplan/baselines/LLM-P/
+dynaplan/baselines/ADaPT/
+dynaplan/baselines/AoT-plus/
+dynaplan/baselines/AdaPlan-H/
+dynaplan/benchmarks/LexiCon/
+dynaplan/.gitmodules
+dynaplan/OFFICIAL_RUN_READINESS_REPORT.md
+
+# ---------------------------------------------------------------------
+# Run outputs and secrets
+# ---------------------------------------------------------------------
+.env
+results/
+**/results/
+*.log
+
+# ---------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------
+*.py[cod]
+__pycache__/
+.pytest_cache/
+*.egg-info/
 
 # ---------------------------------------------------------------------
 # Editor / OS

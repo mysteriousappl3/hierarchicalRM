@@ -1,1 +1,0 @@
-"""Core Algorithm of Thoughts Plus (AoT+) implementation.""" 
