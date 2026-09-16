@@ -17,6 +17,34 @@ version: `61`
 
 ---
 
+## Abstract
+
+Language model planners for long-horizon robot tasks become less reliable as
+plans grow, since every action must be correct and earlier mistakes make later
+ones more likely. Hierarchical decomposition groups primitive steps into
+higher-level actions, but existing methods fix the number of levels in
+advance, and when composed actions may call only primitives the planner still
+writes out every step. We introduce DynaPlan, a planning framework in which
+composed actions may call other composed actions, so the number of levels is
+not fixed in advance. A language model checks the fully expanded plan before
+execution, in a forward pass over its actions and a backward pass over its
+goals and constraints, and a failed plan is repaired by rewriting only the
+part at fault from the first failing subtask. We evaluate DynaPlan on flat
+Tower of Hanoi and on the Logistics and Blocksworld domains of the LexiCon
+benchmark, which adds temporal constraints to classical planning problems. We
+further validate DynaPlan on two real robots executing primitive skills, a
+dVRK solving flat Tower of Hanoi and a Franka arm solving Blocksworld
+problems.
+
+![DynaPlan on a Blocksworld task](assets/teaser.png)
+
+*A composed action may call other composed actions, so one definition can
+cover many primitive steps. Nothing sets a depth: the level of an action
+follows from what it calls, and the depth is the largest level among the
+definitions. Action names are illustrative.*
+
+---
+
 ## Pipeline
 
 ```text
@@ -34,6 +62,49 @@ task (goal, constraints, initial state; benchmark-internal fields removed)
        the Inner Bot verdict; a rejection rolls the plan back
   -> benchmark validator, once, on the submitted plan
 ```
+
+![DynaPlan pipeline](assets/architecture.png)
+
+The Decision Bot writes checkpoints without naming actions, the Hierarchy
+Planner composes the actions that reach them, a compiler expands everything
+into one list of primitive actions, and the Inner Bot checks that list before
+anything runs. During execution the Outer Bot reviews each subtask against its
+checkpoint without seeing the Inner Bot verdict, so the two judgments stay
+independent.
+
+---
+
+## Results
+
+Each method plans 15 tasks per benchmark with two models, under the same task
+description, the same action and constraint definitions and the same
+instruction to use as few actions as possible. No method sees the validator
+during planning.
+
+![Valid and optimal plans per benchmark](assets/table_main.png)
+
+DynaPlan solves the most flat Tower of Hanoi tasks with both models, and it is
+the only planner to solve a Hanoi instance whose optimal solution is 35 moves
+long, where no baseline solves one longer than 11 moves.
+
+![Actions in the plan against actions composed](assets/compression.png)
+
+A planner that writes its plan directly must produce every action the robot
+executes. DynaPlan composes one call per subtask and the definitions those
+calls use, and the compiler expands them. On plans of ten actions or fewer
+that saves nothing; on plans longer than 25 actions the model composes 16.2
+actions for a 33.6-action plan.
+
+### Real robot setups
+
+![dVRK and Franka setups](assets/robots.png)
+
+Both robots execute fixed primitive skills with no learned policy, and the
+state after each subtask is read by colour thresholding against a fixed
+palette. On the dVRK a ring move expands to four primitives, and on the Franka
+a block move expands to two.
+
+---
 
 ## What is in this repo
 
