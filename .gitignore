@@ -1,7 +1,4 @@
 # Ignores for the anonymous DynaPlan release branch.
-#
-# This branch carries the DynaPlan framework, the benchmark harness and the
-# project page. Everything below stays out of the release.
 
 # ---------------------------------------------------------------------
 # Not part of this release
