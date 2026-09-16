@@ -23,16 +23,12 @@ temporal constraints to classical planning problems. We further validate
 DynaPlan on two real robots executing primitive skills, a dVRK solving flat
 Tower of Hanoi and a Franka arm solving Blocksworld problems.
 
-![DynaPlan on a Blocksworld task](assets/teaser.png)
-
-*A composed action may call other composed actions, so one definition can cover
-many primitive steps. The level of an action follows from what it calls, and the
-depth of the hierarchy is the largest level among the definitions. Action names
-are illustrative.*
-
 ## How It Works
 
-![DynaPlan pipeline](assets/architecture.png)
+A composed action may call other composed actions, so one definition can cover
+many primitive steps. Nothing sets the depth in advance: the level of an action
+follows from what it calls, and the depth of the hierarchy is the largest level
+among the definitions.
 
 The Decision Bot splits the task into subtasks and checkpoints without naming
 any actions. The Hierarchy Planner then writes the composed actions that reach
@@ -52,13 +48,9 @@ description, the same action and constraint definitions and the same
 instruction to use as few actions as possible. No method sees the validator
 during planning.
 
-![Valid and optimal plans per benchmark](assets/table_main.png)
-
 DynaPlan solves the most flat Tower of Hanoi tasks with both models, and it is
 the only planner to solve a Hanoi instance whose optimal solution is 35 moves
 long, where no baseline solves one longer than 11 moves.
-
-![Actions in the plan against actions composed](assets/compression.png)
 
 A planner that writes its plan directly must produce every action the robot
 executes. DynaPlan composes one call per subtask along with the definitions
@@ -67,8 +59,6 @@ that saves nothing, and on plans longer than 25 actions the model composes 16.2
 actions for a 33.6-action plan.
 
 ### Real Robots
-
-![dVRK and Franka setups](assets/robots.png)
 
 Both robots execute fixed primitive skills with no learned policy, and the state
 after each subtask is read by colour thresholding against a fixed palette. A
