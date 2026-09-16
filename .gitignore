@@ -1,9 +1,7 @@
 # Ignores for the anonymous DynaPlan release branch.
 #
 # This branch carries the DynaPlan framework, the benchmark harness and the
-# project page only. Everything below stays out of the release: the simulator,
-# the previous pipeline, recorded videos, third-party baseline checkouts and
-# every paid-run output.
+# project page. Everything below stays out of the release.
 
 # ---------------------------------------------------------------------
 # Not part of this release

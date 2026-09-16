@@ -126,9 +126,3 @@ Third-party code is not vendored here. Clone it next to
 TDP has no public implementation. It was reimplemented from the prompts and
 algorithm in its paper, and `dynaplan/baselines/TDP/README.md` records what that
 involved.
-
-## Not Included
-
-- Model outputs, run logs and scored results, which the scripts regenerate.
-- The Unity simulator and the recorded videos from the earlier project.
-- Third-party baseline checkouts and the LexiCon data, linked above.
